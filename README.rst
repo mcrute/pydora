@@ -12,8 +12,8 @@ I don't provide any keys or passwords for Pandora in this repo, you'll have to
 go get those for yourself. Make something awesome with this library, don't
 abuse Pandora, that's not cool.
 
-API Spec from: http://pan-do-ra-api.wikia.com/wiki/Json/5
-Keys at: http://pan-do-ra-api.wikia.com/wiki/Json/5/partners
+ * API Spec from: http://pan-do-ra-api.wikia.com/wiki/Json/5
+ * Keys at: http://pan-do-ra-api.wikia.com/wiki/Json/5/partners
 
 Example::
 
