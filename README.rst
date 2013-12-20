@@ -17,8 +17,12 @@ abuse Pandora, that's not cool.
 
 Example::
 
-    >>> encryptor = Encryptor("in_key", "out_key")
-    >>> transport = APITransport(encryptor)
-    >>> client = APIClient(transport, "partner", "parner_pass", "device")
+    >>> SETTINGS = {
+    ...     'ENCRYPTION_KEY': '',
+    ...     'DECRYPTION_KEY': '',
+    ...     'USERNAME': '',
+    ...     'PASSWORD': '',
+    ...     'DEVICE': '',
+    ... }
+    >>> client = APIClient.from_settings_dict(SETTINGS)
     >>> client.login("username", "password")
-    >>> stations = client.get_station_list()

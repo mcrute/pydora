@@ -10,12 +10,15 @@ Keys at: http://pan-do-ra-api.wikia.com/wiki/Json/5/partners
 
 Example:
 
->>> encryptor = Encryptor("in_key", "out_key")
->>> transport = APITransport(encryptor)
->>> client = APIClient(transport, "partner", "parner_pass", "device")
+>>> SETTINGS = {
+...     'ENCRYPTION_KEY': '',
+...     'DECRYPTION_KEY': '',
+...     'USERNAME': '',
+...     'PASSWORD': '',
+...     'DEVICE': '',
+... }
+>>> client = APIClient.from_settings_dict(SETTINGS)
 >>> client.login("username", "password")
->>> stations = client.get_station_list()
-
 """
 import time
 import json
@@ -178,7 +181,7 @@ class Encryptor(object):
 
         return data
 
-    def decrypt(self,data):
+    def decrypt(self, data):
         data = self.bf_out.decrypt(data.decode("hex"))
         return json.loads(self.strip_padding(data))
 
@@ -205,6 +208,12 @@ class BaseAPIClient(object):
         self.partner_user = partner_user
         self.partner_password = partner_password
         self.device = device
+
+    @classmethod
+    def from_settings_dict(cls, settings):
+        enc = Encryptor(settings["ENCRYPTION_KEY"], settings["DECRYPTION_KEY"])
+        return cls(APITransport(enc),
+                settings["USERNAME"], settings["PASSWORD"], settings["DEVICE"])
 
     def _partner_login(self, username, password, device):
         partner = self.transport("auth.partnerLogin",
