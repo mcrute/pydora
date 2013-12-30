@@ -11,9 +11,10 @@ pandora.py for format), a USERNAME and a PASSWORD that are your Pandora
 username and password.
 """
 import sys
-import settings
-from pandora import APIClient
 
+from . import settings
+
+from pandora import APIClient
 from pandora.player import Player
 from pandora.utils import Colors, Screen
 
@@ -52,20 +53,20 @@ class PlayerApp:
             self.player.end_station()
         elif input == 'd':
             song.thumbs_down()
-            Screen.print_success("Track thumbs'd down")
+            Screen.print_success('Track disliked')
             self.player.stop()
         elif input == 'u':
             song.thumbs_up()
-            Screen.print_success("Track thumbs'd up")
+            Screen.print_success('Track disliked')
         elif input == 'b':
             song.bookmark_song()
-            Screen.print_success("Bookmarked song")
+            Screen.print_success('Bookmarked song')
         elif input == 'a':
             song.bookmark_artist()
-            Screen.print_success("Bookmarked artist")
+            Screen.print_success('Bookmarked artist')
         elif input == 'S':
             song.sleep()
-            Screen.print_success("Song will not be played for 30 days")
+            Screen.print_success('Song will not be played for 30 days')
             self.player.stop()
         elif input == 'Q':
             self.player.end_station()
@@ -85,5 +86,9 @@ class PlayerApp:
                 sys.exit(0)
 
 
-if __name__ == '__main__':
+def main():
     PlayerApp().run()
+
+
+if __name__ == '__main__':
+    main()
