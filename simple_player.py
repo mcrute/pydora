@@ -23,6 +23,11 @@ from pandora import APIClient
 
 
 def iterate_forever(func, *args, **kwargs):
+    """Iterate over a finite iterator forever
+
+    When the iterator is exhausted will call the function again to generate a
+    new iterator and keep iterating.
+    """
     output = func(*args, **kwargs)
 
     while True:
@@ -108,11 +113,18 @@ class Player(object):
 
 
 def clear_screen():
+    """Clear the terminal
+    """
     sys.stdout.write('\x1b[2J\x1b[H')
     sys.stdout.flush()
 
 
 def input_integer(prompt):
+    """Gather user input and convert it to an integer
+
+    Will keep trying till the user enters an interger or until they ^C the
+    program.
+    """
     while True:
         try:
             return int(raw_input(prompt).strip())
@@ -121,6 +133,8 @@ def input_integer(prompt):
 
 
 def station_selection_menu(stations):
+    """Format a station menu and make the user select a station
+    """
     clear_screen()
 
     for i, s in enumerate(stations):
