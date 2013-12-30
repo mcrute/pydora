@@ -43,7 +43,7 @@ from Pandora.
 
 When playing the following keys work (press enter afterwards):
 
-    n - next song
-    p - pause or resume song
-    s - station list (stops song)
-    Q - quit program
+ * n - next song
+ * p - pause or resume song
+ * s - station list (stops song)
+ * Q - quit program
