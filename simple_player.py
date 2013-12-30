@@ -15,6 +15,7 @@ When playing the following keys work:
     s - station list
     Q - quit program
 """
+import os
 import sys
 import select
 import settings
@@ -37,62 +38,108 @@ def iterate_forever(func, *args, **kwargs):
             output = func(*args, **kwargs)
 
 
+class SilentPopen(subprocess.Popen):
+    """A Popen varient that dumps it's output and error
+    """
+
+    def __init__(self, *args, **kwargs):
+        self._dev_null = open(os.devnull, 'w')
+        kwargs['stdin'] = subprocess.PIPE
+        kwargs['stdout'] = subprocess.PIPE
+        kwargs['stderr'] = self._dev_null
+        super(SilentPopen, self).__init__(*args, **kwargs)
+
+    def __del__(self):
+        self._dev_null.close()
+        super(SilentPopen, self.__del__)
+
+
 class Player(object):
+    """Remote control for an mpg123 process
 
-    def __init__(self, station, callbacks):
-        self.station = station
-        self._process = None
+    Starts and owns a handle to an mpg123 process then feeds commands to it to
+    play pandora audio
+    """
+
+    def __init__(self, callbacks):
         self._callbacks = callbacks(self)
+        self._process = None
+        self._ensure_started()
 
-    @property
-    def playlist(self):
-        """Get a infinite playlist
+    def __del__(self):
+        self._process.kill()
 
-        This function will iterate forever, calling back to Pandora to get a
-        new playlist when it exhausts the previous one.
+    def _ensure_started(self):
+        """Ensure mpg123 is started
         """
-        return iterate_forever(self.station.get_playlist)
+        if self._process and self._process.poll() is None:
+            return
+
+        self._process = SilentPopen(
+                ['mpg123', '-q', '-R', '--preload', '0.1'])
+
+        # Only output play status in the player stdout
+        self._send_cmd('silence')
+
+    def _send_cmd(self, cmd):
+        """Write command to remote mpg123 process
+        """
+        self._process.stdin.write("{}\n".format(cmd))
+        self._process.stdin.flush()
 
     def stop(self):
         """Stop the currently playing song
         """
-        self._process.kill()
+        self._send_cmd('stop')
+
+    def pause(self):
+        """Pause the player
+        """
+        self._send_cmd('pause')
+
+    def _player_stopped(self, value):
+        """Determine if player has stopped
+        """
+        return value.startswith("@P") and value[3] == "0"
 
     def play(self, song):
         """Play a new song from a Pandora model
+
+        Returns once the stream starts but does not shut down the remote mpg123
+        process. Calls the input callback when the user has input.
         """
         self._callbacks.play(song)
-        self._process = subprocess.Popen(['mpg123', '-q', song.audio_url])
+        self._send_cmd('load {}'.format(song.audio_url))
 
-    def get_input(self):
-        """Get user input while the player is running
+        while True:
+            self._ensure_started()
 
-        User input must be newline terminated. Returns None when the song ends.
-        """
-        while self._process.poll() is None:
-            read, _, _ = select.select([sys.stdin], [], [], 1.0)
+            readers, _, _ = select.select([sys.stdin, self._process.stdout],
+                    [], [], 1.0)
 
-            if not read:
-                continue
+            for fd in readers:
+                value = fd.readline().strip()
 
-            return read[0].readline().strip()
+                if fd.fileno() == 0:
+                    self._callbacks.input(value)
+                else:
+                    if self._player_stopped(value):
+                        return
 
-    def end_playlist(self):
-        """Stop playing the playlist
+    def end_station(self):
+        """Stop playing the station
         """
         raise StopIteration
 
-    def play_playlist(self):
-        """Play the playlist until something ends it
+    def play_station(self, station):
+        """Play the station until something ends it
 
         This function will run forever until termintated by calling
-        end_playlist.
+        end_station.
         """
-        for song in self.playlist:
-            self.play(song)
-
+        for song in iterate_forever(station.get_playlist):
             try:
-                self._callbacks.input(self.get_input())
+                self.play(song)
             except StopIteration:
                 self.stop()
                 return
@@ -145,16 +192,19 @@ def main():
         def input(self, input):
             if input == 'n':
                 self.player.stop()
+            elif input == 'p':
+                self.player.pause()
             elif input == 's':
-                self.player.end_playlist()
+                self.player.end_station()
             elif input == 'Q':
-                self.player.end_playlist()
+                self.player.end_station()
                 sys.exit(0)
 
+    player = Player(PlayerCallbacks)
     while True:
         try:
             station = station_selection_menu(stations)
-            Player(station, PlayerCallbacks).play_playlist()
+            player.play_station(station)
         except KeyboardInterrupt:
             sys.exit(0)
 
