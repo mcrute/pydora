@@ -11,8 +11,7 @@ pandora.py for format), a USERNAME and a PASSWORD that are your Pandora
 username and password.
 """
 import sys
-
-from . import settings
+import settings
 
 from pandora import APIClient
 from pandora.player import Player
