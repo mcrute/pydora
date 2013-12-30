@@ -35,8 +35,8 @@ the command line. It requires that mpg123 be installed with HTTP support as
 well as a `settings.py` file that contains `SETTINGS` (per above), `USERNAME`
 and `PASSWORD` which correspond to your Pandora credentials.
 
-The player only supports simple playback for now. It will display a station
-list and allow listening to any station but no writeable operations are
+The player only supports basic functionality for now. It will display a station
+list, allow listening to any station, basic feeback and bookmarking are also
 supported. The player starts an mpg123 process in remote control mode and feeds
 commands to it. It does not download any music but rather streams them directly
 from Pandora.
@@ -46,4 +46,9 @@ When playing the following keys work (press enter afterwards):
  * n - next song
  * p - pause or resume song
  * s - station list (stops song)
+ * d - thumbs down track
+ * u - thumbs up track
+ * b - bookmark song
+ * a - bookmark artist
+ * S - sleep song
  * Q - quit program

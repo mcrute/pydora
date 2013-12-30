@@ -52,3 +52,18 @@ class PlaylistItem(PandoraModel):
 
     song_detail_url = Field('songDetailUrl')
     song_explore_url = Field('songExplorerUrl')
+
+    def thumbs_up(self):
+        self._api_client.add_feedback(self.track_token, True)
+
+    def thumbs_down(self):
+        self._api_client.add_feedback(self.track_token, False)
+
+    def bookmark_song(self):
+        self._api_client.add_song_bookmark(self.track_token)
+
+    def bookmark_artist(self):
+        self._api_client.add_artist_bookmark(self.track_token)
+
+    def sleep(self):
+        self._api_client.sleep_song(self.track_token)

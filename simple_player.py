@@ -15,43 +15,12 @@ When playing the following keys work:
     s - station list
     Q - quit program
 """
-import os
 import sys
 import select
 import settings
-import subprocess
 from pandora import APIClient
 
-
-def iterate_forever(func, *args, **kwargs):
-    """Iterate over a finite iterator forever
-
-    When the iterator is exhausted will call the function again to generate a
-    new iterator and keep iterating.
-    """
-    output = func(*args, **kwargs)
-
-    while True:
-        try:
-            yield output.next()
-        except StopIteration:
-            output = func(*args, **kwargs)
-
-
-class SilentPopen(subprocess.Popen):
-    """A Popen varient that dumps it's output and error
-    """
-
-    def __init__(self, *args, **kwargs):
-        self._dev_null = open(os.devnull, 'w')
-        kwargs['stdin'] = subprocess.PIPE
-        kwargs['stdout'] = subprocess.PIPE
-        kwargs['stderr'] = self._dev_null
-        super(SilentPopen, self).__init__(*args, **kwargs)
-
-    def __del__(self):
-        self._dev_null.close()
-        super(SilentPopen, self.__del__)
+from utils import Colors, iterate_forever, SilentPopen, Screen
 
 
 class Player(object):
@@ -62,7 +31,7 @@ class Player(object):
     """
 
     def __init__(self, callbacks):
-        self._callbacks = callbacks(self)
+        self._callbacks = callbacks
         self._process = None
         self._ensure_started()
 
@@ -121,7 +90,7 @@ class Player(object):
                 value = fd.readline().strip()
 
                 if fd.fileno() == 0:
-                    self._callbacks.input(value)
+                    self._callbacks.input(value, song)
                 else:
                     if self._player_stopped(value):
                         return
@@ -145,69 +114,72 @@ class Player(object):
                 return
 
 
-def clear_screen():
-    """Clear the terminal
-    """
-    sys.stdout.write('\x1b[2J\x1b[H')
-    sys.stdout.flush()
+class PlayerApp:
 
+    def __init__(self):
+        self.client = APIClient.from_settings_dict(settings.SETTINGS)
+        self.player = Player(self)
 
-def input_integer(prompt):
-    """Gather user input and convert it to an integer
+    def station_selection_menu(self):
+        """Format a station menu and make the user select a station
+        """
+        Screen.clear()
 
-    Will keep trying till the user enters an interger or until they ^C the
-    program.
-    """
-    while True:
-        try:
-            return int(raw_input(prompt).strip())
-        except ValueError:
-            print 'Invaid Input!'
+        for i, s in enumerate(self.stations):
+            i = '{:>3}'.format(i)
+            print('{}: {}'.format(Colors.yellow(i), s.name))
 
+        return self.stations[Screen.get_integer('Station: ')]
 
-def station_selection_menu(stations):
-    """Format a station menu and make the user select a station
-    """
-    clear_screen()
+    def play(self, song):
+        """Play callback, prints song name
+        """
+        print('{} by {}'.format(Colors.blue(song.song_name),
+            Colors.yellow(song.artist_name)))
 
-    for i, s in enumerate(stations):
-        print '{}: {}'.format(i, s.name)
-
-    return stations[input_integer('Station: ')]
-
-
-def main():
-    client = APIClient.from_settings_dict(settings.SETTINGS)
-    client.login(settings.USERNAME, settings.PASSWORD)
-    stations = client.get_station_list()
-
-    class PlayerCallbacks:
-
-        def __init__(self, player):
-            self.player = player
-
-        def play(self, song):
-            print song.song_name, 'by', song.artist_name
-
-        def input(self, input):
-            if input == 'n':
-                self.player.stop()
-            elif input == 'p':
-                self.player.pause()
-            elif input == 's':
-                self.player.end_station()
-            elif input == 'Q':
-                self.player.end_station()
-                sys.exit(0)
-
-    player = Player(PlayerCallbacks)
-    while True:
-        try:
-            station = station_selection_menu(stations)
-            player.play_station(station)
-        except KeyboardInterrupt:
+    def input(self, input, song):
+        """Input callback, handles key presses
+        """
+        if input == 'n':
+            self.player.stop()
+        elif input == 'p':
+            self.player.pause()
+        elif input == 's':
+            self.player.end_station()
+        elif input == 'd':
+            song.thumbs_down()
+            Screen.print_success("Track thumbs'd down")
+            self.player.stop()
+        elif input == 'u':
+            song.thumbs_up()
+            Screen.print_success("Track thumbs'd up")
+        elif input == 'b':
+            song.bookmark_song()
+            Screen.print_success("Bookmarked song")
+        elif input == 'a':
+            song.bookmark_artist()
+            Screen.print_success("Bookmarked artist")
+        elif input == 'S':
+            song.sleep()
+            Screen.print_success("Song will not be played for 30 days")
+            self.player.stop()
+        elif input == 'Q':
+            self.player.end_station()
             sys.exit(0)
+
+    def run(self):
+        """Main run loop of the program
+        """
+        self.client.login(settings.USERNAME, settings.PASSWORD)
+        self.stations = self.client.get_station_list()
+
+        while True:
+            try:
+                station = self.station_selection_menu()
+                self.player.play_station(station)
+            except KeyboardInterrupt:
+                sys.exit(0)
 
 
 if __name__ == '__main__':
-    main()
+    PlayerApp().run()
