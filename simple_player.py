@@ -34,23 +34,50 @@ def iterate_forever(func, *args, **kwargs):
 
 class Player(object):
 
-    def __init__(self, station, play_input_callback):
+    def __init__(self, station, input_cb, play_cb):
+        """Initialize the player
+
+        station
+            The Pandora station object
+
+        input_cb
+            Callback that will be called when input occurs during play. Should
+            accept two parameters: the player and the input string.
+
+        play_cb
+            Callback that will be called when a song starts playing. Should
+            accept two parameters: the player and the song model.
+        """
         self.station = station
         self._process = None
-        self._play_callback = play_input_callback
+        self._input_cb = input_cb
+        self._play_cb = play_cb
 
     @property
     def playlist(self):
+        """Get a infinite playlist
+
+        This function will iterate forever, calling back to Pandora to get a
+        new playlist when it exhausts the previous one.
+        """
         return iterate_forever(self.station.get_playlist)
 
     def stop(self):
+        """Stop the currently playing song
+        """
         self._process.kill()
 
     def play(self, song):
-        print song.song_name, 'by', song.artist_name
+        """Play a new song from a Pandora model
+        """
+        self._play_cb(self, song)
         self._process = subprocess.Popen(['mpg123', '-q', song.audio_url])
 
     def get_input(self):
+        """Get user input while the player is running
+
+        User input must be newline terminated. Returns None when the song ends.
+        """
         while self._process.poll() is None:
             read, _, _ = select.select([sys.stdin], [], [], 1.0)
 
@@ -60,14 +87,21 @@ class Player(object):
             return read[0].readline().strip()
 
     def end_playlist(self):
+        """Stop playing the playlist
+        """
         raise StopIteration
 
     def play_playlist(self):
+        """Play the playlist until something ends it
+
+        This function will run forever until termintated by calling
+        end_playlist.
+        """
         for song in self.playlist:
             self.play(song)
 
             try:
-                self._play_callback(self, self.get_input())
+                self._input_cb(self, self.get_input())
             except StopIteration:
                 self.stop()
                 return
@@ -100,7 +134,10 @@ def main():
     client.login(settings.USERNAME, settings.PASSWORD)
     stations = client.get_station_list()
 
-    def callback(player, input):
+    def play_cb(player, song):
+        print song.song_name, 'by', song.artist_name
+
+    def input_cb(player, input):
         if input == 'n':
             player.stop()
         elif input == 's':
@@ -112,7 +149,7 @@ def main():
     while True:
         try:
             station = station_selection_menu(stations)
-            Player(station, callback).play_playlist()
+            Player(station, input_cb, play_cb).play_playlist()
         except KeyboardInterrupt:
             sys.exit(0)
 
