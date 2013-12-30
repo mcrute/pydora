@@ -1,4 +1,4 @@
-from models import Field, PandoraModel
+from . import Field, PandoraModel
 
 
 class Station(PandoraModel):

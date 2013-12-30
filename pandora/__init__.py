@@ -256,7 +256,7 @@ class APIClient(BaseAPIClient):
         return self._user_login(username, password)
 
     def get_station_list(self):
-        from models.pandora import Station
+        from .models.pandora import Station
 
         return [Station.from_json(self, s)
                 for s in self.transport("user.getStationList",
