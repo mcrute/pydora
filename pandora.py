@@ -211,7 +211,7 @@ class BaseAPIClient(object):
 
     @classmethod
     def from_settings_dict(cls, settings):
-        enc = Encryptor(settings["ENCRYPTION_KEY"], settings["DECRYPTION_KEY"])
+        enc = Encryptor(settings["DECRYPTION_KEY"], settings["ENCRYPTION_KEY"])
         return cls(APITransport(enc),
                 settings["USERNAME"], settings["PASSWORD"], settings["DEVICE"])
 
@@ -256,8 +256,11 @@ class APIClient(BaseAPIClient):
         return self._user_login(username, password)
 
     def get_station_list(self):
-        return self.transport("user.getStationList",
-                includeStationArtUrl=True)
+        from models.pandora import Station
+
+        return [Station.from_json(self, s)
+                for s in self.transport("user.getStationList",
+                    includeStationArtUrl=True)['stations']]
 
     def get_playlist(self, station_token):
         return self.transport("station.getPlaylist",
