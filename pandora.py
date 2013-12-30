@@ -286,7 +286,7 @@ class APIClient(BaseAPIClient):
         return self.transport("bookmark.deleteSongBookmark",
                 bookmarkToken=bookmark_token)
 
-    def delete_song_bookmark(self, bookmark_token):
+    def delete_artist_bookmark(self, bookmark_token):
         return self.transport("bookmark.deleteArtistBookmark",
                 bookmarkToken=bookmark_token)
 
