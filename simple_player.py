@@ -39,24 +39,10 @@ def iterate_forever(func, *args, **kwargs):
 
 class Player(object):
 
-    def __init__(self, station, input_cb, play_cb):
-        """Initialize the player
-
-        station
-            The Pandora station object
-
-        input_cb
-            Callback that will be called when input occurs during play. Should
-            accept two parameters: the player and the input string.
-
-        play_cb
-            Callback that will be called when a song starts playing. Should
-            accept two parameters: the player and the song model.
-        """
+    def __init__(self, station, callbacks):
         self.station = station
         self._process = None
-        self._input_cb = input_cb
-        self._play_cb = play_cb
+        self._callbacks = callbacks(self)
 
     @property
     def playlist(self):
@@ -75,7 +61,7 @@ class Player(object):
     def play(self, song):
         """Play a new song from a Pandora model
         """
-        self._play_cb(self, song)
+        self._callbacks.play(song)
         self._process = subprocess.Popen(['mpg123', '-q', song.audio_url])
 
     def get_input(self):
@@ -106,7 +92,7 @@ class Player(object):
             self.play(song)
 
             try:
-                self._input_cb(self, self.get_input())
+                self._callbacks.input(self.get_input())
             except StopIteration:
                 self.stop()
                 return
@@ -148,22 +134,27 @@ def main():
     client.login(settings.USERNAME, settings.PASSWORD)
     stations = client.get_station_list()
 
-    def play_cb(player, song):
-        print song.song_name, 'by', song.artist_name
+    class PlayerCallbacks:
 
-    def input_cb(player, input):
-        if input == 'n':
-            player.stop()
-        elif input == 's':
-            player.end_playlist()
-        elif input == 'Q':
-            player.end_playlist()
-            sys.exit(0)
+        def __init__(self, player):
+            self.player = player
+
+        def play(self, song):
+            print song.song_name, 'by', song.artist_name
+
+        def input(self, input):
+            if input == 'n':
+                self.player.stop()
+            elif input == 's':
+                self.player.end_playlist()
+            elif input == 'Q':
+                self.player.end_playlist()
+                sys.exit(0)
 
     while True:
         try:
             station = station_selection_menu(stations)
-            Player(station, input_cb, play_cb).play_playlist()
+            Player(station, PlayerCallbacks).play_playlist()
         except KeyboardInterrupt:
             sys.exit(0)
 
