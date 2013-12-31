@@ -1,4 +1,5 @@
 *.pyc
 .sandbox_name
 dist/
+build/
 pydora.egg-info/

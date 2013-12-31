@@ -15,7 +15,7 @@ setup(
     long_description=open('README.rst', 'r').read(),
     author='Mike Crute',
     author_email='mcrute@gmail.com',
-    url='http://mike.crute.org',
+    url='https://github.com/mcrute/pydora',
     packages=[
         'pydora',
         'pandora',
