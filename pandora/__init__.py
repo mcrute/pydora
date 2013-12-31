@@ -269,9 +269,14 @@ class APIClient(BaseAPIClient):
                 stationToken=station_token)
 
     def get_bookmarks(self):
-        return self.transport("user.getBookmarks")
+        from .models.pandora import Bookmark
+
+        data = self.transport("user.getBookmarks")
+        return [Bookmark.from_json(self, b)
+                for b in data['artists'] + data['songs']]
 
     def get_station(self, station_token):
+        from .models.pandora import Station
         return self.transport("station.getStation",
                 stationToken=station_token,
                 includeExtendedAttributes=True)
