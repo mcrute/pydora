@@ -85,19 +85,23 @@ class Player(object):
         self._send_cmd('load {}'.format(song.audio_url))
 
         while True:
-            self._ensure_started()
+            try:
+                self._callbacks.pre_poll()
+                self._ensure_started()
 
-            readers, _, _ = select.select(
-                    [self._control_channel, self._process.stdout], [], [], 1.0)
+                readers, _, _ = select.select(
+                    [self._control_channel, self._process.stdout], [], [], 1)
 
-            for fd in readers:
-                value = fd.readline().strip()
+                for fd in readers:
+                    value = fd.readline().strip()
 
-                if fd.fileno() == self._control_fd:
-                    self._callbacks.input(value, song)
-                else:
-                    if self._player_stopped(value):
-                        return
+                    if fd.fileno() == self._control_fd:
+                        self._callbacks.input(value, song)
+                    else:
+                        if self._player_stopped(value):
+                            return
+            finally:
+                self._callbacks.post_poll()
 
     def end_station(self):
         """Stop playing the station

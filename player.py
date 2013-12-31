@@ -71,6 +71,16 @@ class PlayerApp:
             self.player.end_station()
             sys.exit(0)
 
+    def pre_poll(self):
+        """Disable echo before polling stdin
+        """
+        Screen.set_echo(False)
+
+    def post_poll(self):
+        """Re-enable echo after polling stdin
+        """
+        Screen.set_echo(True)
+
     def run(self):
         """Main run loop of the program
         """

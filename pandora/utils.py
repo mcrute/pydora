@@ -2,6 +2,7 @@ from __future__ import print_function
 
 import os
 import sys
+import termios
 import subprocess
 
 
@@ -26,6 +27,20 @@ class Colors:
 
 
 class Screen:
+
+    @staticmethod
+    def set_echo(enabled):
+        fd = sys.stdin.fileno()
+        (iflag, oflag, cflag, lflag, ispeed, ospeed, cc) = \
+            termios.tcgetattr(fd)
+
+        if enabled:
+            lflag |= termios.ECHO
+        else:
+            lflag &= ~termios.ECHO
+
+        termios.tcsetattr(fd, termios.TCSANOW,
+            [iflag, oflag, cflag, lflag, ispeed, ospeed, cc])
 
     @staticmethod
     def clear():
