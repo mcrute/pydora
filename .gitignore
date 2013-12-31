@@ -1,3 +1,4 @@
 *.pyc
-/settings.py
 .sandbox_name
+dist/
+pydora.egg-info/

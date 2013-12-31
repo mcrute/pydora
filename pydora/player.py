@@ -5,13 +5,10 @@ Sample Barebones Pandora Player
 This is a very simple Pandora player that streams music from Pandora. It
 requires mpg123 to function. No songs are downloaded, they are streamed
 directly from Pandora's servers.
-
-This player requires a settings.py file with a SETTINGS dictionary (see
-pandora.py for format), a USERNAME and a PASSWORD that are your Pandora
-username and password.
 """
+import os
 import sys
-import settings
+from ConfigParser import SafeConfigParser
 
 from pandora import APIClient
 from pandora.player import Player
@@ -34,8 +31,29 @@ class PlayerApp:
     }
 
     def __init__(self):
-        self.client = APIClient.from_settings_dict(settings.SETTINGS)
+        settings, self.credentials = self._load_settings()
+        self.client = APIClient.from_settings_dict(settings)
         self.player = Player(self, sys.stdin)
+
+    def _load_settings(self):
+        """Load settings from config file
+
+        Config file exists in either ~/.pydora.cfg or is pointed to by an
+        environment variable PYDORA_CFG.
+        """
+        path = os.path.expanduser(
+                os.environ.get('PYDORA_CFG', '~/.pydora.cfg'))
+
+        if not os.path.exists(path):
+            Screen.print_error('No settings at {!r}'.format(path))
+            sys.exit(1)
+
+        cfg = SafeConfigParser()
+        cfg.read(path)
+
+        return (
+            dict((k.upper(), v) for k, v in cfg.items('api')),
+            [i[1] for i in cfg.items('user')])
 
     def station_selection_menu(self):
         """Format a station menu and make the user select a station
@@ -113,7 +131,7 @@ class PlayerApp:
         Screen.set_echo(True)
 
     def run(self):
-        self.client.login(settings.USERNAME, settings.PASSWORD)
+        self.client.login(*self.credentials)
         self.stations = self.client.get_station_list()
 
         while True:
