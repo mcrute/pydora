@@ -8,7 +8,6 @@ directly from Pandora's servers.
 """
 import os
 import sys
-from ConfigParser import SafeConfigParser
 
 from pandora import APIClient
 from pandora.player import Player
@@ -31,12 +30,12 @@ class PlayerApp:
     }
 
     def __init__(self):
-        settings, self.credentials = self._load_settings()
-        self.client = APIClient.from_settings_dict(settings)
+        self.client = None
         self.player = Player(self, sys.stdin)
 
-    def _load_settings(self):
-        """Load settings from config file
+    @property
+    def config_path(self):
+        """Find the config file
 
         Config file exists in either ~/.pydora.cfg or is pointed to by an
         environment variable PYDORA_CFG.
@@ -48,12 +47,7 @@ class PlayerApp:
             Screen.print_error('No settings at {!r}'.format(path))
             sys.exit(1)
 
-        cfg = SafeConfigParser()
-        cfg.read(path)
-
-        return (
-            dict((k.upper(), v) for k, v in cfg.items('api')),
-            [i[1] for i in cfg.items('user')])
+        return path
 
     def station_selection_menu(self):
         """Format a station menu and make the user select a station
@@ -131,7 +125,7 @@ class PlayerApp:
         Screen.set_echo(True)
 
     def run(self):
-        self.client.login(*self.credentials)
+        self.client = APIClient.from_config_file(self.config_path)
         self.stations = self.client.get_station_list()
 
         while True:

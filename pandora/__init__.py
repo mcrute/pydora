@@ -13,6 +13,7 @@ import json
 import urllib
 import urllib2
 from Crypto.Cipher import Blowfish
+from ConfigParser import SafeConfigParser
 
 
 class PandoraException(Exception):
@@ -201,6 +202,20 @@ class BaseAPIClient(object):
         enc = Encryptor(settings["DECRYPTION_KEY"], settings["ENCRYPTION_KEY"])
         return cls(APITransport(enc),
                 settings["USERNAME"], settings["PASSWORD"], settings["DEVICE"])
+
+    @classmethod
+    def from_config_file(cls, path, authenticate=True):
+        cfg = SafeConfigParser()
+        cfg.read(path)
+
+        self = cls.from_settings_dict(
+                dict((k.upper(), v) for k, v in cfg.items('api')))
+
+        if authenticate and cfg.has_section('user'):
+            credentials = [i[1] for i in cfg.items('user')]
+            self.login(*credentials)
+
+        return self
 
     def _partner_login(self, username, password, device):
         partner = self.transport("auth.partnerLogin",
