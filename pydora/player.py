@@ -42,7 +42,7 @@ class PlayerApp:
         environment variable PYDORA_CFG.
         """
         path = os.path.expanduser(
-                os.environ.get('PYDORA_CFG', '~/.pydora.cfg'))
+            os.environ.get('PYDORA_CFG', '~/.pydora.cfg'))
 
         if not os.path.exists(path):
             Screen.print_error('No settings at {!r}'.format(path))

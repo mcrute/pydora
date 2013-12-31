@@ -57,8 +57,8 @@ class APITransport(object):
     API_VERSION = "5"
 
     NO_ENCRYPT = ("auth.partnerLogin", )
-    REQUIRE_TLS = ("auth.partnerLogin", "auth.userLogin", "station.getPlaylist",
-            "user.createUser")
+    REQUIRE_TLS = ("auth.partnerLogin", "auth.userLogin",
+            "station.getPlaylist", "user.createUser")
 
     def __init__(self, cryptor):
         self.cryptor = cryptor
@@ -147,7 +147,6 @@ class APITransport(object):
         result = self._make_http_request(url, data)
 
         return self._parse_response(result.read())
-
 
 
 class Encryptor(object):
@@ -240,7 +239,7 @@ class APIClient(BaseAPIClient):
 
     def login(self, username, password):
         self._partner_login(
-                self.partner_user, self.partner_password, self.device)
+            self.partner_user, self.partner_password, self.device)
         return self._user_login(username, password)
 
     def get_station_list(self):
