@@ -15,25 +15,12 @@ abuse Pandora, that's not cool.
  * API Spec from: http://pan-do-ra-api.wikia.com/wiki/Json/5
  * Keys at: http://pan-do-ra-api.wikia.com/wiki/Json/5/partners
 
-Example::
-
-    >>> SETTINGS = {
-    ...     'ENCRYPTION_KEY': '',
-    ...     'DECRYPTION_KEY': '',
-    ...     'USERNAME': '',
-    ...     'PASSWORD': '',
-    ...     'DEVICE': '',
-    ... }
-    >>> client = APIClient.from_settings_dict(SETTINGS)
-    >>> client.login("username", "password")
-
-
 Simple Player
 =============
-Contained in `simple_player.py` is a simple Pandora stream player that runs at
-the command line. It requires that mpg123 be installed with HTTP support as
-well as a `settings.py` file that contains `SETTINGS` (per above), `USERNAME`
-and `PASSWORD` which correspond to your Pandora credentials.
+Included is ``pydora``, a simple Pandora stream player that runs at the command
+line. It requires that mpg123 be installed with HTTP support as well as a
+settings file (example below) located in ``~/.pydora.cfg``. Alternatively an
+environment variable ``PYDORA_CFG`` can point to the path of the config file.
 
 The player only supports basic functionality for now. It will display a station
 list, allow listening to any station, basic feeback and bookmarking are also
@@ -52,3 +39,17 @@ When playing the following keys work (press enter afterwards):
  * a - bookmark artist
  * S - sleep song
  * Q - quit program
+ * ? - display help
+
+sample config::
+
+    [api]
+    encryption_key = key
+    decryption_key = key
+    username = partner username
+    password = partner password
+    device = key
+
+    [user]
+    username = your username
+    password = your password

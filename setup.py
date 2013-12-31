@@ -12,6 +12,7 @@ setup(
     name='pydora',
     version='0.1.0',
     description='Python wrapper for Pandora API',
+    long_description=open('README.rst', 'r').read(),
     author='Mike Crute',
     author_email='mcrute@gmail.com',
     url='http://mike.crute.org',

@@ -7,18 +7,6 @@ account management features as they were deemed not terribly useful.
 
 API Spec from: http://pan-do-ra-api.wikia.com/wiki/Json/5
 Keys at: http://pan-do-ra-api.wikia.com/wiki/Json/5/partners
-
-Example:
-
->>> SETTINGS = {
-...     'ENCRYPTION_KEY': '',
-...     'DECRYPTION_KEY': '',
-...     'USERNAME': '',
-...     'PASSWORD': '',
-...     'DEVICE': '',
-... }
->>> client = APIClient.from_settings_dict(SETTINGS)
->>> client.login("username", "password")
 """
 import time
 import json
