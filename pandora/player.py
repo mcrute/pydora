@@ -2,6 +2,29 @@ import select
 from .utils import iterate_forever, SilentPopen
 
 
+class PlayerCallbacks(object):
+
+    def play(self, song):
+        """Called once when a song starts playing
+        """
+        pass
+
+    def pre_poll(self):
+        """Called before polling for process status
+        """
+        pass
+
+    def post_poll(self):
+        """Called after polling for process status
+        """
+        pass
+
+    def input(self, value, song):
+        """Called after user input during song playback
+        """
+        pass
+
+
 class Player(object):
     """Remote control for an mpg123 process
 
