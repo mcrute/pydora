@@ -13,8 +13,8 @@ class Colors:
         def inner(text, bold=False):
             c = code
             if bold:
-                c = "1;%s" % c
-            return "\033[%sm%s\033[0m" % (c, text)
+                c = u"1;{}".format(c)
+            return u"\033[{}m{}\033[0m".format(c, text)
         return inner
 
     red = __wrap_with('31')
