@@ -99,7 +99,7 @@ class APITransport(object):
         return int(self.server_sync_time + (time.time() - self.start_time))
 
     def remove_empty_values(self, data):
-        return dict((k, v) for k, v in data.items() if v)
+        return dict((k, v) for k, v in data.items() if v is not None)
 
     @sync_time.setter
     def sync_time(self, sync_time):

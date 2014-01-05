@@ -10,7 +10,7 @@ except ImportError:
 
 setup(
     name='pydora',
-    version='0.2.0',
+    version='0.2.1',
     description='Python wrapper for Pandora API',
     long_description=open('README.rst', 'r').read(),
     author='Mike Crute',
