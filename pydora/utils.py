@@ -4,6 +4,14 @@ import sys
 import termios
 
 
+def input(prompt):
+    try:
+        return raw_input(prompt)
+    except NameError:
+        import builtins
+        return builtins.input(prompt)
+
+
 class Colors:
 
     def __wrap_with(code):
@@ -60,14 +68,9 @@ class Screen:
         Will keep trying till the user enters an interger or until they ^C the
         program.
         """
-        try:
-            raw_input
-        except NameError:
-            raw_input = input
-
         while True:
             try:
-                return int(raw_input(prompt).strip())
+                return int(input(prompt).strip())
             except ValueError:
                 print(Colors.red('Invaid Input!'))
 

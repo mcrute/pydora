@@ -2,6 +2,10 @@ from datetime import datetime
 from collections import namedtuple
 
 
+def with_metaclass(meta, *bases):
+    return meta("NewBase", bases, {})
+
+
 class Field(namedtuple('Field', ['field', 'default', 'formatter'])):
 
     def __new__(cls, field, default=None, formatter=None):
@@ -12,18 +16,17 @@ class ModelMetaClass(type):
 
     def __new__(cls, name, parents, dct):
         dct['_fields'] = fields = {}
+        new_dct = dct.copy()
 
         for key, val in dct.items():
             if isinstance(val, Field):
                 fields[key] = val
-                del dct[key]
+                del new_dct[key]
 
-        return super(ModelMetaClass, cls).__new__(cls, name, parents, dct)
+        return super(ModelMetaClass, cls).__new__(cls, name, parents, new_dct)
 
 
-class PandoraModel(object):
-
-    __metaclass__ = ModelMetaClass
+class PandoraModel(with_metaclass(ModelMetaClass, object)):
 
     @staticmethod
     def json_to_date(data):
@@ -31,7 +34,11 @@ class PandoraModel(object):
 
     def __init__(self, api_client):
         self._api_client = api_client
-        safe_types = (type(None), basestring, int, bool)
+
+        try:
+            safe_types = (type(None), basestring, int, bool)
+        except NameError:
+            safe_types = (type(None), str, bytes, int, bool)
 
         for key, value in self._fields.items():
             default = value.default

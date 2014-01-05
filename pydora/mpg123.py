@@ -89,7 +89,7 @@ class Player(object):
     def _send_cmd(self, cmd):
         """Write command to remote mpg123 process
         """
-        self._process.stdin.write("{}\n".format(cmd))
+        self._process.stdin.write("{}\n".format(cmd).encode("utf-8"))
         self._process.stdin.flush()
 
     def stop(self):
@@ -105,7 +105,7 @@ class Player(object):
     def _player_stopped(self, value):
         """Determine if player has stopped
         """
-        return value.startswith("@P") and value[3] == "0"
+        return value.startswith(b"@P") and value.decode('utf-8')[3] == "0"
 
     def play(self, song):
         """Play a new song from a Pandora model

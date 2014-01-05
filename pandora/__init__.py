@@ -10,10 +10,18 @@ Keys at: http://pan-do-ra-api.wikia.com/wiki/Json/5/partners
 """
 import time
 import json
-import urllib
-import urllib2
+import base64
+
+try:
+    from urllib.parse import urlencode
+    from urllib.request import Request, urlopen
+    from configparser import SafeConfigParser
+except ImportError:
+    from urllib import urlencode
+    from urllib2 import Request, urlopen
+    from ConfigParser import SafeConfigParser
+
 from Crypto.Cipher import Blowfish
-from ConfigParser import SafeConfigParser
 
 
 class PandoraException(Exception):
@@ -102,8 +110,13 @@ class APITransport(object):
             self.start_time = int(time.time())
 
     def _make_http_request(self, url, data):
-        req = urllib2.Request(url, data, { "Content-Type": "text/plain" })
-        return urllib2.urlopen(req)
+        try:
+            data = data.encode('utf-8')
+        except AttributeError:
+            pass
+
+        req = Request(url, data, { "Content-Type": "text/plain" })
+        return urlopen(req)
 
     def _build_url(self, method):
         query = {
@@ -116,7 +129,7 @@ class APITransport(object):
         return "{0}://{1}?{2}".format(
             "https" if method in self.REQUIRE_TLS else "http",
             self.API_HOST,
-            urllib.urlencode(self.remove_empty_values(query)))
+            urlencode(self.remove_empty_values(query)))
 
     def _build_data(self, method, **data):
         data["userAuthToken"] = self.user_auth_token
@@ -133,7 +146,7 @@ class APITransport(object):
         return data
 
     def _parse_response(self, result):
-        result = json.loads(result)
+        result = json.loads(result.decode('utf-8'))
 
         if result["stat"] == "ok":
             return result["result"] if "result" in result else None
@@ -169,19 +182,27 @@ class Encryptor(object):
 
         return data
 
+    @staticmethod
+    def _decode_hex(data):
+        return base64.b16decode(data.upper())
+
+    @staticmethod
+    def _encode_hex(data):
+        return base64.b16encode(data).lower()
+
     def decrypt(self, data):
-        data = self.bf_out.decrypt(data.decode("hex"))
+        data = self.bf_out.decrypt(self._decode_hex(data))
         return json.loads(self.strip_padding(data))
 
     def decrypt_sync_time(self, data):
-        return int(self.bf_in.decrypt(data.decode("hex"))[4:-2])
+        return int(self.bf_in.decrypt(self._decode_hex(data))[4:-2])
 
     def add_padding(self, data):
         plen = Blowfish.block_size - divmod(len(data), Blowfish.block_size)[1]
         return data + ("\x00" * plen)
 
     def encrypt(self, data):
-        return self.bf_out.encrypt(self.add_padding(data)).encode("hex")
+        return self._encode_hex(self.bf_out.encrypt(self.add_padding(data)))
 
 
 class BaseAPIClient(object):
