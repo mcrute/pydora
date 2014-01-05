@@ -10,8 +10,8 @@ import os
 import sys
 
 from pandora import APIClient
-from pandora.player import Player
-from pandora.utils import Colors, Screen
+from pydora.mpg123 import Player
+from .utils import Colors, Screen
 
 
 class PlayerApp:

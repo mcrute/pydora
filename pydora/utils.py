@@ -1,9 +1,7 @@
 from __future__ import print_function
 
-import os
 import sys
 import termios
-import subprocess
 
 
 class Colors:
@@ -62,42 +60,16 @@ class Screen:
         Will keep trying till the user enters an interger or until they ^C the
         program.
         """
+        try:
+            raw_input
+        except NameError:
+            raw_input = input
+
         while True:
             try:
                 return int(raw_input(prompt).strip())
             except ValueError:
                 print(Colors.red('Invaid Input!'))
-
-
-def iterate_forever(func, *args, **kwargs):
-    """Iterate over a finite iterator forever
-
-    When the iterator is exhausted will call the function again to generate a
-    new iterator and keep iterating.
-    """
-    output = func(*args, **kwargs)
-
-    while True:
-        try:
-            yield output.next()
-        except StopIteration:
-            output = func(*args, **kwargs)
-
-
-class SilentPopen(subprocess.Popen):
-    """A Popen varient that dumps it's output and error
-    """
-
-    def __init__(self, *args, **kwargs):
-        self._dev_null = open(os.devnull, 'w')
-        kwargs['stdin'] = subprocess.PIPE
-        kwargs['stdout'] = subprocess.PIPE
-        kwargs['stderr'] = self._dev_null
-        super(SilentPopen, self).__init__(*args, **kwargs)
-
-    def __del__(self):
-        self._dev_null.close()
-        super(SilentPopen, self.__del__)
 
 
 def clear_screen():
