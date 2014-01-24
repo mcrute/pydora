@@ -63,7 +63,7 @@ class PlayerApp:
     def play(self, song):
         """Play callback
         """
-        print('{} by {}'.format(Colors.blue(song.song_name),
+        print(u'{} by {}'.format(Colors.blue(song.song_name),
             Colors.yellow(song.artist_name)))
 
     def skip_song(self, song):
