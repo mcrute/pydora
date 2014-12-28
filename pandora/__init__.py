@@ -5,8 +5,8 @@ This is a reasonably complete implementation of the Pandora API. It does not
 implement any of the undocumented features and does not implement most of the
 account management features as they were deemed not terribly useful.
 
-API Spec from: http://pan-do-ra-api.wikia.com/wiki/Json/5
-Keys at: http://pan-do-ra-api.wikia.com/wiki/Json/5/partners
+API Spec from: http://6xq.net/playground/pandora-apidoc/
+Keys at: http://6xq.net/playground/pandora-apidoc/json/partners/#partners
 """
 import time
 import json
@@ -48,9 +48,20 @@ class PandoraException(Exception):
             12: "Pandora not available in this country",
             13: "Bad Sync Time",
             14: "Unknown Method Name",
-            15: "Wrong Protocol",
+            15: "Wrong Protocol (http/https)",
             1000: "Read Only Mode",
             1001: "Invalid Auth Token",
+            1002: "Invalid Partner Login",
+            1003: "Listener Not Authorized - Pandora One Subscription or Trial Expired",
+            1004: "User Not Authorized",
+            1005: "Station limit reached",
+            1006: "Station does not exist",
+            1009: "Device Not Found",
+            1010: "Partner Not Authorized",
+            1011: "Invalid Username",
+            1012: "Invalid Password",
+            1023: "Device Model Invalid",
+            1039: "Too many requests for a new playlist",
         }[code])
 
 
@@ -62,15 +73,15 @@ class APITransport(object):
     details. Once setup the transport acts like a callable.
     """
 
-    API_HOST = "tuner.pandora.com/services/json/"
     API_VERSION = "5"
 
     NO_ENCRYPT = ("auth.partnerLogin", )
     REQUIRE_TLS = ("auth.partnerLogin", "auth.userLogin",
             "station.getPlaylist", "user.createUser")
 
-    def __init__(self, cryptor):
+    def __init__(self, cryptor, api_host="tuner.pandora.com/services/json/"):
         self.cryptor = cryptor
+        self.api_host = api_host
 
         self.partner_auth_token = None
         self.user_auth_token = None
@@ -128,7 +139,7 @@ class APITransport(object):
 
         return "{0}://{1}?{2}".format(
             "https" if method in self.REQUIRE_TLS else "http",
-            self.API_HOST,
+            self.api_host,
             urlencode(self.remove_empty_values(query)))
 
     def _build_data(self, method, **data):
@@ -212,17 +223,22 @@ class BaseAPIClient(object):
     provide higher level functionality.
     """
 
-    def __init__(self, transport, partner_user, partner_password, device):
+    LOW_AUDIO_QUALITY = 'lowQuality'
+    MED_AUDIO_QUALITY = 'mediumQuality'
+    HIGH_AUDIO_QUALITY = 'highQuality'
+
+    def __init__(self, transport, partner_user, partner_password, device, default_audio_quality=MED_AUDIO_QUALITY):
         self.transport = transport
         self.partner_user = partner_user
         self.partner_password = partner_password
         self.device = device
+        self.default_audio_quality = default_audio_quality
 
     @classmethod
     def from_settings_dict(cls, settings):
         enc = Encryptor(settings["DECRYPTION_KEY"], settings["ENCRYPTION_KEY"])
-        return cls(APITransport(enc),
-                settings["USERNAME"], settings["PASSWORD"], settings["DEVICE"])
+        return cls(APITransport(enc, settings["API_HOST"]),
+                   settings["USERNAME"], settings["PASSWORD"], settings["DEVICE"], settings["DEFAULT_AUDIO_QUALITY"])
 
     @classmethod
     def from_config_file(cls, path, authenticate=True):
@@ -287,7 +303,8 @@ class APIClient(BaseAPIClient):
 
     def get_playlist(self, station_token):
         return self.transport("station.getPlaylist",
-                stationToken=station_token)
+                stationToken=station_token,
+                includeTrackLength=True)
 
     def get_bookmarks(self):
         from .models.pandora import Bookmark

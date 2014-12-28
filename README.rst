@@ -12,8 +12,8 @@ I don't provide any keys or passwords for Pandora in this repo, you'll have to
 go get those for yourself. Make something awesome with this library, don't
 abuse Pandora, that's not cool.
 
- * API Spec from: http://pan-do-ra-api.wikia.com/wiki/Json/5
- * Keys at: http://pan-do-ra-api.wikia.com/wiki/Json/5/partners
+ * API Spec from: http://6xq.net/playground/pandora-apidoc/
+ * Keys at: http://6xq.net/playground/pandora-apidoc/json/partners/#partners
 
 Simple Player
 =============
@@ -44,12 +44,18 @@ When playing the following keys work (press enter afterwards):
 sample config::
 
     [api]
+    api_host = hostname
     encryption_key = key
     decryption_key = key
     username = partner username
     password = partner password
     device = key
+    default_audio_quality = mediumQuality
 
     [user]
     username = your username
     password = your password
+
+**default_audio_quality** can be one of 'lowQuality', 'mediumQuality' (default), or 'highQuality'. If the preferred
+audio quality is not available for the device specified, then the next-highest bitrate stream that Pandora supports
+for the chosen device will be used.
