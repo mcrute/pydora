@@ -52,7 +52,7 @@ class PandoraException(Exception):
             1000: "Read Only Mode",
             1001: "Invalid Auth Token",
             1002: "Invalid Partner Login",
-            1003: "Listener Not Authorized - Pandora One Subscription or Trial Expired",
+            1003: "Listener Not Authorized - Subscription or Trial Expired",
             1004: "User Not Authorized",
             1005: "Station limit reached",
             1006: "Station does not exist",
@@ -238,7 +238,8 @@ class BaseAPIClient(object):
     def from_settings_dict(cls, settings):
         enc = Encryptor(settings["DECRYPTION_KEY"], settings["ENCRYPTION_KEY"])
         return cls(APITransport(enc, settings["API_HOST"]),
-                   settings["USERNAME"], settings["PASSWORD"], settings["DEVICE"], settings["DEFAULT_AUDIO_QUALITY"])
+                   settings["USERNAME"], settings["PASSWORD"],
+                   settings["DEVICE"], settings["DEFAULT_AUDIO_QUALITY"])
 
     @classmethod
     def from_config_file(cls, path, authenticate=True):

@@ -56,6 +56,8 @@ sample config::
     username = your username
     password = your password
 
-**default_audio_quality** can be one of 'lowQuality', 'mediumQuality' (default), or 'highQuality'. If the preferred
-audio quality is not available for the device specified, then the next-highest bitrate stream that Pandora supports
-for the chosen device will be used.
+**default_audio_quality**
+  Default audio quality to request from the API; can be one of `lowQuality`,
+  `mediumQuality` (default), or `highQuality`. If the preferred audio quality
+  is not available for the device specified, then the next-highest bitrate
+  stream that Pandora supports for the chosen device will be used.

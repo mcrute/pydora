@@ -76,9 +76,10 @@ class PlaylistItem(PandoraModel):
 
         for key, value in cls._fields.items():
             newval = data.get(value.field, value.default)
-            if value.field == 'audioUrl' and newval is None:
 
-                newval = cls.get_audio_url(data, api_client.default_audio_quality)
+            if value.field == 'audioUrl' and newval is None:
+                newval = cls.get_audio_url(
+                        data, api_client.default_audio_quality)
 
             if newval and value.formatter:
                 newval = value.formatter(newval)
@@ -88,13 +89,13 @@ class PlaylistItem(PandoraModel):
         return self
 
     @classmethod
-    def get_audio_url(cls, data, preferred_quality=BaseAPIClient.MED_AUDIO_QUALITY):
+    def get_audio_url(cls, data,
+            preferred_quality=BaseAPIClient.MED_AUDIO_QUALITY):
         """Get audio url
 
-        Try to find audio url for specified preferred quality level, or next-lowest available quality url
-        otherwise.
+        Try to find audio url for specified preferred quality level, or
+        next-lowest available quality url otherwise.
         """
-
         audio_url = None
         url_map = data.get('audioUrlMap')
 
@@ -106,16 +107,19 @@ class PlaylistItem(PandoraModel):
                                BaseAPIClient.MED_AUDIO_QUALITY,
                                BaseAPIClient.LOW_AUDIO_QUALITY]
 
-        # Only iterate over sublist, starting at preferred audio quality, or from the beginning of the list if nothing
-        # is found. Ensures that the bitrate used will always be the same or lower quality than was specified to prevent
-        # audio from skipping for slow connections.
-        i = valid_audio_formats.index(preferred_quality) if preferred_quality in valid_audio_formats else 0
+        # Only iterate over sublist, starting at preferred audio quality, or
+        # from the beginning of the list if nothing is found. Ensures that the
+        # bitrate used will always be the same or lower quality than was
+        # specified to prevent audio from skipping for slow connections.
+        i = 0
+        if preferred_quality in valid_audio_formats:
+            i = valid_audio_formats.index(preferred_quality)
 
         for quality in valid_audio_formats[i:]:
+            audio_url = url_map.get(quality)
 
-                audio_url = url_map.get(quality)
-                if audio_url is not None:
-                    return audio_url['audioUrl']
+            if audio_url is not None:
+                return audio_url['audioUrl']
 
         return audio_url['audioUrl'] if audio_url is not None else None
 
