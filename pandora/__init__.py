@@ -349,7 +349,7 @@ class APIClient(BaseAPIClient):
                 musicToken=music_token,
                 stationToken=station_token)
 
-    def create_station(self, search_token=None, atrist_token=None,
+    def create_station(self, search_token=None, artist_token=None,
             track_token=None):
         kwargs = {}
 
