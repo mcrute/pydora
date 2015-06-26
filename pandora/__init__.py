@@ -277,10 +277,10 @@ class BaseAPIClient(object):
         cfg.read(path)
 
         self = cls.from_settings_dict(
-                dict((k.upper(), v) for k, v in cfg.items('api')))
+                dict((k.upper(), v) for k, v in cfg.items('api', raw=True)))
 
         if authenticate and cfg.has_section('user'):
-            credentials = [i[1] for i in cfg.items('user')]
+            credentials = [i[1] for i in cfg.items('user', raw=True)]
             self.login(*credentials)
 
         return self
