@@ -81,7 +81,7 @@ class Player(object):
             return
 
         self._process = SilentPopen(
-            ['mpg123', '-q', '-R', '--preload', '0.1'])
+            ['mpg123', '-q', '-R', '--ignore-mime'])
 
         # Only output play status in the player stdout
         self._send_cmd('silence')
