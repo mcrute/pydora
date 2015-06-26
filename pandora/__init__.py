@@ -217,12 +217,15 @@ class BaseAPIClient(object):
     MED_AUDIO_QUALITY = 'mediumQuality'
     HIGH_AUDIO_QUALITY = 'highQuality'
 
-    def __init__(self, transport, partner_user, partner_password, device, default_audio_quality=MED_AUDIO_QUALITY):
+    def __init__(self, transport, partner_user, partner_password, device,
+            default_audio_quality=MED_AUDIO_QUALITY):
         self.transport = transport
         self.partner_user = partner_user
         self.partner_password = partner_password
         self.device = device
         self.default_audio_quality = default_audio_quality
+        self.username = None
+        self.password = None
 
     @classmethod
     def from_settings_dict(cls, settings):
@@ -245,11 +248,11 @@ class BaseAPIClient(object):
 
         return self
 
-    def _partner_login(self, username, password, device):
+    def _partner_login(self):
         partner = self.transport("auth.partnerLogin",
-                username=username,
-                password=password,
-                deviceModel=device,
+                username=self.partner_user,
+                password=self.partner_password,
+                deviceModel=self.device,
                 version=self.transport.API_VERSION)
 
         self.transport.sync_time = partner["syncTime"]
@@ -259,10 +262,21 @@ class BaseAPIClient(object):
         return partner
 
     def _user_login(self, username, password):
+        self.username = username
+        self.password = password
+        return self._authenticate()
+
+    def _ensure_credentials_available(self):
+        if not self.username or not self.password:
+            raise errors.AuthenticationRequired()
+
+    def _authenticate(self):
+        self._ensure_credentials_available()
+
         user = self.transport("auth.userLogin",
                 loginType="user",
-                username=username,
-                password=password,
+                username=self.username,
+                password=self.password,
                 includePandoraOneInfo=True,
                 includeSubscriptionExpiration=True,
                 returnCapped=True)
@@ -271,6 +285,13 @@ class BaseAPIClient(object):
         self.transport.user_auth_token = user["userAuthToken"]
 
         return user
+
+    def __call__(self, method, **kwargs):
+        try:
+            return self.transport(method, **kwargs)
+        except errors.InvalidAuthToken:
+            self._authenticate()
+            return self.transport(method, **kwargs)
 
 
 class APIClient(BaseAPIClient):
@@ -281,61 +302,61 @@ class APIClient(BaseAPIClient):
     """
 
     def login(self, username, password):
-        self._partner_login(
-            self.partner_user, self.partner_password, self.device)
+        self._partner_login()
         return self._user_login(username, password)
 
     def get_station_list(self):
         from .models.pandora import Station
 
         return [Station.from_json(self, s)
-                for s in self.transport("user.getStationList",
+                for s in self("user.getStationList",
                     includeStationArtUrl=True)['stations']]
 
     def get_playlist(self, station_token):
-        return self.transport("station.getPlaylist",
+        return self("station.getPlaylist",
                 stationToken=station_token,
                 includeTrackLength=True)
 
     def get_bookmarks(self):
         from .models.pandora import Bookmark
 
-        data = self.transport("user.getBookmarks")
+        data = self("user.getBookmarks")
         return [Bookmark.from_json(self, b)
                 for b in data['artists'] + data['songs']]
 
     def get_station(self, station_token):
         from .models.pandora import Station
-        return self.transport("station.getStation",
+        return self("station.getStation",
                 stationToken=station_token,
                 includeExtendedAttributes=True)
 
     def add_artist_bookmark(self, track_token):
-        return self.transport("bookmark.addArtistBookmark",
+        return self("bookmark.addArtistBookmark",
                 trackToken=track_token)
 
     def add_song_bookmark(self, track_token):
-        return self.transport("bookmark.addSongBookmark",
+        return self("bookmark.addSongBookmark",
                 trackToken=track_token)
 
     def delete_song_bookmark(self, bookmark_token):
-        return self.transport("bookmark.deleteSongBookmark",
+        return self("bookmark.deleteSongBookmark",
                 bookmarkToken=bookmark_token)
 
     def delete_artist_bookmark(self, bookmark_token):
-        return self.transport("bookmark.deleteArtistBookmark",
+        return self("bookmark.deleteArtistBookmark",
                 bookmarkToken=bookmark_token)
 
     def search(self, search_text):
-        return self.transport("music.search", searchText=search_text)
+        return self("music.search",
+                searchText=search_text)
 
     def add_feedback(self, track_token, positive):
-        return self.transport("station.addFeedback",
+        return self("station.addFeedback",
                 trackToken=track_token,
                 isPositive=positive)
 
     def add_music(self, music_token, station_token):
-        return self.transport("station.addMusic",
+        return self("station.addMusic",
                 musicToken=music_token,
                 stationToken=station_token)
 
@@ -352,46 +373,51 @@ class APIClient(BaseAPIClient):
         else:
             raise KeyError("Must pass a type of token")
 
-        return self.transport("station.createStation", **kwargs)
+        return self("station.createStation", **kwargs)
 
     def delete_feedback(self, feedback_id):
-        return self.transport("station.deleteFeedback", feedbackId=feedback_id)
+        return self("station.deleteFeedback",
+                feedbackId=feedback_id)
 
     def delete_music(self, seed_id):
-        return self.transport("station.deleteMusic", seedId=seed_id)
+        return self("station.deleteMusic",
+                seedId=seed_id)
 
     def delete_station(self, station_token):
-        return self.transport("station.deleteStation",
+        return self("station.deleteStation",
                 stationToken=station_token)
 
     def get_genre_stations(self):
-        return self.transport("station.getGenreStations")
+        return self("station.getGenreStations")
 
     def rename_station(self, station_token, name):
-        return self.transport("station.renameStation",
+        return self("station.renameStation",
                 stationToken=station_token,
                 stationName=name)
 
     def explain_track(self, track_token):
-        return self.transport("track.explainTrack", trackToken=track_token)
+        return self("track.explainTrack",
+                trackToken=track_token)
 
     def set_quick_mix(self, *args):
-        return self.transport("user.setQuickMix", quickMixStationIds=args)
+        return self("user.setQuickMix",
+                quickMixStationIds=args)
 
     def sleep_song(self, track_token):
-        return self.transport("user.sleepSong", trackToken=track_token)
+        return self("user.sleepSong",
+                trackToken=track_token)
 
     def share_station(self, station_id, station_token, *emails):
-        return self.transport("station.shareStation",
+        return self("station.shareStation",
                 stationId=station_id,
                 stationToken=station_token,
                 emails=emails)
 
     def transform_shared_station(self, station_token):
-        return self.transport("station.transformSharedStation",
+        return self("station.transformSharedStation",
                 stationToken=station_token)
 
     def share_music(self, music_token, *emails):
-        return self.transport("music.shareMusic",
+        return self("music.shareMusic",
                 musicToken=music_token,
                 email=emails[0])
