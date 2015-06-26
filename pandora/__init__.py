@@ -13,12 +13,13 @@ import json
 import base64
 
 try:
+    from urllib.error import URLError
     from urllib.parse import urlencode
     from urllib.request import Request, urlopen
     from configparser import SafeConfigParser
 except ImportError:
     from urllib import urlencode
-    from urllib2 import Request, urlopen
+    from urllib2 import Request, urlopen, URLError
     from ConfigParser import SafeConfigParser
 
 from Crypto.Cipher import Blowfish
@@ -214,6 +215,32 @@ class Encryptor(object):
 
     def encrypt(self, data):
         return self._encode_hex(self.bf_out.encrypt(self.add_padding(data)))
+
+
+class URLTester(object):
+    """URL Status Tester
+
+    A utility class to make head requests to URLs and determine if they are
+    currently accessible.
+    """
+
+    def __init__(self, url):
+        self.url = url
+
+    def _build_request(self):
+        request = Request(self.url)
+        request.get_method = lambda : 'HEAD'
+        return request
+
+    def _get_status_code(self):
+        request = self._build_request()
+        return urlopen(request).getcode()
+
+    def is_accessible(self):
+        try:
+            return self._get_status_code() == 200
+        except URLError:
+            return False
 
 
 class BaseAPIClient(object):

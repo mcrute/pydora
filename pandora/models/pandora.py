@@ -1,5 +1,5 @@
 from . import Field, PandoraModel
-from .. import BaseAPIClient
+from .. import BaseAPIClient, URLTester
 
 
 class Station(PandoraModel):
@@ -69,6 +69,9 @@ class PlaylistItem(PandoraModel):
 
     def sleep(self):
         self._api_client.sleep_song(self.track_token)
+
+    def get_is_playable(self):
+        return URLTester(self.audio_url).is_accessible()
 
     @classmethod
     def from_json(cls, api_client, data):
