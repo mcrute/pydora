@@ -25,6 +25,9 @@ except ImportError:
 from Crypto.Cipher import Blowfish
 
 
+DEFAULT_API_HOST = "tuner.pandora.com/services/json/"
+
+
 class PandoraException(Exception):
     """Pandora API Exception
 
@@ -80,7 +83,7 @@ class APITransport(object):
     REQUIRE_TLS = ("auth.partnerLogin", "auth.userLogin",
             "station.getPlaylist", "user.createUser")
 
-    def __init__(self, cryptor, api_host="tuner.pandora.com/services/json/"):
+    def __init__(self, cryptor, api_host=DEFAULT_API_HOST):
         self.cryptor = cryptor
         self.api_host = api_host
 
@@ -264,8 +267,8 @@ class BaseAPIClient(object):
     @classmethod
     def from_settings_dict(cls, settings):
         enc = Encryptor(settings["DECRYPTION_KEY"], settings["ENCRYPTION_KEY"])
-        return cls(APITransport(enc, settings["API_HOST"]),
-                   settings["USERNAME"], settings["PASSWORD"],
+        trans = APITransport(enc, settings.get("API_HOST", DEFAULT_API_HOST))
+        return cls(trans, settings["USERNAME"], settings["PASSWORD"],
                    settings["DEVICE"], settings["DEFAULT_AUDIO_QUALITY"])
 
     @classmethod
