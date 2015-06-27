@@ -31,6 +31,10 @@ class StationList(PandoraListModel):
     __list_key__ = "stations"
     __list_model__ = Station
 
+    def has_changed(self):
+        checksum = self._api_client.get_station_list_checksum()
+        return checksum != self.checksum
+
 
 class PlaylistItem(PandoraModel):
 
