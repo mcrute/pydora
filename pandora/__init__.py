@@ -325,7 +325,7 @@ class APIClient(BaseAPIClient):
                     includeTrackLength=True))
 
     def get_bookmarks(self):
-        from .models.pandora import Bookmark, BookmarkList
+        from .models.pandora import BookmarkList
 
         return BookmarkList.from_json(self, self("user.getBookmarks"))
 
