@@ -22,51 +22,11 @@ except ImportError:
     from urllib2 import Request, urlopen, URLError
     from ConfigParser import SafeConfigParser
 
-from Crypto.Cipher import Blowfish
+from . import errors
+from .errors import PandoraException
 
 
 DEFAULT_API_HOST = "tuner.pandora.com/services/json/"
-
-
-class PandoraException(Exception):
-    """Pandora API Exception
-
-    Translates exceptions to user readable info.
-    """
-
-    def __init__(self, code, message):
-        self.extended_message = message
-        super(Exception, self).__init__({
-            0: "Internal Server Error",
-            1: "Maintenance Mode",
-            2: "Missing API Method",
-            3: "Missing Auth Token",
-            4: "Missing Partner ID",
-            5: "Missing User ID",
-            6: "Secure Protocol Required",
-            7: "Certificate Required",
-            8: "Parameter Type Mismatch",
-            9: "Parameter Missing",
-            10: "Parameter Value Invalid",
-            11: "API Version Not Supported",
-            12: "Pandora not available in this country",
-            13: "Bad Sync Time",
-            14: "Unknown Method Name",
-            15: "Wrong Protocol (http/https)",
-            1000: "Read Only Mode",
-            1001: "Invalid Auth Token",
-            1002: "Invalid Partner Login",
-            1003: "Listener Not Authorized - Subscription or Trial Expired",
-            1004: "User Not Authorized",
-            1005: "Station limit reached",
-            1006: "Station does not exist",
-            1009: "Device Not Found",
-            1010: "Partner Not Authorized",
-            1011: "Invalid Username",
-            1012: "Invalid Password",
-            1023: "Device Model Invalid",
-            1039: "Too many requests for a new playlist",
-        }[code])
 
 
 class APITransport(object):
@@ -166,7 +126,7 @@ class APITransport(object):
         if result["stat"] == "ok":
             return result["result"] if "result" in result else None
         else:
-            raise PandoraException(result["code"], result["message"])
+            raise PandoraException.from_code(result["code"], result["message"])
 
     def __call__(self, method, **data):
         self._start_request()
