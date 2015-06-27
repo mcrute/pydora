@@ -62,6 +62,9 @@ class PandoraModel(with_metaclass(ModelMetaClass, object)):
 
         return self
 
-    def __str__(self):
-        return "{}({!r}, {!r})".format(self.__class__.__name__, self.id,
-                self.name)
+    def __repr__(self):
+        output = ", ".join([
+            "=".join((key, repr(getattr(self, key))))
+            for key in self._fields.keys()])
+
+        return "{}({})".format(self.__class__.__name__, output)
