@@ -11,6 +11,7 @@ Keys at: http://6xq.net/playground/pandora-apidoc/json/partners/#partners
 import time
 import json
 import base64
+from Crypto.Cipher import Blowfish
 
 try:
     from urllib.error import URLError
@@ -86,7 +87,7 @@ class APITransport(object):
 
     def _make_http_request(self, url, data):
         try:
-            data = data.encode('utf-8')
+            data = data.encode("utf-8")
         except AttributeError:
             pass
 
@@ -121,7 +122,7 @@ class APITransport(object):
         return data
 
     def _parse_response(self, result):
-        result = json.loads(result.decode('utf-8'))
+        result = json.loads(result.decode("utf-8"))
 
         if result["stat"] == "ok":
             return result["result"] if "result" in result else None
@@ -192,7 +193,7 @@ class URLTester(object):
 
     def _build_request(self):
         request = Request(self.url)
-        request.get_method = lambda : 'HEAD'
+        request.get_method = lambda : "HEAD"
         return request
 
     def _get_status_code(self):
@@ -213,9 +214,9 @@ class BaseAPIClient(object):
     provide higher level functionality.
     """
 
-    LOW_AUDIO_QUALITY = 'lowQuality'
-    MED_AUDIO_QUALITY = 'mediumQuality'
-    HIGH_AUDIO_QUALITY = 'highQuality'
+    LOW_AUDIO_QUALITY = "lowQuality"
+    MED_AUDIO_QUALITY = "mediumQuality"
+    HIGH_AUDIO_QUALITY = "highQuality"
 
     def __init__(self, transport, partner_user, partner_password, device,
             default_audio_quality=MED_AUDIO_QUALITY):
@@ -240,10 +241,10 @@ class BaseAPIClient(object):
         cfg.read(path)
 
         self = cls.from_settings_dict(
-                dict((k.upper(), v) for k, v in cfg.items('api', raw=True)))
+                dict((k.upper(), v) for k, v in cfg.items("api", raw=True)))
 
-        if authenticate and cfg.has_section('user'):
-            credentials = [i[1] for i in cfg.items('user', raw=True)]
+        if authenticate and cfg.has_section("user"):
+            credentials = [i[1] for i in cfg.items("user", raw=True)]
             self.login(*credentials)
 
         return self
@@ -310,7 +311,7 @@ class APIClient(BaseAPIClient):
 
         return [Station.from_json(self, s)
                 for s in self("user.getStationList",
-                    includeStationArtUrl=True)['stations']]
+                    includeStationArtUrl=True)["stations"]]
 
     def get_playlist(self, station_token):
         return self("station.getPlaylist",
@@ -322,7 +323,7 @@ class APIClient(BaseAPIClient):
 
         data = self("user.getBookmarks")
         return [Bookmark.from_json(self, b)
-                for b in data['artists'] + data['songs']]
+                for b in data["artists"] + data["songs"]]
 
     def get_station(self, station_token):
         from .models.pandora import Station

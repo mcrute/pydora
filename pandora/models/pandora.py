@@ -4,56 +4,56 @@ from .. import BaseAPIClient, URLTester
 
 class Station(PandoraModel):
 
-    can_add_music = Field('allowAddMusic', False)
-    can_delete = Field('allowDelete', True)
-    can_rename = Field('allowRename', True)
-    is_shared = Field('isShared', False)
+    can_add_music = Field("allowAddMusic", False)
+    can_delete = Field("allowDelete", True)
+    can_rename = Field("allowRename", True)
+    is_shared = Field("isShared", False)
 
-    art_url = Field('artUrl')
-    date_created = Field('dateCreated', formatter=PandoraModel.json_to_date)
-    detail_url = Field('stationDetailUrl')
-    id = Field('stationId')
-    name = Field('stationName')
-    sharing_url = Field('stationSharingUrl')
-    token = Field('stationToken')
+    art_url = Field("artUrl")
+    date_created = Field("dateCreated", formatter=PandoraModel.json_to_date)
+    detail_url = Field("stationDetailUrl")
+    id = Field("stationId")
+    name = Field("stationName")
+    sharing_url = Field("stationSharingUrl")
+    token = Field("stationToken")
 
-    genre = Field('genre', [])
-    quickmix_stations = Field('quickMixStationIds', [])
+    genre = Field("genre", [])
+    quickmix_stations = Field("quickMixStationIds", [])
 
     def get_playlist(self):
-        for station in self._api_client.get_playlist(self.token)['items']:
+        for station in self._api_client.get_playlist(self.token)["items"]:
             yield PlaylistItem.from_json(self._api_client, station)
 
 
 class PlaylistItem(PandoraModel):
 
-    artist_name = Field('artistName')
-    album_name = Field('albumName')
-    song_name = Field('songName')
-    song_rating = Field('songRating')
-    track_gain = Field('trackGain')
-    track_length = Field('trackLength', 0)
-    track_token = Field('trackToken')
-    audio_url = Field('audioUrl')
-    album_art_url = Field('albumArtUrl')
-    allow_feedback = Field('allowFeedback', True)
-    station_id = Field('stationId')
+    artist_name = Field("artistName")
+    album_name = Field("albumName")
+    song_name = Field("songName")
+    song_rating = Field("songRating")
+    track_gain = Field("trackGain")
+    track_length = Field("trackLength", 0)
+    track_token = Field("trackToken")
+    audio_url = Field("audioUrl")
+    album_art_url = Field("albumArtUrl")
+    allow_feedback = Field("allowFeedback", True)
+    station_id = Field("stationId")
 
-    album_detail_url = Field('albumDetailUrl')
-    album_explore_url = Field('albumExplorerUrl')
+    album_detail_url = Field("albumDetailUrl")
+    album_explore_url = Field("albumExplorerUrl")
 
-    amazon_album_asin = Field('amazonAlbumAsin')
-    amazon_album_digital_asin = Field('amazonAlbumDigitalAsin')
-    amazon_album_url = Field('amazonAlbumUrl')
-    amazon_song_digital_asin = Field('amazonSongDigitalAsin')
+    amazon_album_asin = Field("amazonAlbumAsin")
+    amazon_album_digital_asin = Field("amazonAlbumDigitalAsin")
+    amazon_album_url = Field("amazonAlbumUrl")
+    amazon_song_digital_asin = Field("amazonSongDigitalAsin")
 
-    artist_detail_url = Field('artistDetailUrl')
-    artist_explore_url = Field('artistExplorerUrl')
+    artist_detail_url = Field("artistDetailUrl")
+    artist_explore_url = Field("artistExplorerUrl")
 
-    itunes_song_url = Field('itunesSongUrl')
+    itunes_song_url = Field("itunesSongUrl")
 
-    song_detail_url = Field('songDetailUrl')
-    song_explore_url = Field('songExplorerUrl')
+    song_detail_url = Field("songDetailUrl")
+    song_explore_url = Field("songExplorerUrl")
 
     def thumbs_up(self):
         self._api_client.add_feedback(self.track_token, True)
@@ -80,7 +80,7 @@ class PlaylistItem(PandoraModel):
         for key, value in cls._fields.items():
             newval = data.get(value.field, value.default)
 
-            if value.field == 'audioUrl' and newval is None:
+            if value.field == "audioUrl" and newval is None:
                 newval = cls.get_audio_url(
                         data, api_client.default_audio_quality)
 
@@ -100,7 +100,7 @@ class PlaylistItem(PandoraModel):
         next-lowest available quality url otherwise.
         """
         audio_url = None
-        url_map = data.get('audioUrlMap')
+        url_map = data.get("audioUrlMap")
 
         if url_map is None:
             # No audio url available (e.g. ad tokens)
@@ -122,24 +122,24 @@ class PlaylistItem(PandoraModel):
             audio_url = url_map.get(quality)
 
             if audio_url is not None:
-                return audio_url['audioUrl']
+                return audio_url["audioUrl"]
 
-        return audio_url['audioUrl'] if audio_url is not None else None
+        return audio_url["audioUrl"] if audio_url is not None else None
 
 
 class Bookmark(PandoraModel):
 
-    music_token = Field('musicToken')
-    artist_name = Field('artistName')
-    art_url = Field('artUrl')
-    bookmark_token = Field('bookmarkToken')
-    date_created = Field('dateCreated', formatter=PandoraModel.json_to_date)
+    music_token = Field("musicToken")
+    artist_name = Field("artistName")
+    art_url = Field("artUrl")
+    bookmark_token = Field("bookmarkToken")
+    date_created = Field("dateCreated", formatter=PandoraModel.json_to_date)
 
     # song only
-    sample_url = Field('sampleUrl')
-    sample_gain = Field('sampleGain')
-    album_name = Field('albumName')
-    song_name = Field('songName')
+    sample_url = Field("sampleUrl")
+    sample_gain = Field("sampleGain")
+    album_name = Field("albumName")
+    song_name = Field("songName")
 
     @property
     def is_song_bookmark(self):

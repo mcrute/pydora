@@ -6,7 +6,7 @@ def with_metaclass(meta, *bases):
     return meta("NewBase", bases, {})
 
 
-class Field(namedtuple('Field', ['field', 'default', 'formatter'])):
+class Field(namedtuple("Field", ["field", "default", "formatter"])):
 
     def __new__(cls, field, default=None, formatter=None):
         return super(Field, cls).__new__(cls, field, default, formatter)
@@ -15,7 +15,7 @@ class Field(namedtuple('Field', ['field', 'default', 'formatter'])):
 class ModelMetaClass(type):
 
     def __new__(cls, name, parents, dct):
-        dct['_fields'] = fields = {}
+        dct["_fields"] = fields = {}
         new_dct = dct.copy()
 
         for key, val in dct.items():
