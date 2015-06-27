@@ -193,7 +193,7 @@ class URLTester(object):
 
     def _build_request(self):
         request = Request(self.url)
-        request.get_method = lambda : "HEAD"
+        request.get_method = lambda: "HEAD"
         return request
 
     def _get_status_code(self):
@@ -241,7 +241,7 @@ class BaseAPIClient(object):
         cfg.read(path)
 
         self = cls.from_settings_dict(
-                dict((k.upper(), v) for k, v in cfg.items("api", raw=True)))
+            dict((k.upper(), v) for k, v in cfg.items("api", raw=True)))
 
         if authenticate and cfg.has_section("user"):
             credentials = [i[1] for i in cfg.items("user", raw=True)]

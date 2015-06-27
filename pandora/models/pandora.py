@@ -93,7 +93,7 @@ class PlaylistItem(PandoraModel):
 
             if value.field == "audioUrl" and newval is None:
                 newval = cls.get_audio_url(
-                        data, api_client.default_audio_quality)
+                    data, api_client.default_audio_quality)
 
             if newval and value.formatter:
                 newval = value.formatter(newval)
