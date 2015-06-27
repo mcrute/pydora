@@ -307,26 +307,31 @@ class APIClient(BaseAPIClient):
         return self._user_login(username, password)
 
     def get_station_list(self):
-        from .models.pandora import Station
+        from .models.pandora import StationList
 
-        return [Station.from_json(self, s)
-                for s in self("user.getStationList",
-                    includeStationArtUrl=True)["stations"]]
+        return StationList.from_json(self,
+                self("user.getStationList",
+                    includeStationArtUrl=True))
+
+    def get_station_list_checksum(self):
+        return self("user.getStationListChecksum")["checksum"]
 
     def get_playlist(self, station_token):
-        return self("station.getPlaylist",
-                stationToken=station_token,
-                includeTrackLength=True)
+        from .models.pandora import Playlist
+
+        return Playlist.from_json(self,
+                self("station.getPlaylist",
+                    stationToken=station_token,
+                    includeTrackLength=True))
 
     def get_bookmarks(self):
-        from .models.pandora import Bookmark
+        from .models.pandora import Bookmark, BookmarkList
 
-        data = self("user.getBookmarks")
-        return [Bookmark.from_json(self, b)
-                for b in data["artists"] + data["songs"]]
+        return BookmarkList.from_json(self, self("user.getBookmarks"))
 
     def get_station(self, station_token):
         from .models.pandora import Station
+
         return self("station.getStation",
                 stationToken=station_token,
                 includeExtendedAttributes=True)

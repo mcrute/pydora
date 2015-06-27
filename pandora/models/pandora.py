@@ -1,5 +1,5 @@
-from . import Field, PandoraModel
 from .. import BaseAPIClient, URLTester
+from . import Field, PandoraModel, PandoraListModel
 
 
 class Station(PandoraModel):
@@ -21,8 +21,15 @@ class Station(PandoraModel):
     quickmix_stations = Field("quickMixStationIds", [])
 
     def get_playlist(self):
-        for station in self._api_client.get_playlist(self.token)["items"]:
-            yield PlaylistItem.from_json(self._api_client, station)
+        return iter(self._api_client.get_playlist(self.token))
+
+
+class StationList(PandoraListModel):
+
+    checksum = Field("checksum")
+
+    __list_key__ = "stations"
+    __list_model__ = Station
 
 
 class PlaylistItem(PandoraModel):
@@ -127,6 +134,12 @@ class PlaylistItem(PandoraModel):
         return audio_url["audioUrl"] if audio_url is not None else None
 
 
+class Playlist(PandoraListModel):
+
+    __list_key__ = "items"
+    __list_model__ = PlaylistItem
+
+
 class Bookmark(PandoraModel):
 
     music_token = Field("musicToken")
@@ -150,3 +163,9 @@ class Bookmark(PandoraModel):
             self._api_client.delete_song_bookmark(self.bookmark_token)
         else:
             self._api_client.delete_artist_bookmark(self.bookmark_token)
+
+
+class BookmarkList(PandoraModel):
+
+    songs = Field("songs", formatter=Bookmark.from_json_list)
+    artists = Field("artists", formatter=Bookmark.from_json_list)

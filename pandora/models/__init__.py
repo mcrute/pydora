@@ -29,7 +29,7 @@ class ModelMetaClass(type):
 class PandoraModel(with_metaclass(ModelMetaClass, object)):
 
     @staticmethod
-    def json_to_date(data):
+    def json_to_date(api_client, data):
         return datetime.utcfromtimestamp(data["time"] / 1000)
 
     def __init__(self, api_client):
@@ -48,19 +48,28 @@ class PandoraModel(with_metaclass(ModelMetaClass, object)):
 
             setattr(self, key, default)
 
-    @classmethod
-    def from_json(cls, api_client, data):
-        self = cls(api_client)
+    @staticmethod
+    def populate_fields(api_client, instance, data):
+        for key, value in instance.__class__._fields.items():
+            if key.startswith("__"):
+                continue
 
-        for key, value in cls._fields.items():
             newval = data.get(value.field, value.default)
 
             if newval and value.formatter:
-                newval = value.formatter(newval)
+                newval = value.formatter(api_client, newval)
 
-            setattr(self, key, newval)
+            setattr(instance, key, newval)
 
+    @classmethod
+    def from_json(cls, api_client, data):
+        self = cls(api_client)
+        PandoraModel.populate_fields(api_client, self, data)
         return self
+
+    @classmethod
+    def from_json_list(cls, api_client, data):
+        return [cls.from_json(api_client, item) for item in data]
 
     def __repr__(self):
         output = ", ".join([
@@ -68,3 +77,19 @@ class PandoraModel(with_metaclass(ModelMetaClass, object)):
             for key in self._fields.keys()])
 
         return "{}({})".format(self.__class__.__name__, output)
+
+
+class PandoraListModel(PandoraModel, list):
+
+    __list_key__ = None
+    __list_model__ = None
+
+    @classmethod
+    def from_json(cls, api_client, data):
+        self = cls(api_client)
+        PandoraModel.populate_fields(api_client, self, data)
+
+        for station in data[cls.__list_key__]:
+            self.append(cls.__list_model__.from_json(api_client, station))
+
+        return self
