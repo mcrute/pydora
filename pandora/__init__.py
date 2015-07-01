@@ -327,14 +327,16 @@ class APIClient(BaseAPIClient):
     def get_bookmarks(self):
         from .models.pandora import BookmarkList
 
-        return BookmarkList.from_json(self, self("user.getBookmarks"))
+        return BookmarkList.from_json(self,
+                self("user.getBookmarks"))
 
     def get_station(self, station_token):
         from .models.pandora import Station
 
-        return self("station.getStation",
-                stationToken=station_token,
-                includeExtendedAttributes=True)
+        return Station.from_json(self,
+                self("station.getStation",
+                    stationToken=station_token,
+                    includeExtendedAttributes=True))
 
     def add_artist_bookmark(self, track_token):
         return self("bookmark.addArtistBookmark",
