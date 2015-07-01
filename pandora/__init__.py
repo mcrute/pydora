@@ -355,8 +355,11 @@ class APIClient(BaseAPIClient):
                 bookmarkToken=bookmark_token)
 
     def search(self, search_text):
-        return self("music.search",
-                searchText=search_text)
+        from .models.pandora import SearchResult
+
+        return SearchResult.from_json(self,
+                self("music.search",
+                    searchText=search_text))
 
     def add_feedback(self, track_token, positive):
         return self("station.addFeedback",
@@ -396,7 +399,10 @@ class APIClient(BaseAPIClient):
                 stationToken=station_token)
 
     def get_genre_stations(self):
-        return self("station.getGenreStations")
+        from .models.pandora import GenreStations
+
+        return GenreStations.from_json(self,
+                self("station.getGenreStations")["categories"])
 
     def rename_station(self, station_token, name):
         return self("station.renameStation",

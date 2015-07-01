@@ -1,5 +1,5 @@
 from .. import BaseAPIClient, URLTester
-from . import Field, PandoraModel, PandoraListModel
+from . import Field, PandoraModel, PandoraListModel, PandoraDictListModel
 
 
 class Station(PandoraModel):
@@ -173,3 +173,37 @@ class BookmarkList(PandoraModel):
 
     songs = Field("songs", formatter=Bookmark.from_json_list)
     artists = Field("artists", formatter=Bookmark.from_json_list)
+
+
+class SearchResultItem(PandoraModel):
+
+    artist = Field("artistName")
+    song_name = Field("songName")
+    score = Field("score")
+    likely_match = Field("likelyMatch")
+    token = Field("musicToken")
+
+    @property
+    def is_song(self):
+        return self.song_name != None
+
+    def create_station(self):
+        if self.is_song:
+            self._api_client.create_station(track_token=self.token)
+        else:
+            self._api_client.create_station(artist_token=self.token)
+
+
+class SearchResult(PandoraModel):
+
+    nearest_matches_available = Field("nearMatchesAvailable")
+    explanation = Field("explanation")
+    songs = Field("songs", formatter=SearchResultItem.from_json_list)
+    artists = Field("artists", formatter=SearchResultItem.from_json_list)
+
+
+class GenreStations(PandoraDictListModel):
+
+    __dict_key__ = "categoryName"
+    __list_key__ = "stations"
+    __list_model__ = Station

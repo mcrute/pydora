@@ -71,12 +71,24 @@ class PandoraModel(with_metaclass(ModelMetaClass, object)):
     def from_json_list(cls, api_client, data):
         return [cls.from_json(api_client, item) for item in data]
 
-    def __repr__(self):
-        output = ", ".join([
+    def _base_repr(self, and_also=None):
+        items = [
             "=".join((key, repr(getattr(self, key))))
-            for key in self._fields.keys()])
+            for key in self._fields.keys()]
 
-        return "{}({})".format(self.__class__.__name__, output)
+        if items:
+            output = ", ".join(items)
+        else:
+            output = None
+
+        if and_also:
+            return "{}({}, {})".format(self.__class__.__name__,
+                    output, and_also)
+        else:
+            return "{}({})".format(self.__class__.__name__, output)
+
+    def __repr__(self):
+        return self._base_repr()
 
 
 class PandoraListModel(PandoraModel, list):
@@ -89,7 +101,34 @@ class PandoraListModel(PandoraModel, list):
         self = cls(api_client)
         PandoraModel.populate_fields(api_client, self, data)
 
-        for station in data[cls.__list_key__]:
-            self.append(cls.__list_model__.from_json(api_client, station))
+        for item in data[cls.__list_key__]:
+            self.append(cls.__list_model__.from_json(api_client, item))
 
         return self
+
+    def __repr__(self):
+        return self._base_repr(and_also=list.__repr__(self))
+
+
+class PandoraDictListModel(PandoraModel, dict):
+
+    __dict_key__ = None
+    __list_key__ = None
+    __list_model__ = None
+
+    @classmethod
+    def from_json(cls , api_client, data):
+        self = cls(api_client)
+        PandoraModel.populate_fields(api_client, self, data)
+
+        for item in data:
+            key = item[self.__dict_key__]
+            self[key] = []
+
+            for part in item[self.__list_key__]:
+                self[key].append(cls.__list_model__.from_json(api_client, part))
+
+        return self
+
+    def __repr__(self):
+        return self._base_repr(and_also=dict.__repr__(self))
