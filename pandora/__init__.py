@@ -150,14 +150,6 @@ class Encryptor(object):
         self.bf_out = Blowfish.new(out_key, Blowfish.MODE_ECB)
         self.bf_in = Blowfish.new(in_key, Blowfish.MODE_ECB)
 
-    def strip_padding(self, data):
-        padding = data.find("\x00")
-
-        if padding > 0:
-            return data[:padding]
-
-        return data
-
     @staticmethod
     def _decode_hex(data):
         return base64.b16decode(data.upper())
@@ -174,8 +166,15 @@ class Encryptor(object):
         return int(self.bf_in.decrypt(self._decode_hex(data))[4:-2])
 
     def add_padding(self, data):
-        plen = Blowfish.block_size - divmod(len(data), Blowfish.block_size)[1]
-        return data + ("\x00" * plen)
+        block_size = Blowfish.block_size
+        pad_size = len(data) % block_size
+        return data + (chr(pad_size) * (block_size - pad_size))
+
+    def strip_padding(self, data):
+        pad_size = int(data[-1])
+        if not data[-pad_size:] == bytes((pad_size,)) * pad_size:
+            raise ValueError('Invalid padding')
+        return data[:-pad_size]
 
     def encrypt(self, data):
         return self._encode_hex(self.bf_out.encrypt(self.add_padding(data)))
