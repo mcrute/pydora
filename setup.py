@@ -22,7 +22,8 @@ setup(
         'pandora.models',
     ],
     install_requires=[
-        'pycrypto==2.6.1',
+        'pycrypto>=2.6.1',
+        'requests>=2',
     ],
     entry_points={
         'console_scripts': [

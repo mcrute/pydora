@@ -11,16 +11,12 @@ Keys at: http://6xq.net/playground/pandora-apidoc/json/partners/#partners
 import time
 import json
 import base64
+import requests
 from Crypto.Cipher import Blowfish
 
 try:
-    from urllib.error import URLError
-    from urllib.parse import urlencode
-    from urllib.request import Request, urlopen
     from configparser import SafeConfigParser
 except ImportError:
-    from urllib import urlencode
-    from urllib2 import Request, urlopen, URLError
     from ConfigParser import SafeConfigParser
 
 from . import errors
@@ -44,9 +40,10 @@ class APITransport(object):
     REQUIRE_TLS = ("auth.partnerLogin", "auth.userLogin",
             "station.getPlaylist", "user.createUser")
 
-    def __init__(self, cryptor, api_host=DEFAULT_API_HOST):
+    def __init__(self, cryptor, api_host=DEFAULT_API_HOST, proxy=None):
         self.cryptor = cryptor
         self.api_host = api_host
+        self.proxy = proxy
 
         self.partner_auth_token = None
         self.user_auth_token = None
@@ -56,6 +53,14 @@ class APITransport(object):
 
         self.start_time = None
         self.server_sync_time = None
+
+        self._http = requests.Session()
+
+        if self.proxy:
+            self._http.proxies = {
+                'http': self.proxy,
+                'https': self.proxy,
+            }
 
     @property
     def auth_token(self):
@@ -85,29 +90,35 @@ class APITransport(object):
         if not self.start_time:
             self.start_time = int(time.time())
 
-    def _make_http_request(self, url, data):
+    def _make_http_request(self, url, data, params):
         try:
             data = data.encode("utf-8")
         except AttributeError:
             pass
 
-        req = Request(url, data, { "Content-Type": "text/plain" })
-        return urlopen(req)
+        params = self.remove_empty_values(params)
 
-    def _build_url(self, method):
-        query = {
+        r = self._http.post(url, data=data, params=params)
+        r.raise_for_status()
+        return r.content
+
+    def test_url(self, url):
+        return self._http.head(url).status_code == requests.codes.OK
+
+    def _build_params(self, method):
+        return {
             "method": method,
             "auth_token": self.auth_token,
             "partner_id": self.partner_id,
             "user_id": self.user_id,
         }
 
-        return "{0}://{1}?{2}".format(
+    def _build_url(self, method):
+        return "{0}://{1}".format(
             "https" if method in self.REQUIRE_TLS else "http",
-            self.api_host,
-            urlencode(self.remove_empty_values(query)))
+            self.api_host)
 
-    def _build_data(self, method, **data):
+    def _build_data(self, method, data):
         data["userAuthToken"] = self.user_auth_token
         data["syncTime"] = self.sync_time
 
@@ -133,10 +144,11 @@ class APITransport(object):
         self._start_request()
 
         url = self._build_url(method)
-        data = self._build_data(method, **data)
-        result = self._make_http_request(url, data)
+        data = self._build_data(method, data)
+        params = self._build_params(method)
+        result = self._make_http_request(url, data, params)
 
-        return self._parse_response(result.read())
+        return self._parse_response(result)
 
 
 class Encryptor(object):
@@ -149,14 +161,6 @@ class Encryptor(object):
     def __init__(self, in_key, out_key):
         self.bf_out = Blowfish.new(out_key, Blowfish.MODE_ECB)
         self.bf_in = Blowfish.new(in_key, Blowfish.MODE_ECB)
-
-    def strip_padding(self, data):
-        padding = data.find("\x00")
-
-        if padding > 0:
-            return data[:padding]
-
-        return data
 
     @staticmethod
     def _decode_hex(data):
@@ -174,37 +178,18 @@ class Encryptor(object):
         return int(self.bf_in.decrypt(self._decode_hex(data))[4:-2])
 
     def add_padding(self, data):
-        plen = Blowfish.block_size - divmod(len(data), Blowfish.block_size)[1]
-        return data + ("\x00" * plen)
+        block_size = Blowfish.block_size
+        pad_size = len(data) % block_size
+        return data + (chr(pad_size) * (block_size - pad_size))
+
+    def strip_padding(self, data):
+        pad_size = int(data[-1])
+        if not data[-pad_size:] == bytes((pad_size,)) * pad_size:
+            raise ValueError('Invalid padding')
+        return data[:-pad_size]
 
     def encrypt(self, data):
         return self._encode_hex(self.bf_out.encrypt(self.add_padding(data)))
-
-
-class URLTester(object):
-    """URL Status Tester
-
-    A utility class to make head requests to URLs and determine if they are
-    currently accessible.
-    """
-
-    def __init__(self, url):
-        self.url = url
-
-    def _build_request(self):
-        request = Request(self.url)
-        request.get_method = lambda: "HEAD"
-        return request
-
-    def _get_status_code(self):
-        request = self._build_request()
-        return urlopen(request).getcode()
-
-    def is_accessible(self):
-        try:
-            return self._get_status_code() == 200
-        except URLError:
-            return False
 
 
 class BaseAPIClient(object):
