@@ -221,6 +221,38 @@ class BaseAPIClient(object):
                    settings["DEVICE"], settings["DEFAULT_AUDIO_QUALITY"])
 
     @classmethod
+    def from_pianobar_config(cls, path, authenticate=True):
+        settings = cls.parse_pianobar_config(open(path, 'r'))
+        enc = Encryptor(settings["decrypt_password"],
+                        settings["encrypt_password"])
+        rpc_host = settings.get("rpc_host")
+        if rpc_host is not None:
+            rpc_host = rpc_host + "/services/json/"
+        trans = APITransport(enc, rpc_host or DEFAULT_API_HOST,
+                             settings.get("proxy"))
+                             # , settings.get("tls_fingerprint"))
+
+        self = cls(trans, settings["partner_user"], settings["partner_password"],
+                   settings["device"], settings["audio_quality"] + "Quality")
+
+        if authenticate:
+            self.login(settings["user"], settings["password"])
+
+        return self
+
+    @staticmethod
+    def parse_pianobar_config(fp):
+        settings = {}
+
+        for line in fp.readlines():
+            line = line.strip()
+            if line and line[0] != '#':
+                k, v = line.split('=', 1)
+                settings[k.strip()] = v.strip()
+
+        return settings
+
+    @classmethod
     def from_config_file(cls, path, authenticate=True):
         cfg = SafeConfigParser()
         cfg.read(path)

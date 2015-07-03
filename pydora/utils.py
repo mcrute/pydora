@@ -12,7 +12,7 @@ def input(prompt):
         return builtins.input(prompt)
 
 
-class Colors:
+class Colors(object):
 
     def __wrap_with(code):
         @staticmethod
@@ -32,7 +32,7 @@ class Colors:
     white = __wrap_with('37')
 
 
-class Screen:
+class Screen(object):
 
     @staticmethod
     def set_echo(enabled):
