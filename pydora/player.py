@@ -33,24 +33,7 @@ class PlayerApp:
         self.client = None
         self.player = Player(self, sys.stdin)
 
-    @property
-    def config_path(self):
-        """Find the config file
-
-        Config file exists in either ~/.pydora.cfg or is pointed to by an
-        environment variable PYDORA_CFG.
-        """
-        path = os.path.expanduser(
-            os.environ.get('PYDORA_CFG', '~/.pydora.cfg'))
-
-        if not os.path.exists(path):
-            Screen.print_error('No settings at {!r}'.format(path))
-            sys.exit(1)
-
-        return path
-
     def get_client(self):
-
         explicit_config = os.environ.get('PYDORA_CFG')
         if explicit_config is not None:
             explicit_config = os.path.expanduser(explicit_config)
