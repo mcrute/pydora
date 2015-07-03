@@ -11,16 +11,12 @@ Keys at: http://6xq.net/playground/pandora-apidoc/json/partners/#partners
 import time
 import json
 import base64
+import requests
 from Crypto.Cipher import Blowfish
 
 try:
-    from urllib.error import URLError
-    from urllib.parse import urlencode
-    from urllib.request import Request, urlopen
     from configparser import SafeConfigParser
 except ImportError:
-    from urllib import urlencode
-    from urllib2 import Request, urlopen, URLError
     from ConfigParser import SafeConfigParser
 
 from . import errors
@@ -56,6 +52,7 @@ class APITransport(object):
 
         self.start_time = None
         self.server_sync_time = None
+        self._http = requests.Session()
 
     @property
     def auth_token(self):
@@ -85,29 +82,32 @@ class APITransport(object):
         if not self.start_time:
             self.start_time = int(time.time())
 
-    def _make_http_request(self, url, data):
+    def _make_http_request(self, url, data, params):
         try:
             data = data.encode("utf-8")
         except AttributeError:
             pass
 
-        req = Request(url, data, { "Content-Type": "text/plain" })
-        return urlopen(req)
+        params = self.remove_empty_values(params)
 
-    def _build_url(self, method):
-        query = {
+        r = self._http.post(url, data=data, params=params)
+        r.raise_for_status()
+        return r.content
+
+    def _build_params(self, method):
+        return {
             "method": method,
             "auth_token": self.auth_token,
             "partner_id": self.partner_id,
             "user_id": self.user_id,
         }
 
-        return "{0}://{1}?{2}".format(
+    def _build_url(self, method):
+        return "{0}://{1}".format(
             "https" if method in self.REQUIRE_TLS else "http",
-            self.api_host,
-            urlencode(self.remove_empty_values(query)))
+            self.api_host)
 
-    def _build_data(self, method, **data):
+    def _build_data(self, method, data):
         data["userAuthToken"] = self.user_auth_token
         data["syncTime"] = self.sync_time
 
@@ -133,10 +133,11 @@ class APITransport(object):
         self._start_request()
 
         url = self._build_url(method)
-        data = self._build_data(method, **data)
-        result = self._make_http_request(url, data)
+        data = self._build_data(method, data)
+        params = self._build_params(method)
+        result = self._make_http_request(url, data, params)
 
-        return self._parse_response(result.read())
+        return self._parse_response(result)
 
 
 class Encryptor(object):
