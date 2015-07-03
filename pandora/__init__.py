@@ -40,9 +40,10 @@ class APITransport(object):
     REQUIRE_TLS = ("auth.partnerLogin", "auth.userLogin",
             "station.getPlaylist", "user.createUser")
 
-    def __init__(self, cryptor, api_host=DEFAULT_API_HOST):
+    def __init__(self, cryptor, api_host=DEFAULT_API_HOST, proxy=None):
         self.cryptor = cryptor
         self.api_host = api_host
+        self.proxy = proxy
 
         self.partner_auth_token = None
         self.user_auth_token = None
@@ -52,7 +53,14 @@ class APITransport(object):
 
         self.start_time = None
         self.server_sync_time = None
+
         self._http = requests.Session()
+
+        if self.proxy:
+            self._http.proxies = {
+                'http': self.proxy,
+                'https': self.proxy,
+            }
 
     @property
     def auth_token(self):
