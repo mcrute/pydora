@@ -1,4 +1,4 @@
-from .. import BaseAPIClient, URLTester
+from .. import BaseAPIClient
 from . import Field, PandoraModel, PandoraListModel, PandoraDictListModel
 
 
@@ -82,7 +82,7 @@ class PlaylistItem(PandoraModel):
         self._api_client.sleep_song(self.track_token)
 
     def get_is_playable(self):
-        return URLTester(self.audio_url).is_accessible()
+        return self._api.transport.test_url(self.audio_url)
 
     @classmethod
     def from_json(cls, api_client, data):

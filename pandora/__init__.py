@@ -102,6 +102,9 @@ class APITransport(object):
         r.raise_for_status()
         return r.content
 
+    def test_url(self, url):
+        return self._http.head(url).status_code == requests.codes.OK
+
     def _build_params(self, method):
         return {
             "method": method,
@@ -187,32 +190,6 @@ class Encryptor(object):
 
     def encrypt(self, data):
         return self._encode_hex(self.bf_out.encrypt(self.add_padding(data)))
-
-
-class URLTester(object):
-    """URL Status Tester
-
-    A utility class to make head requests to URLs and determine if they are
-    currently accessible.
-    """
-
-    def __init__(self, url):
-        self.url = url
-
-    def _build_request(self):
-        request = Request(self.url)
-        request.get_method = lambda: "HEAD"
-        return request
-
-    def _get_status_code(self):
-        request = self._build_request()
-        return urlopen(request).getcode()
-
-    def is_accessible(self):
-        try:
-            return self._get_status_code() == 200
-        except URLError:
-            return False
 
 
 class BaseAPIClient(object):
