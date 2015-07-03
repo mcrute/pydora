@@ -49,6 +49,35 @@ class PlayerApp:
 
         return path
 
+    def get_client(self):
+
+        explicit_config = os.environ.get('PYDORA_CFG')
+        if explicit_config is not None:
+            explicit_config = os.path.expanduser(explicit_config)
+        default_config = os.path.expanduser('~/.pydora.cfg')
+        pianobar_config = os.path.expanduser('~/.config/pianobar/config')
+
+        if explicit_config is not None:
+            if not os.path.exists(explicit_config):
+                self._config_not_found(explicit_config)
+                return
+            else:
+                config_path = explicit_config
+
+        if os.path.exists(default_config):
+            config_path = default_config
+        elif os.path.exists(pianobar_config):
+            return APIClient.from_pianobar_config(pianobar_config)
+        else:
+            self._config_not_found(default_config)
+            return
+
+        return APIClient.from_config_file(config_path)
+
+    def _config_not_found(path):
+            Screen.print_error('No settings at {!r}'.format(path))
+            sys.exit(1)
+
     def station_selection_menu(self):
         """Format a station menu and make the user select a station
         """
@@ -125,7 +154,7 @@ class PlayerApp:
         Screen.set_echo(True)
 
     def run(self):
-        self.client = APIClient.from_config_file(self.config_path)
+        self.client = self.get_client()
         self.stations = self.client.get_station_list()
 
         while True:
