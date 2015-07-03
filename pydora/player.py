@@ -13,7 +13,7 @@ import os
 import sys
 
 from pandora import APIClient
-from pydora.mpg123 import Player
+from .mpg123 import Player
 from .utils import Colors, Screen
 
 
