@@ -17,7 +17,7 @@ from .mpg123 import Player
 from .utils import Colors, Screen
 
 
-class PlayerApp:
+class PlayerApp(object):
 
     CMD_MAP = {
         'n': ('play next song', 'skip_song'),
