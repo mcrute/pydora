@@ -15,8 +15,8 @@ def warn_deprecated(in_version, remove_version, what, message):
            " and will be removed in version {}. {}")
 
     warnings.warn(
-            msg.format(what, in_version, remove_version, message),
-            DeprecationWarning)
+        msg.format(what, in_version, remove_version, message),
+        DeprecationWarning)
 
 
 def deprecated(in_version, remove_version, message):

@@ -83,7 +83,7 @@ class PandoraModel(with_metaclass(ModelMetaClass, object)):
 
         if and_also:
             return "{}({}, {})".format(self.__class__.__name__,
-                    output, and_also)
+                                       output, and_also)
         else:
             return "{}({})".format(self.__class__.__name__, output)
 
@@ -117,7 +117,7 @@ class PandoraDictListModel(PandoraModel, dict):
     __list_model__ = None
 
     @classmethod
-    def from_json(cls , api_client, data):
+    def from_json(cls, api_client, data):
         self = cls(api_client)
         PandoraModel.populate_fields(api_client, self, data)
 
@@ -126,7 +126,8 @@ class PandoraDictListModel(PandoraModel, dict):
             self[key] = []
 
             for part in item[self.__list_key__]:
-                self[key].append(cls.__list_model__.from_json(api_client, part))
+                self[key].append(
+                    cls.__list_model__.from_json(api_client, part))
 
         return self
 

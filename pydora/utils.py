@@ -37,8 +37,8 @@ class Screen(object):
     @staticmethod
     def set_echo(enabled):
         fd = sys.stdin.fileno()
-        (iflag, oflag, cflag, lflag, ispeed, ospeed, cc) = \
-            termios.tcgetattr(fd)
+        (iflag, oflag, cflag,
+         lflag, ispeed, ospeed, cc) = termios.tcgetattr(fd)
 
         if enabled:
             lflag |= termios.ECHO
@@ -46,7 +46,7 @@ class Screen(object):
             lflag &= ~termios.ECHO
 
         termios.tcsetattr(fd, termios.TCSANOW,
-            [iflag, oflag, cflag, lflag, ispeed, ospeed, cc])
+                          [iflag, oflag, cflag, lflag, ispeed, ospeed, cc])
 
     @staticmethod
     def clear():

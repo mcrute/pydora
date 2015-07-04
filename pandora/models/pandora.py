@@ -104,7 +104,7 @@ class PlaylistItem(PandoraModel):
 
     @classmethod
     def get_audio_url(cls, data,
-            preferred_quality=BaseAPIClient.MED_AUDIO_QUALITY):
+                      preferred_quality=BaseAPIClient.MED_AUDIO_QUALITY):
         """Get audio url
 
         Try to find audio url for specified preferred quality level, or
@@ -185,7 +185,7 @@ class SearchResultItem(PandoraModel):
 
     @property
     def is_song(self):
-        return self.song_name != None
+        return self.song_name is not None
 
     def create_station(self):
         if self.is_song:

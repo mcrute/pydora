@@ -103,17 +103,18 @@ class APIClientBuilder(object):
 
     def build_from_settings_dict(self, settings):
         enc = Encryptor(settings["DECRYPTION_KEY"],
-                settings["ENCRYPTION_KEY"])
+                        settings["ENCRYPTION_KEY"])
 
         trans = APITransport(enc,
-                settings.get("API_HOST", DEFAULT_API_HOST),
-                settings.get("PROXY", None))
+                             settings.get("API_HOST", DEFAULT_API_HOST),
+                             settings.get("PROXY", None))
 
         quality = settings.get("AUDIO_QUALITY",
-                    self.client_class.MED_AUDIO_QUALITY)
+                               self.client_class.MED_AUDIO_QUALITY)
 
         return self.client_class(trans, settings["PARTNER_USER"],
-                settings["PARTNER_PASSWORD"], settings["DEVICE"], quality)
+                                 settings["PARTNER_PASSWORD"],
+                                 settings["DEVICE"], quality)
 
 
 class SettingsDict(TranslatingDict):
@@ -127,7 +128,7 @@ class SettingsDict(TranslatingDict):
         "USERNAME": "PARTNER_USER",
         "PASSWORD": "PARTNER_PASSWORD",
         "DEFAULT_AUDIO_QUALITY": "AUDIO_QUALITY",
-        }
+    }
 
     VALUE_TRANSLATIONS = {}
 
@@ -186,7 +187,7 @@ class FileBasedClientBuilder(APIClientBuilder):
 
         if self.authenticate:
             client.login(config["USER"]["USERNAME"],
-                    config["USER"]["PASSWORD"])
+                         config["USER"]["PASSWORD"])
 
         return client
 
@@ -202,7 +203,7 @@ class PydoraConfigFileBuilder(FileBasedClientBuilder):
     @staticmethod
     def cfg_to_dict(cfg, key, kind=SettingsDict):
         return kind((k.strip().upper(), v.strip())
-                for k, v in cfg.items(key, raw=True))
+                    for k, v in cfg.items(key, raw=True))
 
     def parse_config(self):
         cfg = SafeConfigParser()
@@ -212,7 +213,7 @@ class PydoraConfigFileBuilder(FileBasedClientBuilder):
 
         settings = PydoraConfigFileBuilder.cfg_to_dict(cfg, "api")
         settings["user"] = PydoraConfigFileBuilder.cfg_to_dict(
-                cfg, "user", dict)
+            cfg, "user", dict)
 
         return settings
 
@@ -226,12 +227,12 @@ class PianobarSettingsDict(TranslatingDict):
         "ENCRYPT_PASSWORD": "ENCRYPTION_KEY",
         "RPC_HOST": "API_HOST",
         "CONTROL_PROXY": "PROXY",
-        }
+    }
 
     VALUE_TRANSLATIONS = {
         "API_HOST": lambda v: "{}/services/json/".format(v),
         "AUDIO_QUALITY": lambda v: "{}Quality".format(v),
-        }
+    }
 
 
 class PianobarConfigFileBuilder(FileBasedClientBuilder):
@@ -253,7 +254,8 @@ class PianobarConfigFileBuilder(FileBasedClientBuilder):
                     settings.put(*line.split("=", 1))
 
         settings["USER"] = {
-                "USERNAME": settings.pop("USER"),
-                "PASSWORD": settings.pop("PASSWORD")}
+            "USERNAME": settings.pop("USER"),
+            "PASSWORD": settings.pop("PASSWORD"),
+        }
 
         return settings
