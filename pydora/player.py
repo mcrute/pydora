@@ -10,6 +10,7 @@ from __future__ import print_function
 
 import os
 import sys
+from pandora import APIClient, clientbuilder
 
 from .mpg123 import Player
 from .utils import Colors, Screen
@@ -34,21 +35,19 @@ class PlayerApp(object):
         self.client = None
         self.player = Player(self, sys.stdin)
 
-    @property
-    def config_path(self):
-        """Find the config file
+    def get_client(self):
+        cfg_file = os.environ.get("PYDORA_CFG", "")
+        builder = clientbuilder.PydoraConfigFileBuilder(cfg_file)
+        if builder.file_exists:
+            return builder.build()
 
-        Config file exists in either ~/.pydora.cfg or is pointed to by an
-        environment variable PYDORA_CFG.
-        """
-        path = os.path.expanduser(
-            os.environ.get('PYDORA_CFG', '~/.pydora.cfg'))
+        builder = clientbuilder.PianobarConfigFileBuilder()
+        if builder.file_exists:
+            return builder.build()
 
-        if not os.path.exists(path):
-            Screen.print_error('No settings at {!r}'.format(path))
+        if not self.client:
+            Screen.print_error("No valid config found")
             sys.exit(1)
-
-        return path
 
     def station_selection_menu(self):
         """Format a station menu and make the user select a station
@@ -126,7 +125,7 @@ class PlayerApp(object):
         Screen.set_echo(True)
 
     def run(self):
-        self.client = APIClient.from_config_file(self.config_path)
+        self.client = self.get_client()
         self.stations = self.client.get_station_list()
 
         while True:
