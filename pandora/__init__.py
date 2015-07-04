@@ -14,12 +14,8 @@ import base64
 import requests
 from Crypto.Cipher import Blowfish
 
-try:
-    from configparser import SafeConfigParser
-except ImportError:
-    from ConfigParser import SafeConfigParser
-
 from . import errors
+from .util import deprecated
 from .errors import PandoraException
 
 
@@ -214,25 +210,18 @@ class BaseAPIClient(object):
         self.password = None
 
     @classmethod
+    @deprecated("1.3", "2.0",
+            "Replaced by clientbuilder.SettingsDictBuilder")
     def from_settings_dict(cls, settings):
-        enc = Encryptor(settings["DECRYPTION_KEY"], settings["ENCRYPTION_KEY"])
-        trans = APITransport(enc, settings.get("API_HOST", DEFAULT_API_HOST))
-        return cls(trans, settings["USERNAME"], settings["PASSWORD"],
-                   settings["DEVICE"], settings["DEFAULT_AUDIO_QUALITY"])
+        from .clientbuilder import SettingsDictBuilder
+        return SettingsDictBuilder(settings).build()
 
     @classmethod
+    @deprecated("1.3", "2.0",
+            "Replaced by clientbuilder.PydoraConfigFileBuilder")
     def from_config_file(cls, path, authenticate=True):
-        cfg = SafeConfigParser()
-        cfg.read(path)
-
-        self = cls.from_settings_dict(
-            dict((k.upper(), v) for k, v in cfg.items("api", raw=True)))
-
-        if authenticate and cfg.has_section("user"):
-            credentials = [i[1] for i in cfg.items("user", raw=True)]
-            self.login(*credentials)
-
-        return self
+        from .clientbuilder import PydoraConfigFileBuilder
+        return PydoraConfigFileBuilder(path, authenticate).build()
 
     def _partner_login(self):
         partner = self.transport("auth.partnerLogin",

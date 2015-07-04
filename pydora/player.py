@@ -11,7 +11,6 @@ from __future__ import print_function
 import os
 import sys
 
-from pandora import APIClient
 from .mpg123 import Player
 from .utils import Colors, Screen
 
