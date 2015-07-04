@@ -12,7 +12,6 @@ import os
 import sys
 from pandora import APIClient, clientbuilder
 
-from pandora import APIClient
 from .mpg123 import Player
 from .utils import Colors, Screen
 

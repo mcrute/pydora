@@ -225,6 +225,7 @@ class PianobarSettingsDict(TranslatingDict):
         "DECRYPT_PASSWORD": "DECRYPTION_KEY",
         "ENCRYPT_PASSWORD": "ENCRYPTION_KEY",
         "RPC_HOST": "API_HOST",
+        "CONTROL_PROXY": "PROXY",
         }
 
     VALUE_TRANSLATIONS = {

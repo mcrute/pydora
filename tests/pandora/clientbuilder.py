@@ -206,6 +206,7 @@ class TestPianobarConfigFileBuilder(TestCase):
             "PARTNER_PASSWORD": "test_partner_password",
             "PARTNER_USER": "test_partner_username",
             "API_HOST": "test_host/services/json/",
+            "PROXY": "test_proxy",
             "USER": {
                 "USERNAME": "test_username",
                 "PASSWORD": "test_password",
