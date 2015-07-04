@@ -16,10 +16,14 @@ setup(
     author='Mike Crute',
     author_email='mcrute@gmail.com',
     url='https://github.com/mcrute/pydora',
+    test_suite="tests",
     packages=[
         'pydora',
         'pandora',
         'pandora.models',
+    ],
+    tests_require=[
+        "mock==1.0.1",
     ],
     install_requires=[
         'pycrypto>=2.6.1',
