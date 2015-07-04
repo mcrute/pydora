@@ -6,15 +6,17 @@ This is a very simple Pandora player that streams music from Pandora. It
 requires mpg123 to function. No songs are downloaded, they are streamed
 directly from Pandora's servers.
 """
+from __future__ import print_function
+
 import os
 import sys
 
 from pandora import APIClient
-from pydora.mpg123 import Player
+from .mpg123 import Player
 from .utils import Colors, Screen
 
 
-class PlayerApp:
+class PlayerApp(object):
 
     CMD_MAP = {
         'n': ('play next song', 'skip_song'),
