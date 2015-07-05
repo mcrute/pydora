@@ -4,3 +4,5 @@ dist/
 build/
 pydora.egg-info/
 .pip/
+.pip3/
+coverage.xml
