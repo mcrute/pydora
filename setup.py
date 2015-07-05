@@ -18,7 +18,7 @@ setup(
     author="Mike Crute",
     author_email="mcrute@gmail.com",
     url="https://github.com/mcrute/pydora",
-    test_suite="tests",
+    test_suite="tests.discover_suite",
     cmdclass={
         "check_style": distutils_ext.check_style,
         "cover_test": distutils_ext.cover_test,
