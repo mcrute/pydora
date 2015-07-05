@@ -15,8 +15,10 @@ import base64
 import requests
 from Crypto.Cipher import Blowfish
 
-from . import DEFAULT_API_HOST
 from .errors import PandoraException
+
+
+DEFAULT_API_HOST = "tuner.pandora.com/services/json/"
 
 
 class APITransport(object):
@@ -183,4 +185,3 @@ class Encryptor(object):
 
     def encrypt(self, data):
         return self._encode_hex(self.bf_out.encrypt(self.add_padding(data)))
-

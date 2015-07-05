@@ -9,7 +9,6 @@ API Spec from: http://6xq.net/playground/pandora-apidoc/
 Keys at: http://6xq.net/playground/pandora-apidoc/json/partners/#partners
 """
 
-DEFAULT_API_HOST = "tuner.pandora.com/services/json/"
-
-from .transport import APITransport, Encryptor
 from .client import BaseAPIClient, APIClient
+from .transport import APITransport, Encryptor, DEFAULT_API_HOST
+
