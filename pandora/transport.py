@@ -1,0 +1,186 @@
+"""
+Pandora API Transport
+
+This module contains the very low level transport agent for the Pandora API.
+The transport is concerned with the details of a raw HTTP call to the Pandora
+API along with the request and response encryption by way of an Encyrpytor
+object. The result from a transport is a JSON object for the API or an
+exception.
+
+API consumers should use one of the API clients in the pandora.client package.
+"""
+import time
+import json
+import base64
+import requests
+from Crypto.Cipher import Blowfish
+
+from . import DEFAULT_API_HOST
+from .errors import PandoraException
+
+
+class APITransport(object):
+    """Pandora API Transport
+
+    The transport is responsible for speaking the low-level protocol required
+    by the Pandora API. It knows about encryption, TLS and the other API
+    details. Once setup the transport acts like a callable.
+    """
+
+    API_VERSION = "5"
+
+    NO_ENCRYPT = ("auth.partnerLogin", )
+    REQUIRE_TLS = ("auth.partnerLogin", "auth.userLogin",
+                   "station.getPlaylist", "user.createUser")
+
+    def __init__(self, cryptor, api_host=DEFAULT_API_HOST, proxy=None):
+        self.cryptor = cryptor
+        self.api_host = api_host
+        self.proxy = proxy
+
+        self.partner_auth_token = None
+        self.user_auth_token = None
+
+        self.partner_id = None
+        self.user_id = None
+
+        self.start_time = None
+        self.server_sync_time = None
+
+        self._http = requests.Session()
+
+        if self.proxy:
+            self._http.proxies = {
+                'http': self.proxy,
+                'https': self.proxy,
+            }
+
+    @property
+    def auth_token(self):
+        if self.user_auth_token:
+            return self.user_auth_token
+
+        if self.partner_auth_token:
+            return self.partner_auth_token
+
+        return None
+
+    @property
+    def sync_time(self):
+        if not self.server_sync_time:
+            return None
+
+        return int(self.server_sync_time + (time.time() - self.start_time))
+
+    def remove_empty_values(self, data):
+        return dict((k, v) for k, v in data.items() if v is not None)
+
+    @sync_time.setter
+    def sync_time(self, sync_time):
+        self.server_sync_time = self.cryptor.decrypt_sync_time(sync_time)
+
+    def _start_request(self):
+        if not self.start_time:
+            self.start_time = int(time.time())
+
+    def _make_http_request(self, url, data, params):
+        try:
+            data = data.encode("utf-8")
+        except AttributeError:
+            pass
+
+        params = self.remove_empty_values(params)
+
+        r = self._http.post(url, data=data, params=params)
+        r.raise_for_status()
+        return r.content
+
+    def test_url(self, url):
+        return self._http.head(url).status_code == requests.codes.OK
+
+    def _build_params(self, method):
+        return {
+            "method": method,
+            "auth_token": self.auth_token,
+            "partner_id": self.partner_id,
+            "user_id": self.user_id,
+        }
+
+    def _build_url(self, method):
+        return "{0}://{1}".format(
+            "https" if method in self.REQUIRE_TLS else "http",
+            self.api_host)
+
+    def _build_data(self, method, data):
+        data["userAuthToken"] = self.user_auth_token
+        data["syncTime"] = self.sync_time
+
+        if not self.user_auth_token and self.partner_auth_token:
+            data["partnerAuthToken"] = self.partner_auth_token
+
+        data = json.dumps(self.remove_empty_values(data))
+
+        if method not in self.NO_ENCRYPT:
+            data = self.cryptor.encrypt(data)
+
+        return data
+
+    def _parse_response(self, result):
+        result = json.loads(result.decode("utf-8"))
+
+        if result["stat"] == "ok":
+            return result["result"] if "result" in result else None
+        else:
+            raise PandoraException.from_code(result["code"], result["message"])
+
+    def __call__(self, method, **data):
+        self._start_request()
+
+        url = self._build_url(method)
+        data = self._build_data(method, data)
+        params = self._build_params(method)
+        result = self._make_http_request(url, data, params)
+
+        return self._parse_response(result)
+
+
+class Encryptor(object):
+    """Pandora Blowfish Encryptor
+
+    The blowfish encryptor can encrypt and decrypt the relevant parts of the
+    API request and response. It handles the formats that the API expects.
+    """
+
+    def __init__(self, in_key, out_key):
+        self.bf_out = Blowfish.new(out_key, Blowfish.MODE_ECB)
+        self.bf_in = Blowfish.new(in_key, Blowfish.MODE_ECB)
+
+    @staticmethod
+    def _decode_hex(data):
+        return base64.b16decode(data.upper())
+
+    @staticmethod
+    def _encode_hex(data):
+        return base64.b16encode(data).lower()
+
+    def decrypt(self, data):
+        data = self.bf_out.decrypt(self._decode_hex(data))
+        return json.loads(self.strip_padding(data))
+
+    def decrypt_sync_time(self, data):
+        return int(self.bf_in.decrypt(self._decode_hex(data))[4:-2])
+
+    def add_padding(self, data):
+        block_size = Blowfish.block_size
+        pad_size = len(data) % block_size
+        return data + (chr(pad_size) * (block_size - pad_size))
+
+    def strip_padding(self, data):
+        pad_size = int(data[-1])
+        if not data[-pad_size:] == bytes((pad_size,)) * pad_size:
+            raise ValueError('Invalid padding')
+        return data[:-pad_size]
+
+    def encrypt(self, data):
+        return self._encode_hex(self.bf_out.encrypt(self.add_padding(data)))
+
