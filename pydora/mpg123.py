@@ -23,10 +23,10 @@ class SilentPopen(subprocess.Popen):
     """
 
     def __init__(self, *args, **kwargs):
-        self._dev_null = open(os.devnull, 'w')
-        kwargs['stdin'] = subprocess.PIPE
-        kwargs['stdout'] = subprocess.PIPE
-        kwargs['stderr'] = self._dev_null
+        self._dev_null = open(os.devnull, "w")
+        kwargs["stdin"] = subprocess.PIPE
+        kwargs["stdout"] = subprocess.PIPE
+        kwargs["stderr"] = self._dev_null
         super(SilentPopen, self).__init__(*args, **kwargs)
 
     def __del__(self):
@@ -81,10 +81,10 @@ class Player(object):
             return
 
         self._process = SilentPopen(
-            ['mpg123', '-q', '-R', '--ignore-mime'])
+            ["mpg123", "-q", "-R", "--ignore-mime"])
 
         # Only output play status in the player stdout
-        self._send_cmd('silence')
+        self._send_cmd("silence")
 
     def _send_cmd(self, cmd):
         """Write command to remote mpg123 process
@@ -95,17 +95,17 @@ class Player(object):
     def stop(self):
         """Stop the currently playing song
         """
-        self._send_cmd('stop')
+        self._send_cmd("stop")
 
     def pause(self):
         """Pause the player
         """
-        self._send_cmd('pause')
+        self._send_cmd("pause")
 
     def _player_stopped(self, value):
         """Determine if player has stopped
         """
-        return value.startswith(b"@P") and value.decode('utf-8')[3] == "0"
+        return value.startswith(b"@P") and value.decode("utf-8")[3] == "0"
 
     def play(self, song):
         """Play a new song from a Pandora model
@@ -114,7 +114,7 @@ class Player(object):
         process. Calls the input callback when the user has input.
         """
         self._callbacks.play(song)
-        self._send_cmd('load {}'.format(song.audio_url))
+        self._send_cmd("load {}".format(song.audio_url))
 
         while True:
             try:

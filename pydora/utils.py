@@ -23,13 +23,13 @@ class Colors(object):
             return "\033[{}m{}\033[0m".format(c, text)
         return inner
 
-    red = __wrap_with('31')
-    green = __wrap_with('32')
-    yellow = __wrap_with('33')
-    blue = __wrap_with('34')
-    magenta = __wrap_with('35')
-    cyan = __wrap_with('36')
-    white = __wrap_with('37')
+    red = __wrap_with("31")
+    green = __wrap_with("32")
+    yellow = __wrap_with("33")
+    blue = __wrap_with("34")
+    magenta = __wrap_with("35")
+    cyan = __wrap_with("36")
+    white = __wrap_with("37")
 
 
 class Screen(object):
@@ -50,7 +50,7 @@ class Screen(object):
 
     @staticmethod
     def clear():
-        sys.stdout.write('\x1b[2J\x1b[H')
+        sys.stdout.write("\x1b[2J\x1b[H")
         sys.stdout.flush()
 
     @staticmethod
@@ -72,11 +72,11 @@ class Screen(object):
             try:
                 return int(input(prompt).strip())
             except ValueError:
-                print(Colors.red('Invaid Input!'))
+                print(Colors.red("Invaid Input!"))
 
 
 def clear_screen():
     """Clear the terminal
     """
-    sys.stdout.write('\x1b[2J\x1b[H')
+    sys.stdout.write("\x1b[2J\x1b[H")
     sys.stdout.flush()

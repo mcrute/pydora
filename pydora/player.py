@@ -19,16 +19,16 @@ from .utils import Colors, Screen
 class PlayerApp(object):
 
     CMD_MAP = {
-        'n': ('play next song', 'skip_song'),
-        'p': ('pause/resume song', 'pause_song'),
-        's': ('stop playing station', 'stop_station'),
-        'd': ('dislike song', 'dislike_song'),
-        'u': ('like song', 'like_song'),
-        'b': ('bookmark song', 'bookmark_song'),
-        'a': ('bookmark artist', 'bookmark_artist'),
-        'S': ('sleep song for 30 days', 'sleep_song'),
-        'Q': ('quit player', 'quit'),
-        '?': ('display this help', 'help'),
+        "n": ("play next song", "skip_song"),
+        "p": ("pause/resume song", "pause_song"),
+        "s": ("stop playing station", "stop_station"),
+        "d": ("dislike song", "dislike_song"),
+        "u": ("like song", "like_song"),
+        "b": ("bookmark song", "bookmark_song"),
+        "a": ("bookmark artist", "bookmark_artist"),
+        "S": ("sleep song for 30 days", "sleep_song"),
+        "Q": ("quit player", "quit"),
+        "?": ("display this help", "help"),
     }
 
     def __init__(self):
@@ -55,15 +55,15 @@ class PlayerApp(object):
         Screen.clear()
 
         for i, s in enumerate(self.stations):
-            i = '{:>3}'.format(i)
-            print('{}: {}'.format(Colors.yellow(i), s.name))
+            i = "{:>3}".format(i)
+            print("{}: {}".format(Colors.yellow(i), s.name))
 
-        return self.stations[Screen.get_integer('Station: ')]
+        return self.stations[Screen.get_integer("Station: ")]
 
     def play(self, song):
         """Play callback
         """
-        print('{} by {}'.format(Colors.cyan(song.song_name),
+        print("{} by {}".format(Colors.cyan(song.song_name),
               Colors.yellow(song.artist_name)))
 
     def skip_song(self, song):
@@ -77,24 +77,24 @@ class PlayerApp(object):
 
     def dislike_song(self, song):
         song.thumbs_down()
-        Screen.print_success('Track disliked')
+        Screen.print_success("Track disliked")
         self.player.stop()
 
     def like_song(self, song):
         song.thumbs_up()
-        Screen.print_success('Track liked')
+        Screen.print_success("Track liked")
 
     def bookmark_song(self, song):
         song.bookmark_song()
-        Screen.print_success('Bookmarked song')
+        Screen.print_success("Bookmarked song")
 
     def bookmark_artist(self, song):
         song.bookmark_artist()
-        Screen.print_success('Bookmarked artist')
+        Screen.print_success("Bookmarked artist")
 
     def sleep_song(self, song):
         song.sleep()
-        Screen.print_success('Song will not be played for 30 days')
+        Screen.print_success("Song will not be played for 30 days")
         self.player.stop()
 
     def quit(self, song):
@@ -114,7 +114,7 @@ class PlayerApp(object):
         try:
             cmd = getattr(self, self.CMD_MAP[input][1])
         except (IndexError, KeyError):
-            return Screen.print_error('Invalid command!')
+            return Screen.print_error("Invalid command!")
 
         cmd(song)
 
@@ -140,5 +140,5 @@ def main():
     PlayerApp().run()
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     main()
