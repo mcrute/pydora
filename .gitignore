@@ -5,4 +5,5 @@ build/
 pydora.egg-info/
 .pip/
 .pip3/
+.pip32/
 coverage.xml

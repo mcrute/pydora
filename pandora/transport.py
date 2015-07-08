@@ -159,7 +159,7 @@ class Encryptor(object):
 
     @staticmethod
     def _decode_hex(data):
-        return base64.b16decode(data.upper())
+        return base64.b16decode(data.encode("ascii").upper())
 
     @staticmethod
     def _encode_hex(data):
