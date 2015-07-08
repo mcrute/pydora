@@ -2,6 +2,7 @@ from __future__ import print_function
 
 import sys
 import termios
+import getpass
 
 
 def input(prompt):
@@ -62,6 +63,26 @@ class Screen(object):
         print(Colors.green(msg))
 
     @staticmethod
+    def get_string(prompt):
+        while True:
+            value = input(prompt).strip()
+
+            if not value:
+                print(Colors.red("Value Required!"))
+            else:
+                return value
+
+    @staticmethod
+    def get_password(prompt="Password: "):
+        while True:
+            value = getpass.getpass(prompt)
+
+            if not value:
+                print(Colors.red("Value Required!"))
+            else:
+                return value
+
+    @staticmethod
     def get_integer(prompt):
         """Gather user input and convert it to an integer
 
@@ -72,7 +93,7 @@ class Screen(object):
             try:
                 return int(input(prompt).strip())
             except ValueError:
-                print(Colors.red("Invaid Input!"))
+                print(Colors.red("Invalid Input!"))
 
 
 def clear_screen():
