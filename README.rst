@@ -46,16 +46,16 @@ from Pandora.
 
 When playing the following keys work (press enter afterwards):
 
- * n - next song
- * p - pause or resume song
- * s - station list (stops song)
- * d - thumbs down track
- * u - thumbs up track
- * b - bookmark song
- * a - bookmark artist
- * S - sleep song
- * Q - quit program
- * ? - display help
+* n - next song
+* p - pause or resume song
+* s - station list (stops song)
+* d - thumbs down track
+* u - thumbs up track
+* b - bookmark song
+* a - bookmark artist
+* S - sleep song
+* Q - quit program
+* ? - display help
 
 sample config::
 
