@@ -2,6 +2,15 @@
 Pandora API Client
 ==================
 
+.. image:: https://img.shields.io/pypi/v/pydora.svg
+    :target: https://pypi.python.org/pypi/pydora
+
+.. image:: https://img.shields.io/travis/mcrute/pydora.svg
+    :target: https://travis-ci.org/mcrute/pydora
+
+.. image:: https://img.shields.io/pypi/dm/pydora.svg
+    :target: https://pypi.python.org/pypi/pydora
+
 This code is licensed under the MIT license.
 
 This is a reasonably complete implementation of the Pandora API. It does not
@@ -12,8 +21,15 @@ I don't provide any keys or passwords for Pandora in this repo, you'll have to
 go get those for yourself. Make something awesome with this library, don't
 abuse Pandora, that's not cool.
 
- * API Spec from: http://6xq.net/playground/pandora-apidoc/
- * Keys at: http://6xq.net/playground/pandora-apidoc/json/partners/#partners
+Installing
+==========
+Installing is as simple as using pip and running the built-in configuration
+command to create a ``~/.pydora.cfg`` file. If you already have a `PianoBar
+<http://6xq.net/projects/pianobar/>`_ config file pydora will automatically use
+that. ::
+
+    $ pip install pydora
+    $ pydora-configure
 
 Simple Player
 =============
@@ -61,3 +77,13 @@ sample config::
   `mediumQuality` (default), or `highQuality`. If the preferred audio quality
   is not available for the device specified, then the next-highest bitrate
   stream that Pandora supports for the chosen device will be used.
+
+Pandora API Spec and Partner Keys
+=================================
+The built-in ``pydora-configure`` script can be run to create a configuration
+file if you don't already have one. This will download the keys from the link
+below and pick a suitable one. If you're interested in the underlying API or
+need to download the keys yourself you can find them at the link below.
+
+* `API Spec <http://6xq.net/playground/pandora-apidoc/>`_
+* `Partner Keys <http://6xq.net/playground/pandora-apidoc/json/partners/#partners>`_
