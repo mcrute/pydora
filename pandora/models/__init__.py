@@ -19,6 +19,9 @@ class ModelMetaClass(type):
         new_dct = dct.copy()
 
         for key, val in dct.items():
+            if key.startswith("__"):
+                continue
+
             if isinstance(val, Field):
                 fields[key] = val
                 del new_dct[key]
@@ -51,9 +54,6 @@ class PandoraModel(with_metaclass(ModelMetaClass, object)):
     @staticmethod
     def populate_fields(api_client, instance, data):
         for key, value in instance.__class__._fields.items():
-            if key.startswith("__"):
-                continue
-
             newval = data.get(value.field, value.default)
 
             if newval and value.formatter:
@@ -74,7 +74,7 @@ class PandoraModel(with_metaclass(ModelMetaClass, object)):
     def _base_repr(self, and_also=None):
         items = [
             "=".join((key, repr(getattr(self, key))))
-            for key in self._fields.keys()]
+            for key in sorted(self._fields.keys())]
 
         if items:
             output = ", ".join(items)
