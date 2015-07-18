@@ -46,6 +46,7 @@ class APITransport(object):
 
     API_VERSION = "5"
 
+    SEND_NO_TOKENS = ("auth.partnerLogin", )
     NO_ENCRYPT = ("auth.partnerLogin", )
     REQUIRE_TLS = ("auth.partnerLogin", "auth.userLogin",
                    "station.getPlaylist", "user.createUser")
@@ -128,13 +129,19 @@ class APITransport(object):
             "https" if method in self.REQUIRE_TLS else "http",
             self.api_host)
 
-    def _build_data(self, method, data):
+    def _inject_tokens(self, method, data):
+        if method in self.SEND_NO_TOKENS:
+            return
+
         data["userAuthToken"] = self.user_auth_token
-        data["syncTime"] = self.sync_time
 
         if not self.user_auth_token and self.partner_auth_token:
             data["partnerAuthToken"] = self.partner_auth_token
 
+    def _build_data(self, method, data):
+        self._inject_tokens(method, data)
+
+        data["syncTime"] = self.sync_time
         data = json.dumps(self.remove_empty_values(data))
 
         if method not in self.NO_ENCRYPT:
