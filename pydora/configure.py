@@ -89,7 +89,8 @@ class PandoraKeysConfigParser(object):
             elif self._is_device_terminator(line):
                 key = self._clean_device_name(buffer.pop())
                 current_partner = partners[key] = {
-                        "api_host": self._format_api_host(api_host) }
+                        "api_host": self._format_api_host(api_host)
+                        }
 
             buffer.append(line.strip().lower())
 
@@ -153,7 +154,7 @@ class Configurator(object):
         self.get_value("user", "username", "Pandora Username: ")
         self.get_password("user", "password", "Pandora Password: ")
         self.set_static_value("api", "default_audio_quality",
-                APIClient.HIGH_AUDIO_QUALITY)
+                              APIClient.HIGH_AUDIO_QUALITY)
 
         self.write_config()
 
