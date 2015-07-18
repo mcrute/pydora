@@ -124,6 +124,12 @@ class PandoraListModel(PandoraModel, list):
         else:
             return list.__getitem__(self, key)
 
+    def __contains__(self, key):
+        if key in self._index:
+            return True
+        else:
+            return list.__contains__(self, key)
+
     def keys(self):
         return self._index.keys()
 

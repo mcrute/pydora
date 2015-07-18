@@ -149,3 +149,7 @@ class TestPandoraListModel(TestCase):
     def test_getting_keys_vs_indexes_are_identical(self):
         self.assertEqual(self.result["foo"].fieldS1, self.result[0].fieldS1)
         self.assertEqual(self.result["bar"].fieldS1, self.result[1].fieldS1)
+
+    def test_contains(self):
+        self.assertTrue("foo" in self.result)
+        self.assertTrue(self.result[0] in self.result)
