@@ -98,6 +98,7 @@ class TestPandoraModel(TestCase):
 
 class TestSubModel(m.PandoraModel):
 
+    idx = m.Field("idx")
     fieldS1 = m.Field("fieldS1")
 
 
@@ -105,25 +106,46 @@ class TestPandoraListModel(TestCase):
 
     JSON_DATA = {
             "field1": 42,
-            "field2": [{"fieldS1": "Foo" }, { "fieldS1": "Bar" }]
+            "field2": [
+                { "idx": "foo", "fieldS1": "Foo" },
+                { "idx": "bar", "fieldS1": "Bar" },
+                ]
             }
 
     class TestModel(m.PandoraListModel):
 
         __list_key__ = "field2"
         __list_model__ = TestSubModel
+        __index_key__ = "idx"
 
         field1 = m.Field("field1")
 
+    def setUp(self):
+        self.result = self.TestModel.from_json(None, self.JSON_DATA)
+
     def test_creates_sub_models(self):
-        result = self.TestModel.from_json(None, self.JSON_DATA)
-        self.assertEqual(42, result.field1)
-        self.assertEqual(2, len(result))
-        self.assertEqual("Foo", result[0].fieldS1)
-        self.assertEqual("Bar", result[1].fieldS1)
+        self.assertEqual(42, self.result.field1)
+        self.assertEqual(2, len(self.result))
+        self.assertEqual("Foo", self.result[0].fieldS1)
+        self.assertEqual("Bar", self.result[1].fieldS1)
 
     def test_repr(self):
-        expected = ("TestModel(field1=42, [TestSubModel(fieldS1='Foo'), "
-                    "TestSubModel(fieldS1='Bar')])")
-        result = self.TestModel.from_json(None, self.JSON_DATA)
-        self.assertEqual(expected, repr(result))
+        expected = ("TestModel(field1=42, [TestSubModel(fieldS1='Foo', "
+                    "idx='foo'), TestSubModel(fieldS1='Bar', idx='bar')])")
+        self.assertEqual(expected, repr(self.result))
+
+    def test_indexed_model(self):
+        self.assertEqual(["bar", "foo"], sorted(self.result.keys()))
+        self.assertEqual(self.result._index.items(), self.result.items())
+
+    def test_getting_list_items(self):
+        self.assertEqual("Foo", self.result[0].fieldS1)
+        self.assertEqual("Bar", self.result[1].fieldS1)
+
+    def test_getting_dictionary_items(self):
+        self.assertEqual("Foo", self.result["foo"].fieldS1)
+        self.assertEqual("Bar", self.result["bar"].fieldS1)
+
+    def test_getting_keys_vs_indexes_are_identical(self):
+        self.assertEqual(self.result["foo"].fieldS1, self.result[0].fieldS1)
+        self.assertEqual(self.result["bar"].fieldS1, self.result[1].fieldS1)

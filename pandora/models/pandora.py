@@ -28,6 +28,7 @@ class StationList(PandoraListModel):
 
     checksum = Field("checksum")
 
+    __index_key__ = "id"
     __list_key__ = "stations"
     __list_model__ = Station
 

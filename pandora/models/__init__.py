@@ -95,6 +95,11 @@ class PandoraListModel(PandoraModel, list):
 
     __list_key__ = None
     __list_model__ = None
+    __index_key__ = None
+
+    def __init__(self, *args, **kwargs):
+        super(PandoraListModel, self).__init__(*args, **kwargs)
+        self._index = {}
 
     @classmethod
     def from_json(cls, api_client, data):
@@ -102,9 +107,28 @@ class PandoraListModel(PandoraModel, list):
         PandoraModel.populate_fields(api_client, self, data)
 
         for item in data[cls.__list_key__]:
-            self.append(cls.__list_model__.from_json(api_client, item))
+            model = cls.__list_model__.from_json(api_client, item)
+
+            if self.__index_key__:
+                value = getattr(model, self.__index_key__)
+                self._index[value] = model
+
+            self.append(model)
 
         return self
+
+    def __getitem__(self, key):
+        item = self._index.get(key, None)
+        if item:
+            return item
+        else:
+            return list.__getitem__(self, key)
+
+    def keys(self):
+        return self._index.keys()
+
+    def items(self):
+        return self._index.items()
 
     def __repr__(self):
         return self._base_repr(and_also=list.__repr__(self))
