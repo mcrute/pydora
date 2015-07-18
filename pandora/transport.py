@@ -13,12 +13,27 @@ import time
 import json
 import base64
 import requests
+from requests.adapters import HTTPAdapter
 from Crypto.Cipher import Blowfish
 
 from .errors import PandoraException
 
 
 DEFAULT_API_HOST = "tuner.pandora.com/services/json/"
+
+
+class RetryingSession(requests.Session):
+    """Requests Session With Retry Support
+
+    This Requests session uses an HTTPAdapter that retries on connection
+    failure at least once. The Pandora API is fairly aggressive about closing
+    connections on clients and the default session doesn't retry.
+    """
+
+    def __init__(self):
+        super(RetryingSession, self).__init__()
+        self.mount('https://', HTTPAdapter(max_retries=1))
+        self.mount('http://', HTTPAdapter(max_retries=1))
 
 
 class APITransport(object):
@@ -49,7 +64,7 @@ class APITransport(object):
         self.start_time = None
         self.server_sync_time = None
 
-        self._http = requests.Session()
+        self._http = RetryingSession()
 
         if self.proxy:
             self._http.proxies = {
