@@ -18,7 +18,11 @@ except ImportError:
             return self.readfp(fp)
 
 
+# Only used in tests
 try:
-    from unittest.mock import Mock
+    from unittest.mock import Mock, MagicMock, call
 except ImportError:
-    from mock import Mock
+    try:
+        from mock import Mock, MagicMock, call
+    except ImportError:
+        pass

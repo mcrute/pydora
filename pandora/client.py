@@ -65,17 +65,13 @@ class BaseAPIClient(object):
 
         return partner
 
-    def _user_login(self, username, password):
+    def login(self, username, password):
         self.username = username
         self.password = password
         return self._authenticate()
 
-    def _ensure_credentials_available(self):
-        if not self.username or not self.password:
-            raise errors.AuthenticationRequired()
-
     def _authenticate(self):
-        self._ensure_credentials_available()
+        self._partner_login()
 
         user = self.transport("auth.userLogin",
                               loginType="user",
@@ -104,10 +100,6 @@ class APIClient(BaseAPIClient):
     The high level API client implements the entire functional API for Pandora.
     This is what clients should actually use.
     """
-
-    def login(self, username, password):
-        self._partner_login()
-        return self._user_login(username, password)
 
     def get_station_list(self):
         from .models.pandora import StationList

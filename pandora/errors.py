@@ -54,7 +54,7 @@ class PandoraException(Exception):
     code = None
     message = "Unknown Exception"
 
-    def __init__(self, extended_message):
+    def __init__(self, extended_message=""):
         self.extended_message = extended_message
         super(Exception, self).__init__(self.message)
 
