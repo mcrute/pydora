@@ -6,11 +6,7 @@ configuration formats into a fully built APIClient.
 """
 import os.path
 
-try:
-    from configparser import SafeConfigParser
-except ImportError:
-    from ConfigParser import SafeConfigParser
-
+from .py2compat import ConfigParser
 from . import Encryptor, APITransport, DEFAULT_API_HOST, APIClient
 
 
@@ -206,10 +202,10 @@ class PydoraConfigFileBuilder(FileBasedClientBuilder):
                     for k, v in cfg.items(key, raw=True))
 
     def parse_config(self):
-        cfg = SafeConfigParser()
+        cfg = ConfigParser()
 
         with open(self.path) as fp:
-            cfg.readfp(fp)
+            cfg.read_file(fp)
 
         settings = PydoraConfigFileBuilder.cfg_to_dict(cfg, "api")
         settings["user"] = PydoraConfigFileBuilder.cfg_to_dict(

@@ -1,12 +1,8 @@
 import os
 from unittest import TestCase
 
-try:
-    from unittest.mock import Mock
-except ImportError:
-    from mock import Mock
-
 import pandora.clientbuilder as cb
+from pandora.py2compat import Mock
 from pandora import APIClient, DEFAULT_API_HOST
 
 

@@ -3,12 +3,8 @@ import re
 import sys
 import requests
 
-try:
-    from configparser import SafeConfigParser
-except ImportError:
-    from ConfigParser import SafeConfigParser
-
 from pandora.client import APIClient
+from pandora.py2compat import ConfigParser
 from pandora.clientbuilder import PydoraConfigFileBuilder
 
 from .utils import Screen, Colors
@@ -110,7 +106,7 @@ class Configurator(object):
     def __init__(self):
         self.builder = PydoraConfigFileBuilder()
 
-        self.cfg = SafeConfigParser()
+        self.cfg = ConfigParser()
         self.cfg.add_section("user")
         self.cfg.add_section("api")
 
