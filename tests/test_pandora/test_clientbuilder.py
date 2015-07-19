@@ -91,13 +91,17 @@ class TestSettingsDictBuilder(TestCase):
     def test_default_values(self):
         client = self._build_minimal()
 
-        self.assertIsNone(client.transport.proxy)
+        self.assertEqual({}, client.transport._http.proxies)
         self.assertEqual(DEFAULT_API_HOST, client.transport.api_host)
         self.assertEqual(APIClient.MED_AUDIO_QUALITY,
                 client.default_audio_quality)
 
     def test_validate_client(self):
         client = self._build_maximal()
+        expected_proxies = {
+                "http": "proxy.example.com",
+                "https": "proxy.example.com"
+                }
 
         self.assertIsNotNone(client.transport.cryptor.bf_in)
         self.assertIsNotNone(client.transport.cryptor.bf_out)
@@ -106,7 +110,7 @@ class TestSettingsDictBuilder(TestCase):
         self.assertEqual("pass", client.partner_password)
         self.assertEqual("dev", client.device)
 
-        self.assertEqual("proxy.example.com", client.transport.proxy)
+        self.assertEqual(expected_proxies, client.transport._http.proxies)
         self.assertEqual("example.com", client.transport.api_host)
         self.assertEqual("high", client.default_audio_quality)
 

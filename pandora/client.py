@@ -59,9 +59,7 @@ class BaseAPIClient(object):
                                  deviceModel=self.device,
                                  version=self.transport.API_VERSION)
 
-        self.transport.sync_time = partner["syncTime"]
-        self.transport.partner_auth_token = partner["partnerAuthToken"]
-        self.transport.partner_id = partner["partnerId"]
+        self.transport.set_partner(partner)
 
         return partner
 
@@ -81,8 +79,7 @@ class BaseAPIClient(object):
                               includeSubscriptionExpiration=True,
                               returnCapped=True)
 
-        self.transport.user_id = user["userId"]
-        self.transport.user_auth_token = user["userAuthToken"]
+        self.transport.set_user(user)
 
         return user
 
