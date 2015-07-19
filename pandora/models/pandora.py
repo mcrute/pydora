@@ -83,7 +83,7 @@ class PlaylistItem(PandoraModel):
         self._api_client.sleep_song(self.track_token)
 
     def get_is_playable(self):
-        return self._api.transport.test_url(self.audio_url)
+        return self._api_client.transport.test_url(self.audio_url)
 
     @classmethod
     def from_json(cls, api_client, data):
