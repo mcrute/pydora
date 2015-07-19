@@ -46,7 +46,7 @@ class APITransport(object):
 
     API_VERSION = "5"
 
-    SEND_NO_TOKENS = ("auth.partnerLogin", )
+    REQUIRE_RESET = ("auth.partnerLogin", )
     NO_ENCRYPT = ("auth.partnerLogin", )
     REQUIRE_TLS = ("auth.partnerLogin", "auth.userLogin",
                    "station.getPlaylist", "user.createUser")
@@ -54,8 +54,14 @@ class APITransport(object):
     def __init__(self, cryptor, api_host=DEFAULT_API_HOST, proxy=None):
         self.cryptor = cryptor
         self.api_host = api_host
-        self.proxy = proxy
+        self._http = RetryingSession()
 
+        if proxy:
+            self._http.proxies = {"http": proxy, "https": proxy}
+
+        self.reset()
+
+    def reset(self):
         self.partner_auth_token = None
         self.user_auth_token = None
 
@@ -65,13 +71,14 @@ class APITransport(object):
         self.start_time = None
         self.server_sync_time = None
 
-        self._http = RetryingSession()
+    def set_partner(self, data):
+        self.sync_time = data["syncTime"]
+        self.partner_auth_token = data["partnerAuthToken"]
+        self.partner_id = data["partnerId"]
 
-        if self.proxy:
-            self._http.proxies = {
-                'http': self.proxy,
-                'https': self.proxy,
-            }
+    def set_user(self, data):
+        self.user_id = data["userId"]
+        self.user_auth_token = data["userAuthToken"]
 
     @property
     def auth_token(self):
@@ -97,7 +104,10 @@ class APITransport(object):
     def sync_time(self, sync_time):
         self.server_sync_time = self.cryptor.decrypt_sync_time(sync_time)
 
-    def _start_request(self):
+    def _start_request(self, method):
+        if method in self.REQUIRE_RESET:
+            self.reset()
+
         if not self.start_time:
             self.start_time = int(time.time())
 
@@ -129,17 +139,11 @@ class APITransport(object):
             "https" if method in self.REQUIRE_TLS else "http",
             self.api_host)
 
-    def _inject_tokens(self, method, data):
-        if method in self.SEND_NO_TOKENS:
-            return
-
+    def _build_data(self, method, data):
         data["userAuthToken"] = self.user_auth_token
 
         if not self.user_auth_token and self.partner_auth_token:
             data["partnerAuthToken"] = self.partner_auth_token
-
-    def _build_data(self, method, data):
-        self._inject_tokens(method, data)
 
         data["syncTime"] = self.sync_time
         data = json.dumps(self.remove_empty_values(data))
@@ -158,7 +162,7 @@ class APITransport(object):
             raise PandoraException.from_code(result["code"], result["message"])
 
     def __call__(self, method, **data):
-        self._start_request()
+        self._start_request(method)
 
         url = self._build_url(method)
         data = self._build_data(method, data)
