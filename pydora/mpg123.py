@@ -1,60 +1,6 @@
-import os
 import select
-import subprocess
 
-
-def iterate_forever(func, *args, **kwargs):
-    """Iterate over a finite iterator forever
-
-    When the iterator is exhausted will call the function again to generate a
-    new iterator and keep iterating.
-    """
-    output = func(*args, **kwargs)
-
-    while True:
-        try:
-            yield next(output)
-        except StopIteration:
-            output = func(*args, **kwargs)
-
-
-class SilentPopen(subprocess.Popen):
-    """A Popen varient that dumps it's output and error
-    """
-
-    def __init__(self, *args, **kwargs):
-        self._dev_null = open(os.devnull, "w")
-        kwargs["stdin"] = subprocess.PIPE
-        kwargs["stdout"] = subprocess.PIPE
-        kwargs["stderr"] = self._dev_null
-        super(SilentPopen, self).__init__(*args, **kwargs)
-
-    def __del__(self):
-        self._dev_null.close()
-        super(SilentPopen, self).__del__()
-
-
-class PlayerCallbacks(object):
-
-    def play(self, song):
-        """Called once when a song starts playing
-        """
-        pass
-
-    def pre_poll(self):
-        """Called before polling for process status
-        """
-        pass
-
-    def post_poll(self):
-        """Called after polling for process status
-        """
-        pass
-
-    def input(self, value, song):
-        """Called after user input during song playback
-        """
-        pass
+from .utils import iterate_forever, SilentPopen
 
 
 class Player(object):

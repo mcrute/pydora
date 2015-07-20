@@ -16,6 +16,34 @@ from .mpg123 import Player
 from .utils import Colors, Screen
 
 
+class PlayerCallbacks(object):
+    """Interface for Player Callbacks
+
+    This class simply exists to document the interface for callback
+    implementers implementers need not extend this class.
+    """
+
+    def play(self, song):
+        """Called once when a song starts playing
+        """
+        pass
+
+    def pre_poll(self):
+        """Called before polling for process status
+        """
+        pass
+
+    def post_poll(self):
+        """Called after polling for process status
+        """
+        pass
+
+    def input(self, value, song):
+        """Called after user input during song playback
+        """
+        pass
+
+
 class PlayerApp(object):
 
     CMD_MAP = {
@@ -138,7 +166,3 @@ class PlayerApp(object):
 
 def main():
     PlayerApp().run()
-
-
-if __name__ == "__main__":
-    main()

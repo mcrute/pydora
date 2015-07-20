@@ -1,8 +1,10 @@
 from __future__ import print_function
 
+import os
 import sys
 import termios
 import getpass
+import subprocess
 
 
 def input(prompt):
@@ -101,3 +103,34 @@ def clear_screen():
     """
     sys.stdout.write("\x1b[2J\x1b[H")
     sys.stdout.flush()
+
+
+def iterate_forever(func, *args, **kwargs):
+    """Iterate over a finite iterator forever
+
+    When the iterator is exhausted will call the function again to generate a
+    new iterator and keep iterating.
+    """
+    output = func(*args, **kwargs)
+
+    while True:
+        try:
+            yield next(output)
+        except StopIteration:
+            output = func(*args, **kwargs)
+
+
+class SilentPopen(subprocess.Popen):
+    """A Popen varient that dumps it's output and error
+    """
+
+    def __init__(self, *args, **kwargs):
+        self._dev_null = open(os.devnull, "w")
+        kwargs["stdin"] = subprocess.PIPE
+        kwargs["stdout"] = subprocess.PIPE
+        kwargs["stderr"] = self._dev_null
+        super(SilentPopen, self).__init__(*args, **kwargs)
+
+    def __del__(self):
+        self._dev_null.close()
+        super(SilentPopen, self).__del__()
