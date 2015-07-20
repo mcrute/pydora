@@ -12,7 +12,7 @@ import distutils_ext
 
 setup(
     name="pydora",
-    version="1.4.0",
+    version="1.5.0",
     description="Python wrapper for Pandora API",
     long_description=open("README.rst", "r").read(),
     author="Mike Crute",
