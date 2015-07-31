@@ -76,6 +76,9 @@ class BaseAPIClient(object):
                               username=self.username,
                               password=self.password,
                               includePandoraOneInfo=True,
+                              includeAdAttributes=True,
+                              includeAdvertiserAttributes=True,
+                              xplatformAdCapable=True,
                               includeSubscriptionExpiration=True,
                               returnCapped=True)
 
@@ -114,6 +117,8 @@ class APIClient(BaseAPIClient):
         return Playlist.from_json(self,
                                   self("station.getPlaylist",
                                        stationToken=station_token,
+                                       xplatformAdCapable=True,
+                                       audioAdPodCapable=True,
                                        includeTrackLength=True))
 
     def get_bookmarks(self):
@@ -232,3 +237,15 @@ class APIClient(BaseAPIClient):
         return self("music.shareMusic",
                     musicToken=music_token,
                     email=emails[0])
+
+    def get_ad_metadata(self, ad_token):
+        return self("ad.getAdMetadata",
+                    adToken=ad_token,
+                    returnAdTrackingTokens=True,
+                    supportAudioAds=True,
+                    includeBannerAd=True)
+
+    def register_ad(self, station_id, tokens):
+        return self("ad.registerAd",
+            stationId=station_id,
+            adTrackingTokens=tokens)
