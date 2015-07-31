@@ -124,7 +124,10 @@ class APITransport(object):
         return r.content
 
     def test_url(self, url):
-        return self._http.head(url).status_code == requests.codes.OK
+        try:
+            return self._http.head(url).status_code == requests.codes.OK
+        except requests.exceptions.RequestException:
+            return False
 
     def _build_params(self, method):
         return {
