@@ -51,6 +51,8 @@ class PlaylistItem(PandoraModel):
     allow_feedback = Field("allowFeedback", True)
     station_id = Field("stationId")
 
+    ad_token = Field("adToken")
+
     album_detail_url = Field("albumDetailUrl")
     album_explore_url = Field("albumExplorerUrl")
 
