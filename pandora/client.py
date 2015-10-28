@@ -233,6 +233,11 @@ class APIClient(BaseAPIClient):
                     musicToken=music_token,
                     email=emails[0])
 
+    def get_ad_item(self, ad_token):
+        from .models.pandora import AdItem
+
+        return AdItem.from_json(self, self.get_ad_metadata(ad_token))
+
     def get_ad_metadata(self, ad_token):
         return self("ad.getAdMetadata",
                     adToken=ad_token,
