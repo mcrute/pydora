@@ -53,56 +53,7 @@ class StationList(PandoraListModel):
         return checksum != self.checksum
 
 
-class PlaylistItem(PandoraModel):
-
-    artist_name = Field("artistName")
-    album_name = Field("albumName")
-    song_name = Field("songName")
-    song_rating = Field("songRating")
-    track_gain = Field("trackGain")
-    track_length = Field("trackLength", 0)
-    track_token = Field("trackToken")
-    audio_url = Field("audioUrl")
-    bitrate = Field("bitrate")
-    album_art_url = Field("albumArtUrl")
-    allow_feedback = Field("allowFeedback", True)
-    station_id = Field("stationId")
-
-    ad_token = Field("adToken")
-
-    album_detail_url = Field("albumDetailUrl")
-    album_explore_url = Field("albumExplorerUrl")
-
-    amazon_album_asin = Field("amazonAlbumAsin")
-    amazon_album_digital_asin = Field("amazonAlbumDigitalAsin")
-    amazon_album_url = Field("amazonAlbumUrl")
-    amazon_song_digital_asin = Field("amazonSongDigitalAsin")
-
-    artist_detail_url = Field("artistDetailUrl")
-    artist_explore_url = Field("artistExplorerUrl")
-
-    itunes_song_url = Field("itunesSongUrl")
-
-    song_detail_url = Field("songDetailUrl")
-    song_explore_url = Field("songExplorerUrl")
-
-    def thumbs_up(self):
-        self._api_client.add_feedback(self.track_token, True)
-
-    def thumbs_down(self):
-        self._api_client.add_feedback(self.track_token, False)
-
-    def bookmark_song(self):
-        self._api_client.add_song_bookmark(self.track_token)
-
-    def bookmark_artist(self):
-        self._api_client.add_artist_bookmark(self.track_token)
-
-    def sleep(self):
-        self._api_client.sleep_song(self.track_token)
-
-    def get_is_playable(self):
-        return self._api_client.transport.test_url(self.audio_url)
+class PlaylistModel(PandoraModel):
 
     @classmethod
     def from_json(cls, api_client, data):
@@ -180,6 +131,76 @@ class PlaylistItem(PandoraModel):
         next-lowest available quality url otherwise.
         """
         return cls.get_audio_field(data, "bitrate", preferred_quality=preferred_quality)
+
+    def get_is_playable(self):
+        return self._api_client.transport.test_url(self.audio_url)
+
+
+class PlaylistItem(PlaylistModel):
+
+    artist_name = Field("artistName")
+    album_name = Field("albumName")
+    song_name = Field("songName")
+    song_rating = Field("songRating")
+    track_gain = Field("trackGain")
+    track_length = Field("trackLength", 0)
+    track_token = Field("trackToken")
+    audio_url = Field("audioUrl")
+    album_art_url = Field("albumArtUrl")
+    allow_feedback = Field("allowFeedback", True)
+    station_id = Field("stationId")
+
+    ad_token = Field("adToken")
+
+    album_detail_url = Field("albumDetailUrl")
+    album_explore_url = Field("albumExplorerUrl")
+
+    amazon_album_asin = Field("amazonAlbumAsin")
+    amazon_album_digital_asin = Field("amazonAlbumDigitalAsin")
+    amazon_album_url = Field("amazonAlbumUrl")
+    amazon_song_digital_asin = Field("amazonSongDigitalAsin")
+
+    artist_detail_url = Field("artistDetailUrl")
+    artist_explore_url = Field("artistExplorerUrl")
+
+    itunes_song_url = Field("itunesSongUrl")
+
+    song_detail_url = Field("songDetailUrl")
+    song_explore_url = Field("songExplorerUrl")
+
+    @property
+    def is_ad(self):
+        return self.ad_token is not None
+
+    def thumbs_up(self):
+        self._api_client.add_feedback(self.track_token, True)
+
+    def thumbs_down(self):
+        self._api_client.add_feedback(self.track_token, False)
+
+    def bookmark_song(self):
+        self._api_client.add_song_bookmark(self.track_token)
+
+    def bookmark_artist(self):
+        self._api_client.add_artist_bookmark(self.track_token)
+
+    def sleep(self):
+        self._api_client.sleep_song(self.track_token)
+
+
+class AdItem(PlaylistModel):
+
+    title = Field("title")
+    company_name = Field("companyName")
+    tracking_tokens = Field("adTrackingTokens")
+    audio_url = Field("audioUrl")
+
+    @property
+    def is_ad(self):
+        return True
+
+    def register_ad(self, station_id):
+        self._api_client.register_ad(station_id, self.tracking_tokens)
 
 
 class Playlist(PandoraListModel):
