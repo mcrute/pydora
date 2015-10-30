@@ -20,7 +20,7 @@ except ImportError:
 
 # Only used in tests
 try:
-    from unittest.mock import Mock, MagicMock, call
+    from unittest.mock import Mock, MagicMock, call, patch
 except ImportError:
     try:
         from mock import Mock, MagicMock, call, patch
