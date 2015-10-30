@@ -29,12 +29,13 @@ class BaseAPIClient(object):
     HIGH_AUDIO_QUALITY = "highQuality"
 
     def __init__(self, transport, partner_user, partner_password, device,
-                 default_audio_quality=MED_AUDIO_QUALITY):
+                 ad_support_enabled=False, default_audio_quality=MED_AUDIO_QUALITY):
         self.transport = transport
         self.partner_user = partner_user
         self.partner_password = partner_password
         self.device = device
         self.default_audio_quality = default_audio_quality
+        self.ad_support_enabled = ad_support_enabled
         self.username = None
         self.password = None
 
@@ -71,16 +72,22 @@ class BaseAPIClient(object):
     def _authenticate(self):
         self._partner_login()
 
-        user = self.transport("auth.userLogin",
-                              loginType="user",
-                              username=self.username,
-                              password=self.password,
-                              includePandoraOneInfo=True,
-                              includeAdAttributes=True,
-                              includeAdvertiserAttributes=True,
-                              xplatformAdCapable=True,
-                              includeSubscriptionExpiration=True,
-                              returnCapped=True)
+        parameters = dict("auth.userLogin",
+                          loginType="user",
+                          username=self.username,
+                          password=self.password,
+                          includePandoraOneInfo=True,
+                          includeSubscriptionExpiration=True,
+                          returnCapped=True)
+
+        ad_parameters = dict(includeAdAttributes=True,
+                             includeAdvertiserAttributes=True,
+                             xplatformAdCapable=True)
+
+        if self.ad_support_enabled:
+            parameters = parameters + ad_parameters
+
+        user = self.transport(parameters)
 
         self.transport.set_user(user)
 
@@ -114,12 +121,18 @@ class APIClient(BaseAPIClient):
     def get_playlist(self, station_token):
         from .models.pandora import Playlist
 
+        parameters = dict("station.getPlaylist",
+                          stationToken=station_token,
+                          includeTrackLength=True)
+
+        ad_parameters = dict(xplatformAdCapable=True,
+                             audioAdPodCapable=True,)
+
+        if self.ad_support_enabled:
+            parameters = parameters + ad_parameters
+
         return Playlist.from_json(self,
-                                  self("station.getPlaylist",
-                                       stationToken=station_token,
-                                       xplatformAdCapable=True,
-                                       audioAdPodCapable=True,
-                                       includeTrackLength=True))
+                                  self(parameters))
 
     def get_bookmarks(self):
         from .models.pandora import BookmarkList

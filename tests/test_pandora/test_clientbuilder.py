@@ -79,6 +79,7 @@ class TestSettingsDictBuilder(TestCase):
             "PARTNER_PASSWORD": "pass",
             "DEVICE": "dev",
             "PROXY": "proxy.example.com",
+            "AD_SUPPORT_ENABLED": "test_ad_support",
             "AUDIO_QUALITY": "high",
             "API_HOST": "example.com",
         }).build()
@@ -179,6 +180,7 @@ class TestPydoraConfigFileBuilder(TestCase):
 
         self.assertDictEqual(cfg, {
             "AUDIO_QUALITY": "test_quality",
+            "AD_SUPPORT_ENABLED": "test_ad_support",
             "DECRYPTION_KEY": "test_decryption_key",
             "DEVICE": "test_device",
             "ENCRYPTION_KEY": "test_encryption_key",
@@ -200,6 +202,7 @@ class TestPianobarConfigFileBuilder(TestCase):
 
         self.assertDictEqual(cfg, {
             "AUDIO_QUALITY": "test_qualityQuality",
+            "AD_SUPPORT_ENABLED": "test_ad_support",
             "DECRYPTION_KEY": "test_decryption_key",
             "DEVICE": "test_device",
             "ENCRYPTION_KEY": "test_encryption_key",
