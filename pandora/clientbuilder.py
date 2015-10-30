@@ -90,6 +90,7 @@ class APIClientBuilder(object):
     * API_HOST - API hostname and path to API
     * PROXY - HTTP/HTTPS proxy hostname
     * AUDIO_QUALITY - A supported audio quality (see APIClient)
+    * AD_SUPPORT_ENABLED - Boolean value to specify whether advertisement metadata should be retrieved
     """
 
     DEFAULT_CLIENT_CLASS = APIClient
@@ -105,12 +106,14 @@ class APIClientBuilder(object):
                              settings.get("API_HOST", DEFAULT_API_HOST),
                              settings.get("PROXY", None))
 
+        ad_support = settings.get("AD_SUPPORT_ENABLED", False)
+
         quality = settings.get("AUDIO_QUALITY",
                                self.client_class.MED_AUDIO_QUALITY)
 
         return self.client_class(trans, settings["PARTNER_USER"],
                                  settings["PARTNER_PASSWORD"],
-                                 settings["DEVICE"], quality)
+                                 settings["DEVICE"], quality, ad_support)
 
 
 class SettingsDict(TranslatingDict):
