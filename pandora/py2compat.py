@@ -23,6 +23,6 @@ try:
     from unittest.mock import Mock, MagicMock, call
 except ImportError:
     try:
-        from mock import Mock, MagicMock, call
+        from mock import Mock, MagicMock, call, patch
     except ImportError:
         pass

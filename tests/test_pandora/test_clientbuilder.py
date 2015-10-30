@@ -81,8 +81,8 @@ class TestSettingsDictBuilder(TestCase):
             "PARTNER_PASSWORD": "pass",
             "DEVICE": "dev",
             "PROXY": "proxy.example.com",
-            "AD_SUPPORT_ENABLED": "test_ad_support",
             "AUDIO_QUALITY": "high",
+            "AD_SUPPORT_ENABLED": True,
             "API_HOST": "example.com",
         }).build()
 
@@ -98,6 +98,8 @@ class TestSettingsDictBuilder(TestCase):
         self.assertEqual(DEFAULT_API_HOST, client.transport.api_host)
         self.assertEqual(APIClient.MED_AUDIO_QUALITY,
                 client.default_audio_quality)
+        self.assertEqual(False,
+                client.ad_support_enabled)
 
     def test_validate_client(self):
         client = TestSettingsDictBuilder._build_maximal()
@@ -116,6 +118,7 @@ class TestSettingsDictBuilder(TestCase):
         self.assertEqual(expected_proxies, client.transport._http.proxies)
         self.assertEqual("example.com", client.transport.api_host)
         self.assertEqual("high", client.default_audio_quality)
+        self.assertEqual(True, client.ad_support_enabled)
 
 
 class TestFileBasedBuilder(TestCase):
