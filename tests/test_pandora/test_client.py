@@ -60,7 +60,7 @@ class TestCallingAPIClient(TestCase):
         with patch.object(APIClient, '__call__') as playlist_mock:
             transport = Mock(side_effect=[InvalidAuthToken(), None])
 
-            client = APIClient(transport, None, None, None, None)
+            client = APIClient(transport, None, None, None, None, False)
             client._authenticate = Mock()
 
             client.get_playlist('mock_token')

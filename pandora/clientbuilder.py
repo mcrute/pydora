@@ -106,7 +106,7 @@ class APIClientBuilder(object):
                              settings.get("API_HOST", DEFAULT_API_HOST),
                              settings.get("PROXY", None))
 
-        ad_support = settings.get("AD_SUPPORT_ENABLED", False)
+        ad_support = settings.get("AD_SUPPORT_ENABLED", True)
 
         quality = settings.get("AUDIO_QUALITY",
                                self.client_class.MED_AUDIO_QUALITY)
