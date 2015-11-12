@@ -96,7 +96,7 @@ class TestSettingsDictBuilder(TestCase):
         self.assertEqual(DEFAULT_API_HOST, client.transport.api_host)
         self.assertEqual(APIClient.MED_AUDIO_QUALITY,
                 client.default_audio_quality)
-        self.assertEqual(False,
+        self.assertEqual(True,
                 client.ad_support_enabled)
 
     def test_validate_client(self):

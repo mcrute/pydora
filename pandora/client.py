@@ -29,7 +29,7 @@ class BaseAPIClient(object):
     HIGH_AUDIO_QUALITY = "highQuality"
 
     def __init__(self, transport, partner_user, partner_password, device,
-                 default_audio_quality=MED_AUDIO_QUALITY, ad_support_enabled=False):
+                 default_audio_quality=MED_AUDIO_QUALITY, ad_support_enabled=True):
         self.transport = transport
         self.partner_user = partner_user
         self.partner_password = partner_password
@@ -54,12 +54,11 @@ class BaseAPIClient(object):
         return PydoraConfigFileBuilder(path, authenticate).build()
 
     def get_params_dict(self, reg_params, ad_params):
-
-        if not self.ad_support_enabled:
-             params = reg_params
+        if self.ad_support_enabled:
+            params = reg_params.copy()
+            params.update(ad_params)
         else:
-             params = reg_params.copy()
-             params.update(ad_params)
+            params = reg_params
 
         return params
 
@@ -92,7 +91,6 @@ class BaseAPIClient(object):
         ad_params = dict(includeAdAttributes=True,
                          includeAdvertiserAttributes=True,
                          xplatformAdCapable=True)
-
 
         user = self.transport("auth.userLogin", **self.get_params_dict(reg_params, ad_params))
 
@@ -135,7 +133,8 @@ class APIClient(BaseAPIClient):
                          audioAdPodCapable=True,)
 
         return Playlist.from_json(self,
-                                  self("station.getPlaylist", **self.get_params_dict(reg_params, ad_params)))
+                                  self("station.getPlaylist",
+                                       **self.get_params_dict(reg_params, ad_params)))
 
     def get_bookmarks(self):
         from .models.pandora import BookmarkList
@@ -252,7 +251,11 @@ class APIClient(BaseAPIClient):
     def get_ad_item(self, ad_token):
         from .models.pandora import AdItem
 
-        return AdItem.from_json(self, self.get_ad_metadata(ad_token))
+        return AdItem.from_json(self, self("ad.getAdMetadata",
+                                           adToken=ad_token,
+                                           returnAdTrackingTokens=True,
+                                           supportAudioAds=True,
+                                           includeBannerAd=True))
 
     def get_ad_metadata(self, ad_token):
         return self("ad.getAdMetadata",
