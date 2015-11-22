@@ -80,6 +80,7 @@ class TestSettingsDictBuilder(TestCase):
             "DEVICE": "dev",
             "PROXY": "proxy.example.com",
             "AUDIO_QUALITY": "high",
+            "AD_SUPPORT_ENABLED": True,
             "API_HOST": "example.com",
         }).build()
 
@@ -95,6 +96,8 @@ class TestSettingsDictBuilder(TestCase):
         self.assertEqual(DEFAULT_API_HOST, client.transport.api_host)
         self.assertEqual(APIClient.MED_AUDIO_QUALITY,
                 client.default_audio_quality)
+        self.assertEqual(True,
+                client.ad_support_enabled)
 
     def test_validate_client(self):
         client = self._build_maximal()
@@ -113,6 +116,7 @@ class TestSettingsDictBuilder(TestCase):
         self.assertEqual(expected_proxies, client.transport._http.proxies)
         self.assertEqual("example.com", client.transport.api_host)
         self.assertEqual("high", client.default_audio_quality)
+        self.assertEqual(True, client.ad_support_enabled)
 
 
 class TestFileBasedBuilder(TestCase):
@@ -179,6 +183,7 @@ class TestPydoraConfigFileBuilder(TestCase):
 
         self.assertDictEqual(cfg, {
             "AUDIO_QUALITY": "test_quality",
+            "AD_SUPPORT_ENABLED": "test_ad_support",
             "DECRYPTION_KEY": "test_decryption_key",
             "DEVICE": "test_device",
             "ENCRYPTION_KEY": "test_encryption_key",
@@ -200,6 +205,7 @@ class TestPianobarConfigFileBuilder(TestCase):
 
         self.assertDictEqual(cfg, {
             "AUDIO_QUALITY": "test_qualityQuality",
+            "AD_SUPPORT_ENABLED": "test_ad_support",
             "DECRYPTION_KEY": "test_decryption_key",
             "DEVICE": "test_device",
             "ENCRYPTION_KEY": "test_encryption_key",

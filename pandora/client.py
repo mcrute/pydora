@@ -29,12 +29,13 @@ class BaseAPIClient(object):
     HIGH_AUDIO_QUALITY = "highQuality"
 
     def __init__(self, transport, partner_user, partner_password, device,
-                 default_audio_quality=MED_AUDIO_QUALITY):
+                 default_audio_quality=MED_AUDIO_QUALITY, ad_support_enabled=True):
         self.transport = transport
         self.partner_user = partner_user
         self.partner_password = partner_password
         self.device = device
         self.default_audio_quality = default_audio_quality
+        self.ad_support_enabled = ad_support_enabled
         self.username = None
         self.password = None
 
@@ -51,6 +52,15 @@ class BaseAPIClient(object):
     def from_config_file(cls, path, authenticate=True):
         from .clientbuilder import PydoraConfigFileBuilder
         return PydoraConfigFileBuilder(path, authenticate).build()
+
+    def get_params_dict(self, reg_params, ad_params):
+        if self.ad_support_enabled:
+            params = reg_params.copy()
+            params.update(ad_params)
+        else:
+            params = reg_params
+
+        return params
 
     def _partner_login(self):
         partner = self.transport("auth.partnerLogin",
@@ -71,13 +81,18 @@ class BaseAPIClient(object):
     def _authenticate(self):
         self._partner_login()
 
-        user = self.transport("auth.userLogin",
-                              loginType="user",
-                              username=self.username,
-                              password=self.password,
-                              includePandoraOneInfo=True,
-                              includeSubscriptionExpiration=True,
-                              returnCapped=True)
+        reg_params = dict(loginType="user",
+                          username=self.username,
+                          password=self.password,
+                          includePandoraOneInfo=True,
+                          includeSubscriptionExpiration=True,
+                          returnCapped=True)
+
+        ad_params = dict(includeAdAttributes=True,
+                         includeAdvertiserAttributes=True,
+                         xplatformAdCapable=True)
+
+        user = self.transport("auth.userLogin", **self.get_params_dict(reg_params, ad_params))
 
         self.transport.set_user(user)
 
@@ -111,10 +126,29 @@ class APIClient(BaseAPIClient):
     def get_playlist(self, station_token):
         from .models.pandora import Playlist
 
-        return Playlist.from_json(self,
+        reg_params = dict(stationToken=station_token,
+                          includeTrackLength=True)
+
+        ad_params = dict(xplatformAdCapable=True,
+                         audioAdPodCapable=True,)
+
+        raw_playlist = Playlist.from_json(self,
                                   self("station.getPlaylist",
-                                       stationToken=station_token,
-                                       includeTrackLength=True))
+                                       **self.get_params_dict(reg_params, ad_params)))
+
+        playlist = []
+
+        for track in raw_playlist:
+            if track.is_ad:
+                if self.ad_support_enabled:
+                    track = self.get_ad_item(station_token, track.ad_token)
+                else:
+                    # Implicitly remove ad tokens
+                    continue
+
+            playlist.append(track)
+
+        return playlist
 
     def get_bookmarks(self):
         from .models.pandora import BookmarkList
@@ -227,3 +261,22 @@ class APIClient(BaseAPIClient):
         return self("music.shareMusic",
                     musicToken=music_token,
                     email=emails[0])
+
+    def get_ad_item(self, station_id, ad_token):
+        from .models.pandora import AdItem
+
+        ad_item = AdItem.from_json(self, self.get_ad_metadata(ad_token))
+        ad_item.station_id = station_id
+        return ad_item
+
+    def get_ad_metadata(self, ad_token):
+        return self("ad.getAdMetadata",
+                    adToken=ad_token,
+                    returnAdTrackingTokens=True,
+                    supportAudioAds=True,
+                    includeBannerAd=True)
+
+    def register_ad(self, station_id, tokens):
+        return self("ad.registerAd",
+            stationId=station_id,
+            adTrackingTokens=tokens)
