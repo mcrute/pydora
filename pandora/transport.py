@@ -24,6 +24,65 @@ from .errors import PandoraException
 DEFAULT_API_HOST = "tuner.pandora.com/services/json/"
 
 
+def retries(max_tries, exceptions=(Exception,)):
+    """Function decorator implementing retrying logic.
+
+    exceptions: A tuple of exception classes; default (Exception,)
+
+    The decorator will call the function up to max_tries times if it raises
+    an exception.
+
+    By default it catches instances of the Exception class and subclasses.
+    This will recover after all but the most fatal errors. You may specify a
+    custom tuple of exception classes with the 'exceptions' argument; the
+    function will only be retried if it raises one of the specified
+    exceptions.
+    """
+
+    def decorator(func):
+        def function(*args, **kwargs):
+
+            tries = range(max_tries)
+            tries.reverse()
+
+            for tries_remaining in tries:
+                try:
+                    return func(*args, **kwargs)
+
+                except exceptions:
+                    if tries_remaining > 0:
+                        time.sleep(delay_exponential('rand', 2, tries_remaining))
+                    else:
+                        raise
+                else:
+                    break
+
+        return function
+
+    return decorator
+
+
+def delay_exponential(base, growth_factor, attempts):
+    """Calculate time to sleep based on exponential function.
+    The format is::
+
+        base * growth_factor ^ (attempts - 1)
+
+    If ``base`` is set to 'rand' then a random number between
+    0 and 1 will be used as the base.
+    Base must be greater than 0, otherwise a ValueError will be
+    raised.
+    """
+
+    if base == 'rand':
+        base = random.random()
+    elif base <= 0:
+        raise ValueError("The 'base' param must be greater than 0, "
+                         "got: %s" % base)
+    time_to_sleep = base * (growth_factor ** (attempts - 1))
+    return time_to_sleep
+
+
 class RetryingSession(requests.Session):
     """Requests Session With Retry Support
 
@@ -214,62 +273,3 @@ class Encryptor(object):
 
     def encrypt(self, data):
         return self._encode_hex(self.bf_out.encrypt(self.add_padding(data)))
-
-
-def retries(max_tries, exceptions=(Exception,)):
-    """Function decorator implementing retrying logic.
-
-    exceptions: A tuple of exception classes; default (Exception,)
-
-    The decorator will call the function up to max_tries times if it raises
-    an exception.
-
-    By default it catches instances of the Exception class and subclasses.
-    This will recover after all but the most fatal errors. You may specify a
-    custom tuple of exception classes with the 'exceptions' argument; the
-    function will only be retried if it raises one of the specified
-    exceptions.
-    """
-
-    def decorator(func):
-        def function(*args, **kwargs):
-
-            tries = range(max_tries)
-            tries.reverse()
-
-            for tries_remaining in tries:
-                try:
-                    return func(*args, **kwargs)
-
-                except exceptions:
-                    if tries_remaining > 0:
-                        time.sleep(delay_exponential('rand', 2, tries_remaining))
-                    else:
-                        raise
-                else:
-                    break
-
-        return function
-
-    return decorator
-
-
-def delay_exponential(base, growth_factor, attempts):
-    """Calculate time to sleep based on exponential function.
-    The format is::
-
-        base * growth_factor ^ (attempts - 1)
-
-    If ``base`` is set to 'rand' then a random number between
-    0 and 1 will be used as the base.
-    Base must be greater than 0, otherwise a ValueError will be
-    raised.
-    """
-
-    if base == 'rand':
-        base = random.random()
-    elif base <= 0:
-        raise ValueError("The 'base' param must be greater than 0, "
-                         "got: %s" % base)
-    time_to_sleep = base * (growth_factor ** (attempts - 1))
-    return time_to_sleep
