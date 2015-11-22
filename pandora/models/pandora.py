@@ -1,5 +1,5 @@
 from .. import BaseAPIClient
-from . import Field, PandoraModel, PandoraListModel, PandoraDictListModel
+from . import Field, PandoraModel, PandoraListModel, PandoraDictListModel, with_metaclass, ModelMetaClass
 
 
 class Station(PandoraModel):
@@ -95,6 +95,25 @@ class PlaylistModel(PandoraModel):
     def get_is_playable(self):
         return self._api_client.transport.test_url(self.audio_url)
 
+    ## MUST be called by all consumers immediately before playback of the track is started
+    def prepare_playback(self):
+        return self
+
+    def thumbs_up(self):
+        raise NotImplementedError
+
+    def thumbs_down(self):
+        raise NotImplementedError
+
+    def bookmark_song(self):
+        raise NotImplementedError
+
+    def bookmark_artist(self):
+        raise NotImplementedError
+
+    def sleep(self):
+        raise NotImplementedError
+
 
 class PlaylistItem(PlaylistModel):
 
@@ -133,19 +152,19 @@ class PlaylistItem(PlaylistModel):
         return self.ad_token is not None
 
     def thumbs_up(self):
-        self._api_client.add_feedback(self.track_token, True)
+        return self._api_client.add_feedback(self.track_token, True)
 
     def thumbs_down(self):
-        self._api_client.add_feedback(self.track_token, False)
+        return self._api_client.add_feedback(self.track_token, False)
 
     def bookmark_song(self):
-        self._api_client.add_song_bookmark(self.track_token)
+        return self._api_client.add_song_bookmark(self.track_token)
 
     def bookmark_artist(self):
-        self._api_client.add_artist_bookmark(self.track_token)
+        return self._api_client.add_artist_bookmark(self.track_token)
 
     def sleep(self):
-        self._api_client.sleep_song(self.track_token)
+        return self._api_client.sleep_song(self.track_token)
 
 
 class AdItem(PlaylistModel):
@@ -154,6 +173,7 @@ class AdItem(PlaylistModel):
     company_name = Field("companyName")
     tracking_tokens = Field("adTrackingTokens")
     audio_url = Field("audioUrl")
+    station_id = Field("stationId")
 
     @property
     def is_ad(self):
@@ -161,6 +181,10 @@ class AdItem(PlaylistModel):
 
     def register_ad(self, station_id):
         self._api_client.register_ad(station_id, self.tracking_tokens)
+
+    def prepare_playback(self):
+        self.register_ad(self.station_id)
+        return super(AdItem, self).prepare_playback()
 
 
 class Playlist(PandoraListModel):
