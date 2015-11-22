@@ -39,7 +39,11 @@ class Screen(object):
 
     @staticmethod
     def set_echo(enabled):
+
         fd = sys.stdin.fileno()
+        if not os.isatty(fd):
+            return
+
         (iflag, oflag, cflag,
          lflag, ispeed, ospeed, cc) = termios.tcgetattr(fd)
 
