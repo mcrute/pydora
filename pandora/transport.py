@@ -51,7 +51,7 @@ def retries(max_tries, exceptions=(Exception,)):
 
                 except exceptions:
                     if tries_remaining > 0:
-                        time.sleep(delay_exponential('rand', 2, tries_remaining))
+                        time.sleep(delay_exponential('rand', 2, max_tries - tries_remaining))
                     else:
                         raise
                 else:
