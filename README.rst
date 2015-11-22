@@ -67,6 +67,7 @@ sample config::
     password = partner password
     device = key
     default_audio_quality = mediumQuality
+    ad_support_enabled = true
 
     [user]
     username = your username

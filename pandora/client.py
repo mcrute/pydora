@@ -132,9 +132,23 @@ class APIClient(BaseAPIClient):
         ad_params = dict(xplatformAdCapable=True,
                          audioAdPodCapable=True,)
 
-        return Playlist.from_json(self,
+        raw_playlist = Playlist.from_json(self,
                                   self("station.getPlaylist",
                                        **self.get_params_dict(reg_params, ad_params)))
+
+        playlist = []
+
+        for track in raw_playlist:
+            if track.is_ad:
+                if self.ad_support_enabled:
+                    track = self.get_ad_item(station_token, track.ad_token)
+                else:
+                    # Implicitly remove ad tokens
+                    continue
+
+            playlist.append(track)
+
+        return playlist
 
     def get_bookmarks(self):
         from .models.pandora import BookmarkList
@@ -253,14 +267,12 @@ class APIClient(BaseAPIClient):
                     musicToken=music_token,
                     email=emails[0])
 
-    def get_ad_item(self, ad_token):
+    def get_ad_item(self, station_id, ad_token):
         from .models.pandora import AdItem
 
-        return AdItem.from_json(self, self("ad.getAdMetadata",
-                                           adToken=ad_token,
-                                           returnAdTrackingTokens=True,
-                                           supportAudioAds=True,
-                                           includeBannerAd=True))
+        ad_item = AdItem.from_json(self, self.get_ad_metadata(ad_token))
+        ad_item.station_id = station_id
+        return ad_item
 
     def get_ad_metadata(self, ad_token):
         return self("ad.getAdMetadata",

@@ -119,7 +119,7 @@ def iterate_forever(func, *args, **kwargs):
 
     while True:
         try:
-            yield next(output)
+            yield next(output).prepare_playback()
         except StopIteration:
             output = func(*args, **kwargs)
 

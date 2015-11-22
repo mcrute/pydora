@@ -106,14 +106,12 @@ class APIClientBuilder(object):
                              settings.get("API_HOST", DEFAULT_API_HOST),
                              settings.get("PROXY", None))
 
-        ad_support = settings.get("AD_SUPPORT_ENABLED", True)
-
         quality = settings.get("AUDIO_QUALITY",
                                self.client_class.MED_AUDIO_QUALITY)
 
         return self.client_class(trans, settings["PARTNER_USER"],
                                  settings["PARTNER_PASSWORD"],
-                                 settings["DEVICE"], quality, ad_support)
+                                 settings["DEVICE"], quality)
 
 
 class SettingsDict(TranslatingDict):

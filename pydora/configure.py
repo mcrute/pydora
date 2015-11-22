@@ -155,6 +155,7 @@ class Configurator(object):
         self.get_password("user", "password", "Pandora Password: ")
         self.set_static_value("api", "default_audio_quality",
                               APIClient.HIGH_AUDIO_QUALITY)
+        self.set_static_value("api", "ad_support_enabled", "true")
 
         self.write_config()
 
