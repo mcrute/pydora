@@ -172,7 +172,6 @@ class APITransport(object):
         if not self.start_time:
             self.start_time = int(time.time())
 
-    @retries(5, exceptions=(SysCallError,))
     def _make_http_request(self, url, data, params):
         try:
             data = data.encode("utf-8")
@@ -223,6 +222,7 @@ class APITransport(object):
         else:
             raise PandoraException.from_code(result["code"], result["message"])
 
+    @retries(5, exceptions=(SysCallError,))
     def __call__(self, method, **data):
         self._start_request(method)
 
