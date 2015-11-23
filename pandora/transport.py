@@ -42,16 +42,15 @@ def retries(max_tries, exceptions=(Exception,)):
     def decorator(func):
         def function(*args, **kwargs):
 
-            tries = range(max_tries)
-            tries.reverse()
-
-            for tries_remaining in tries:
+            retries_left = max_tries
+            while retries_left > 0:
                 try:
+                    retries_left -= 1
                     return func(*args, **kwargs)
 
                 except exceptions:
-                    if tries_remaining > 0:
-                        time.sleep(delay_exponential('rand', 2, max_tries - tries_remaining))
+                    if retries_left > 0:
+                        time.sleep(delay_exponential(0.5, 2, max_tries - retries_left))
                     else:
                         raise
                 else:
