@@ -11,7 +11,7 @@ from tests.test_pandora.test_clientbuilder import TestSettingsDictBuilder
 class TestTransport(TestCase):
 
     def test_call_should_retry_max_times_on_sys_call_error(self):
-        with self.assertRaises(SysCallError) as context:
+        with self.assertRaises(SysCallError):
 
             client = TestSettingsDictBuilder._build_minimal()
 
@@ -23,4 +23,3 @@ class TestTransport(TestCase):
 
         client.transport._start_request.assert_has_calls([call("method")])
         assert client.transport._start_request.call_count == 5
-        self.assertTrue('mock_error' in context.exception)
