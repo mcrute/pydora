@@ -222,6 +222,8 @@ class APITransport(object):
         else:
             raise PandoraException.from_code(result["code"], result["message"])
 
+    # TODO: This decorator is a temporary workaround for handling SysCallErrors,
+    # see: https://github.com/shazow/urllib3/issues/367. Should be removed once a fix is applied in urllib3.
     @retries(5, exceptions=(SysCallError,))
     def __call__(self, method, **data):
         self._start_request(method)

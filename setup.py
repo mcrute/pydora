@@ -68,7 +68,7 @@ class check_style(SimpleCommand):
 
 setup(
     name="pydora",
-    version="1.5.1",
+    version="1.5.2",
     description="Python wrapper for Pandora API",
     long_description=open("README.rst", "r").read(),
     author="Mike Crute",
@@ -88,6 +88,7 @@ setup(
     install_requires=[
         "pycrypto>=2.6.1",
         "requests>=2",
+        "pyOpenSSL>=0.15.1",
     ],
     entry_points={
         "console_scripts": [
