@@ -196,6 +196,9 @@ class APIClient(BaseAPIClient):
         categories = self("station.getGenreStations")["categories"]
         return GenreStations.from_json(self, categories)
 
+    def get_genre_stations_checksum(self):
+        return self("station.getGenreStationsChecksum")["checksum"]
+
     def rename_station(self, station_token, name):
         return self("station.renameStation",
                     stationToken=station_token,
