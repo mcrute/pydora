@@ -205,6 +205,12 @@ class SearchResult(PandoraModel):
 
 class GenreStations(PandoraDictListModel):
 
+    checksum = None
+
     __dict_key__ = "categoryName"
     __list_key__ = "stations"
     __list_model__ = Station
+
+    def has_changed(self):
+        checksum = self._api_client.get_genre_stations_checksum()
+        return checksum != self.checksum
