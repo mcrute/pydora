@@ -206,6 +206,8 @@ class SearchResult(PandoraModel):
 class GenreStations(PandoraDictListModel):
 
     checksum = None
+
+    __dict_key__ = "categoryName"
     __list_key__ = "stations"
     __list_model__ = Station
 
