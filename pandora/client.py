@@ -194,7 +194,9 @@ class APIClient(BaseAPIClient):
         from .models.pandora import GenreStations
 
         categories = self("station.getGenreStations")["categories"]
-        return GenreStations.from_json(self, categories)
+        genre_stations = GenreStations.from_json(self, categories)
+        genre_stations.checksum = self.get_genre_stations_checksum()
+        return genre_stations
 
     def get_genre_stations_checksum(self):
         return self("station.getGenreStationsChecksum")["checksum"]
