@@ -142,6 +142,7 @@ class PandoraListModel(PandoraModel, list):
 
 class PandoraDictListModel(PandoraModel, dict):
 
+    __index_key__ = None
     __dict_key__ = None
     __list_key__ = None
     __list_model__ = None
