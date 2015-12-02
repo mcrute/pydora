@@ -191,10 +191,12 @@ class APIClient(BaseAPIClient):
                     stationToken=station_token)
 
     def get_genre_stations(self):
-        from .models.pandora import GenreStations
+        from .models.pandora import GenreStationList
 
-        categories = self("station.getGenreStations")["categories"]
-        return GenreStations.from_json(self, categories)
+        # categories = self("station.getGenreStations")["categories"]
+        genres = self("station.getGenreStations")
+        genres['checksum'] = self.get_genre_stations_checksum()
+        return GenreStationList.from_json(self, genres)
 
     def get_genre_stations_checksum(self):
         return self("station.getGenreStationsChecksum")["checksum"]
