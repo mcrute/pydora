@@ -151,7 +151,7 @@ class PandoraDictListModel(PandoraModel, dict):
         self = cls(api_client)
         PandoraModel.populate_fields(api_client, self, data)
 
-        for item in data:
+        for item in data[self.__index_key__]:
             key = item[self.__dict_key__]
             self[key] = []
 
