@@ -248,7 +248,7 @@ class GenreStationList(PandoraDictListModel):
 
     checksum = Field("checksum")
 
-    __index_key__ = "categories"
+    __dict_list_key__ = "categories"
     __dict_key__ = "categoryName"
     __list_key__ = "stations"
     __list_model__ = GenreStation
