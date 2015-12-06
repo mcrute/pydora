@@ -90,7 +90,6 @@ class APIClientBuilder(object):
     * API_HOST - API hostname and path to API
     * PROXY - HTTP/HTTPS proxy hostname
     * AUDIO_QUALITY - A supported audio quality (see APIClient)
-    * AD_SUPPORT_ENABLED - Boolean value to specify whether advertisement metadata should be retrieved
     """
 
     DEFAULT_CLIENT_CLASS = APIClient

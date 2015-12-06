@@ -38,7 +38,6 @@ def retries(max_tries, exceptions=(Exception,)):
     function will only be retried if it raises one of the specified
     exceptions.
     """
-
     def decorator(func):
         def function(*args, **kwargs):
 
@@ -50,7 +49,8 @@ def retries(max_tries, exceptions=(Exception,)):
 
                 except exceptions:
                     if retries_left > 0:
-                        time.sleep(delay_exponential(0.5, 2, max_tries - retries_left))
+                        time.sleep(delay_exponential(
+                            0.5, 2, max_tries - retries_left))
                     else:
                         raise
                 else:
@@ -72,7 +72,6 @@ def delay_exponential(base, growth_factor, attempts):
     Base must be greater than 0, otherwise a ValueError will be
     raised.
     """
-
     if base == 'rand':
         base = random.random()
     elif base <= 0:

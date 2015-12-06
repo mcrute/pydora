@@ -29,13 +29,12 @@ class BaseAPIClient(object):
     HIGH_AUDIO_QUALITY = "highQuality"
 
     def __init__(self, transport, partner_user, partner_password, device,
-                 default_audio_quality=MED_AUDIO_QUALITY, ad_support_enabled=True):
+                 default_audio_quality=MED_AUDIO_QUALITY):
         self.transport = transport
         self.partner_user = partner_user
         self.partner_password = partner_password
         self.device = device
         self.default_audio_quality = default_audio_quality
-        self.ad_support_enabled = ad_support_enabled
         self.username = None
         self.password = None
 
@@ -54,12 +53,8 @@ class BaseAPIClient(object):
         return PydoraConfigFileBuilder(path, authenticate).build()
 
     def get_params_dict(self, reg_params, ad_params):
-        if self.ad_support_enabled:
-            params = reg_params.copy()
-            params.update(ad_params)
-        else:
-            params = reg_params
-
+        params = reg_params.copy()
+        params.update(ad_params)
         return params
 
     def _partner_login(self):
@@ -133,18 +128,14 @@ class APIClient(BaseAPIClient):
                          audioAdPodCapable=True,)
 
         raw_playlist = Playlist.from_json(self,
-                                  self("station.getPlaylist",
-                                       **self.get_params_dict(reg_params, ad_params)))
+                          self("station.getPlaylist",
+                               **self.get_params_dict(reg_params, ad_params)))
 
         playlist = []
 
         for track in raw_playlist:
             if track.is_ad:
-                if self.ad_support_enabled:
-                    track = self.get_ad_item(station_token, track.ad_token)
-                else:
-                    # Implicitly remove ad tokens
-                    continue
+                track = self.get_ad_item(station_token, track.ad_token)
 
             playlist.append(track)
 
