@@ -82,7 +82,7 @@ setup(
     packages=find_packages(exclude=["tests", "tests.*"]),
     tests_require=[
         "pep8>=1.6.2",
-        "mock>=1.3.0",
+        "mock>=1.0.1",
         "coverage>=4.0.3",
     ],
     install_requires=[
