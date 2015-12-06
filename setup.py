@@ -57,6 +57,7 @@ class cover_test(SimpleCommand):
 
         cov.stop()
         cov.xml_report(outfile="coverage.xml")
+        cov.html_report()
 
 
 class check_style(SimpleCommand):

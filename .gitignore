@@ -1,10 +1,11 @@
 *.pyc
-.sandbox_name
-dist/
-build/
-pydora.egg-info/
 .pip/
 .pip3/
 .pip32/
 .pip35/
+.sandbox_name
+build/
 coverage.xml
+dist/
+htmlcov/
+pydora.egg-info/
