@@ -24,12 +24,25 @@ class SimpleCommand(Command):
     def finalize_options(self):
         pass
 
+    def install_requires(self):
+        if self.distribution.install_requires:
+            self.distribution.fetch_build_eggs(
+                    self.distribution.install_requires)
+
+        if self.distribution.tests_require:
+            self.distribution.fetch_build_eggs(
+                    self.distribution.tests_require)
+
+    def run(self):
+        self.install_requires()
+        self._run()
+
 
 class cover_test(SimpleCommand):
 
     description = "run unit tests with coverage"
 
-    def run(self):
+    def _run(self):
         from coverage import coverage
 
         cov = coverage(data_file=".coverage", branch=True,
@@ -50,7 +63,7 @@ class check_style(SimpleCommand):
 
     description = "run PEP8 style validations"
 
-    def run(self):
+    def _run(self):
         from pep8 import StyleGuide
 
         self.run_command("egg_info")
