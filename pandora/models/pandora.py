@@ -168,6 +168,7 @@ class PlaylistItem(PlaylistModel):
     track_length = Field("trackLength", 0)
     track_token = Field("trackToken")
     audio_url = Field("audioUrl")
+    bitrate = Field("bitrate")
     album_art_url = Field("albumArtUrl")
     allow_feedback = Field("allowFeedback", True)
     station_id = Field("stationId")
