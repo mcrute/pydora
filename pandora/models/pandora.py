@@ -63,6 +63,7 @@ class PlaylistItem(PandoraModel):
     track_length = Field("trackLength", 0)
     track_token = Field("trackToken")
     audio_url = Field("audioUrl")
+    bitrate = Field("bitrate")
     album_art_url = Field("albumArtUrl")
     allow_feedback = Field("allowFeedback", True)
     station_id = Field("stationId")
@@ -112,6 +113,10 @@ class PlaylistItem(PandoraModel):
                 newval = cls.get_audio_url(
                     data, api_client.default_audio_quality)
 
+            if value.field == "bitrate" and newval is None:
+                newval = cls.get_audio_bitrate(
+                    data, api_client.default_audio_quality)
+
             if newval and value.formatter:
                 newval = value.formatter(newval)
 
@@ -120,11 +125,11 @@ class PlaylistItem(PandoraModel):
         return self
 
     @classmethod
-    def get_audio_url(cls, data,
+    def get_audio_field(cls, data, field,
                       preferred_quality=BaseAPIClient.MED_AUDIO_QUALITY):
-        """Get audio url
+        """Get audio-related fields
 
-        Try to find audio url for specified preferred quality level, or
+        Try to find fields for the audio url for specified preferred quality level, or
         next-lowest available quality url otherwise.
         """
         audio_url = None
@@ -150,9 +155,29 @@ class PlaylistItem(PandoraModel):
             audio_url = url_map.get(quality)
 
             if audio_url is not None:
-                return audio_url["audioUrl"]
+                return audio_url[field]
 
-        return audio_url["audioUrl"] if audio_url is not None else None
+        return audio_url[field] if audio_url is not None else None
+
+    @classmethod
+    def get_audio_url(cls, data,
+                      preferred_quality=BaseAPIClient.MED_AUDIO_QUALITY):
+        """Get audio url
+
+        Try to find audio url for specified preferred quality level, or
+        next-lowest available quality url otherwise.
+        """
+        return cls.get_audio_field(data, "audioUrl", preferred_quality=preferred_quality)
+
+    @classmethod
+    def get_audio_bitrate(cls, data,
+                      preferred_quality=BaseAPIClient.MED_AUDIO_QUALITY):
+        """Get audio bitrate
+
+        Try to find bitrate of audio url for specified preferred quality level, or
+        next-lowest available quality url otherwise.
+        """
+        return cls.get_audio_field(data, "bitrate", preferred_quality=preferred_quality)
 
 
 class Playlist(PandoraListModel):
