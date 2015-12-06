@@ -142,6 +142,7 @@ class PandoraListModel(PandoraModel, list):
 
 class PandoraDictListModel(PandoraModel, dict):
 
+    __dict_list_key__ = None
     __dict_key__ = None
     __list_key__ = None
     __list_model__ = None
@@ -151,7 +152,7 @@ class PandoraDictListModel(PandoraModel, dict):
         self = cls(api_client)
         PandoraModel.populate_fields(api_client, self, data)
 
-        for item in data:
+        for item in data[self.__dict_list_key__] if self.__dict_list_key__ else data:
             key = item[self.__dict_key__]
             self[key] = []
 

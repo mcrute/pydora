@@ -24,6 +24,22 @@ class Station(PandoraModel):
         return iter(self._api_client.get_playlist(self.token))
 
 
+class GenreStation(PandoraModel):
+
+    id = Field("stationId")
+    name = Field("stationName")
+    token = Field("stationToken")
+
+    category = Field("categoryName")
+
+    def get_playlist(self):
+        # Not possible to retrieve playlist for genre stations directly.
+        # Need to 'create' an actual Station object first using
+        # APIClient.create_station
+        raise NotImplementedError("Cannot retrieve playlist for genre " + \
+                                  "stations.")
+
+
 class StationList(PandoraListModel):
 
     checksum = Field("checksum")
@@ -203,8 +219,15 @@ class SearchResult(PandoraModel):
     artists = Field("artists", formatter=SearchResultItem.from_json_list)
 
 
-class GenreStations(PandoraDictListModel):
+class GenreStationList(PandoraDictListModel):
 
+    checksum = Field("checksum")
+
+    __dict_list_key__ = "categories"
     __dict_key__ = "categoryName"
     __list_key__ = "stations"
-    __list_model__ = Station
+    __list_model__ = GenreStation
+
+    def has_changed(self):
+        checksum = self._api_client.get_station_list_checksum()
+        return checksum != self.checksum
