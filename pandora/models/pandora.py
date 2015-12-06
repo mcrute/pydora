@@ -29,15 +29,14 @@ class GenreStation(PandoraModel):
     id = Field("stationId")
     name = Field("stationName")
     token = Field("stationToken")
-
     category = Field("categoryName")
 
     def get_playlist(self):
         # Not possible to retrieve playlist for genre stations directly.
         # Need to 'create' an actual Station object first using
         # APIClient.create_station
-        raise NotImplementedError("Cannot retrieve playlist for genre " + \
-                                  "stations.")
+        raise NotImplementedError(("Cannot retrieve playlist for genre "
+                                  "stations."))
 
 
 class StationList(PandoraListModel):
@@ -78,18 +77,17 @@ class PlaylistModel(PandoraModel):
         return self
 
     @classmethod
-    def get_audio_field(cls, data, field,
-                      preferred_quality=BaseAPIClient.MED_AUDIO_QUALITY):
+    def get_audio_field(cls, data, field, preferred_quality):
         """Get audio-related fields
 
-        Try to find fields for the audio url for specified preferred quality level, or
-        next-lowest available quality url otherwise.
+        Try to find fields for the audio url for specified preferred quality
+        level, or next-lowest available quality url otherwise.
         """
         audio_url = None
         url_map = data.get("audioUrlMap")
 
-        if url_map is None:
-            # No audio url available (e.g. ad tokens)
+        # No audio url available (e.g. ad tokens)
+        if not url_map:
             return None
 
         valid_audio_formats = [BaseAPIClient.HIGH_AUDIO_QUALITY,
@@ -100,17 +98,17 @@ class PlaylistModel(PandoraModel):
         # from the beginning of the list if nothing is found. Ensures that the
         # bitrate used will always be the same or lower quality than was
         # specified to prevent audio from skipping for slow connections.
-        i = 0
         if preferred_quality in valid_audio_formats:
             i = valid_audio_formats.index(preferred_quality)
+            valid_audio_formats = valid_audio_formats[i:]
 
-        for quality in valid_audio_formats[i:]:
+        for quality in valid_audio_formats:
             audio_url = url_map.get(quality)
 
-            if audio_url is not None:
+            if audio_url:
                 return audio_url[field]
 
-        return audio_url[field] if audio_url is not None else None
+        return audio_url[field] if audio_url else None
 
     @classmethod
     def get_audio_url(cls, data,
@@ -120,17 +118,17 @@ class PlaylistModel(PandoraModel):
         Try to find audio url for specified preferred quality level, or
         next-lowest available quality url otherwise.
         """
-        return cls.get_audio_field(data, "audioUrl", preferred_quality=preferred_quality)
+        return cls.get_audio_field(data, "audioUrl", preferred_quality)
 
     @classmethod
     def get_audio_bitrate(cls, data,
                       preferred_quality=BaseAPIClient.MED_AUDIO_QUALITY):
         """Get audio bitrate
 
-        Try to find bitrate of audio url for specified preferred quality level, or
-        next-lowest available quality url otherwise.
+        Try to find bitrate of audio url for specified preferred quality level,
+        or next-lowest available quality url otherwise.
         """
-        return cls.get_audio_field(data, "bitrate", preferred_quality=preferred_quality)
+        return cls.get_audio_field(data, "bitrate", preferred_quality)
 
     def get_is_playable(self):
         return self._api_client.transport.test_url(self.audio_url)
