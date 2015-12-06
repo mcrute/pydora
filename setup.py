@@ -81,9 +81,9 @@ setup(
     },
     packages=find_packages(exclude=["tests", "tests.*"]),
     tests_require=[
-        "pep8==1.6.2",
-        "mock==1.0.1",
-        "coverage==3.7.1",
+        "pep8>=1.6.2",
+        "mock>=1.3.0",
+        "coverage>=4.0.3",
     ],
     install_requires=[
         "pycrypto>=2.6.1",
