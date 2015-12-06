@@ -13,7 +13,6 @@ import random
 import time
 import json
 import base64
-from OpenSSL.SSL import SysCallError
 import requests
 from requests.adapters import HTTPAdapter
 from Crypto.Cipher import Blowfish
@@ -223,7 +222,7 @@ class APITransport(object):
     # TODO: This decorator is a temporary workaround for handling
     # SysCallErrors, see: https://github.com/shazow/urllib3/issues/367.
     # Should be removed once a fix is applied in urllib3.
-    @retries(5, exceptions=(SysCallError,))
+    @retries(5)
     def __call__(self, method, **data):
         self._start_request(method)
 
