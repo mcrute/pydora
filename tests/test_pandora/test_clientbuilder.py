@@ -62,6 +62,7 @@ class TestTranslatingDict(TestCase):
 
 class TestSettingsDictBuilder(TestCase):
 
+    @classmethod
     def _build_minimal(self):
         return cb.SettingsDictBuilder({
             "DECRYPTION_KEY": "dec",
@@ -71,6 +72,7 @@ class TestSettingsDictBuilder(TestCase):
             "DEVICE": "dev",
         }).build()
 
+    @classmethod
     def _build_maximal(self):
         return cb.SettingsDictBuilder({
             "DECRYPTION_KEY": "dec",
@@ -84,12 +86,12 @@ class TestSettingsDictBuilder(TestCase):
         }).build()
 
     def test_building(self):
-        client = self._build_minimal()
+        client = TestSettingsDictBuilder._build_minimal()
 
         self.assertTrue(isinstance(client, APIClient))
 
     def test_default_values(self):
-        client = self._build_minimal()
+        client = TestSettingsDictBuilder._build_minimal()
 
         self.assertEqual({}, client.transport._http.proxies)
         self.assertEqual(DEFAULT_API_HOST, client.transport.api_host)
@@ -97,7 +99,7 @@ class TestSettingsDictBuilder(TestCase):
                 client.default_audio_quality)
 
     def test_validate_client(self):
-        client = self._build_maximal()
+        client = TestSettingsDictBuilder._build_maximal()
         expected_proxies = {
                 "http": "proxy.example.com",
                 "https": "proxy.example.com"

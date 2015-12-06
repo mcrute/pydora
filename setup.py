@@ -88,6 +88,7 @@ setup(
     install_requires=[
         "pycrypto>=2.6.1",
         "requests>=2",
+        "pyOpenSSL>=0.15.1",
     ],
     entry_points={
         "console_scripts": [
