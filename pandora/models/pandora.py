@@ -1,5 +1,6 @@
 from .. import BaseAPIClient
-from . import Field, PandoraModel, PandoraListModel, PandoraDictListModel, with_metaclass, ModelMetaClass
+from . import with_metaclass, ModelMetaClass
+from . import Field, PandoraModel, PandoraListModel, PandoraDictListModel
 
 
 class Station(PandoraModel):
@@ -122,7 +123,7 @@ class PlaylistModel(PandoraModel):
 
     @classmethod
     def get_audio_bitrate(cls, data,
-                      preferred_quality=BaseAPIClient.MED_AUDIO_QUALITY):
+                          preferred_quality=BaseAPIClient.MED_AUDIO_QUALITY):
         """Get audio bitrate
 
         Try to find bitrate of audio url for specified preferred quality level,
@@ -133,8 +134,12 @@ class PlaylistModel(PandoraModel):
     def get_is_playable(self):
         return self._api_client.transport.test_url(self.audio_url)
 
-    ## MUST be called by all consumers immediately before playback of the track is started
     def prepare_playback(self):
+        """Prepare Track for Playback
+
+        This method must be called by clients before beginning playback
+        otherwise the track recieved may not be playable.
+        """
         return self
 
     def thumbs_up(self):

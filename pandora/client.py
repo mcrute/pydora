@@ -87,7 +87,8 @@ class BaseAPIClient(object):
                          includeAdvertiserAttributes=True,
                          xplatformAdCapable=True)
 
-        user = self.transport("auth.userLogin", **self.get_params_dict(reg_params, ad_params))
+        user = self.transport("auth.userLogin",
+                              **self.get_params_dict(reg_params, ad_params))
 
         self.transport.set_user(user)
 
@@ -121,15 +122,12 @@ class APIClient(BaseAPIClient):
     def get_playlist(self, station_token):
         from .models.pandora import Playlist
 
-        reg_params = dict(stationToken=station_token,
-                          includeTrackLength=True)
+        reg_params = dict(stationToken=station_token, includeTrackLength=True)
+        ad_params = dict(xplatformAdCapable=True, audioAdPodCapable=True,)
 
-        ad_params = dict(xplatformAdCapable=True,
-                         audioAdPodCapable=True,)
-
-        raw_playlist = Playlist.from_json(self,
-                          self("station.getPlaylist",
-                               **self.get_params_dict(reg_params, ad_params)))
+        params = self.get_params_dict(reg_params, ad_params)
+        raw_playlist = Playlist.from_json(
+                self, self("station.getPlaylist", **params))
 
         playlist = []
 
@@ -274,5 +272,5 @@ class APIClient(BaseAPIClient):
 
     def register_ad(self, station_id, tokens):
         return self("ad.registerAd",
-            stationId=station_id,
-            adTrackingTokens=tokens)
+                    stationId=station_id,
+                    adTrackingTokens=tokens)
