@@ -33,11 +33,8 @@ class GenreStation(PandoraModel):
     category = Field("categoryName")
 
     def get_playlist(self):
-        # Not possible to retrieve playlist for genre stations directly.
-        # Need to 'create' an actual Station object first using
-        # APIClient.create_station
-        raise NotImplementedError(("Cannot retrieve playlist for genre "
-                                  "stations."))
+        raise NotImplementedError("Genre stations do not have playlists. "
+                                  "Create a real station using the token.")
 
 
 class StationList(PandoraListModel):
@@ -264,8 +261,8 @@ class Bookmark(PandoraModel):
 
 class BookmarkList(PandoraModel):
 
-    songs = Field("songs", formatter=Bookmark.from_json_list)
-    artists = Field("artists", formatter=Bookmark.from_json_list)
+    songs = Field("songs", formatter=PandoraModel.from_json_list)
+    artists = Field("artists", formatter=PandoraModel.from_json_list)
 
 
 class SearchResultItem(PandoraModel):
@@ -291,8 +288,8 @@ class SearchResult(PandoraModel):
 
     nearest_matches_available = Field("nearMatchesAvailable")
     explanation = Field("explanation")
-    songs = Field("songs", formatter=SearchResultItem.from_json_list)
-    artists = Field("artists", formatter=SearchResultItem.from_json_list)
+    songs = Field("songs", formatter=PandoraModel.from_json_list)
+    artists = Field("artists", formatter=PandoraModel.from_json_list)
 
 
 class GenreStationList(PandoraDictListModel):

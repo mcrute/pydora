@@ -52,11 +52,6 @@ class BaseAPIClient(object):
         from .clientbuilder import PydoraConfigFileBuilder
         return PydoraConfigFileBuilder(path, authenticate).build()
 
-    def get_params_dict(self, reg_params, ad_params):
-        params = reg_params.copy()
-        params.update(ad_params)
-        return params
-
     def _partner_login(self):
         partner = self.transport("auth.partnerLogin",
                                  username=self.partner_user,
@@ -76,19 +71,16 @@ class BaseAPIClient(object):
     def _authenticate(self):
         self._partner_login()
 
-        reg_params = dict(loginType="user",
-                          username=self.username,
-                          password=self.password,
-                          includePandoraOneInfo=True,
-                          includeSubscriptionExpiration=True,
-                          returnCapped=True)
-
-        ad_params = dict(includeAdAttributes=True,
-                         includeAdvertiserAttributes=True,
-                         xplatformAdCapable=True)
-
         user = self.transport("auth.userLogin",
-                              **self.get_params_dict(reg_params, ad_params))
+                              loginType="user",
+                              username=self.username,
+                              password=self.password,
+                              includePandoraOneInfo=True,
+                              includeSubscriptionExpiration=True,
+                              returnCapped=True,
+                              includeAdAttributes=True,
+                              includeAdvertiserAttributes=True,
+                              xplatformAdCapable=True)
 
         self.transport.set_user(user)
 
@@ -122,19 +114,17 @@ class APIClient(BaseAPIClient):
     def get_playlist(self, station_token):
         from .models.pandora import Playlist
 
-        reg_params = dict(stationToken=station_token, includeTrackLength=True)
-        ad_params = dict(xplatformAdCapable=True, audioAdPodCapable=True,)
-
-        params = self.get_params_dict(reg_params, ad_params)
-        raw_playlist = Playlist.from_json(
-                self, self("station.getPlaylist", **params))
+        raw_playlist = Playlist.from_json(self,
+                                          self("station.getPlaylist",
+                                               stationToken=station_token,
+                                               includeTrackLength=True,
+                                               xplatformAdCapable=True,
+                                               audioAdPodCapable=True))
 
         playlist = []
-
         for track in raw_playlist:
             if track.is_ad:
                 track = self.get_ad_item(station_token, track.ad_token)
-
             playlist.append(track)
 
         return playlist
@@ -259,9 +249,10 @@ class APIClient(BaseAPIClient):
     def get_ad_item(self, station_id, ad_token):
         from .models.pandora import AdItem
 
-        ad_item = AdItem.from_json(self, self.get_ad_metadata(ad_token))
-        ad_item.station_id = station_id
-        return ad_item
+        ad_metadata = self.get_ad_metadata(ad_token)
+        ad_metadata["station_id"] = station_id
+
+        return AdItem.from_json(self, ad_metadata)
 
     def get_ad_metadata(self, ad_token):
         return self("ad.getAdMetadata",
