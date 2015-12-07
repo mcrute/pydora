@@ -70,3 +70,24 @@ class TestCallingAPIClient(TestCase):
                                              includeTrackLength=True,
                                              stationToken='mock_token',
                                              xplatformAdCapable=True)])
+
+
+class TestGettingQualities(TestCase):
+
+    def test_with_invalid_quality_returning_all(self):
+        result = BaseAPIClient.get_qualities("foo", True)
+        self.assertEqual(BaseAPIClient.ALL_QUALITIES, result)
+
+    def test_with_invalid_quality_returning_none(self):
+        result = BaseAPIClient.get_qualities("foo", False)
+        self.assertEqual([], result)
+
+    def test_with_valid_quality(self):
+        result = BaseAPIClient.get_qualities(
+                BaseAPIClient.MED_AUDIO_QUALITY, False)
+
+        expected = [
+                BaseAPIClient.LOW_AUDIO_QUALITY,
+                BaseAPIClient.MED_AUDIO_QUALITY]
+
+        self.assertEqual(expected, result)

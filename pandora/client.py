@@ -28,6 +28,8 @@ class BaseAPIClient(object):
     MED_AUDIO_QUALITY = "mediumQuality"
     HIGH_AUDIO_QUALITY = "highQuality"
 
+    ALL_QUALITIES = [LOW_AUDIO_QUALITY, MED_AUDIO_QUALITY, HIGH_AUDIO_QUALITY]
+
     def __init__(self, transport, partner_user, partner_password, device,
                  default_audio_quality=MED_AUDIO_QUALITY):
         self.transport = transport
@@ -85,6 +87,17 @@ class BaseAPIClient(object):
         self.transport.set_user(user)
 
         return user
+
+    @classmethod
+    def get_qualities(cls, start_at, return_all_if_invalid=True):
+        try:
+            idx = cls.ALL_QUALITIES.index(start_at)
+            return cls.ALL_QUALITIES[:idx + 1]
+        except ValueError:
+            if return_all_if_invalid:
+                return cls.ALL_QUALITIES[:]
+            else:
+                return []
 
     def __call__(self, method, **kwargs):
         try:
