@@ -35,6 +35,10 @@ class PandoraModel(with_metaclass(ModelMetaClass, object)):
     def json_to_date(api_client, data):
         return datetime.utcfromtimestamp(data["time"] / 1000)
 
+    @classmethod
+    def from_json_list(cls, api_client, data):
+        return [cls.from_json(api_client, item) for item in data]
+
     def __init__(self, api_client):
         self._api_client = api_client
 
@@ -63,10 +67,6 @@ class PandoraModel(with_metaclass(ModelMetaClass, object)):
         self = cls(api_client)
         PandoraModel.populate_fields(api_client, self, data)
         return self
-
-    @classmethod
-    def from_json_list(cls, api_client, data):
-        return [cls.from_json(api_client, item) for item in data]
 
     def _base_repr(self, and_also=None):
         items = [
