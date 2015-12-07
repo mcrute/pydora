@@ -5,6 +5,43 @@ from pandora.errors import InvalidAuthToken
 from pandora.py2compat import Mock, MagicMock, call, patch
 
 
+class TestAPIClientLogin(TestCase):
+
+    class StubTransport(object):
+
+        API_VERSION = None
+
+        partner = None
+        user = None
+
+        FAKE_PARTNER = object()
+        FAKE_USER = object()
+
+        def __call__(self, method, **params):
+            if method == "auth.partnerLogin":
+                return self.FAKE_PARTNER
+            elif method == "auth.userLogin":
+                return self.FAKE_USER
+            else:
+                raise AssertionError("Invalid call")
+
+        def set_partner(self, partner):
+            self.partner = partner
+
+        def set_user(self, user):
+            self.user = user
+
+    def test_login(self):
+        transport = self.StubTransport()
+        client = BaseAPIClient(transport, None, None, None)
+        client.login("foobear", "secret")
+
+        self.assertEqual("foobear", client.username)
+        self.assertEqual("secret", client.password)
+        self.assertIs(self.StubTransport.FAKE_USER, transport.user)
+        self.assertIs(self.StubTransport.FAKE_PARTNER, transport.partner)
+
+
 class TestCallingAPIClient(TestCase):
 
     def test_call_should_retry_on_token_error(self):
