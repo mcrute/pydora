@@ -263,7 +263,7 @@ class APIClient(BaseAPIClient):
         from .models.pandora import AdItem
 
         ad_metadata = self.get_ad_metadata(ad_token)
-        ad_metadata["station_id"] = station_id
+        ad_metadata["stationId"] = station_id
 
         return AdItem.from_json(self, ad_metadata)
 
