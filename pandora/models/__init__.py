@@ -38,10 +38,7 @@ class PandoraModel(with_metaclass(ModelMetaClass, object)):
     def __init__(self, api_client):
         self._api_client = api_client
 
-        try:
-            safe_types = (type(None), basestring, int, bool)
-        except NameError:
-            safe_types = (type(None), str, bytes, int, bool)
+        safe_types = (type(None), str, bytes, int, bool)
 
         for key, value in self._fields.items():
             default = value.default
