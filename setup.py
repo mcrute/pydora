@@ -82,7 +82,7 @@ class check_style(SimpleCommand):
 
 setup(
     name="pydora",
-    version="1.6.0",
+    version="1.6.1",
     description="Python wrapper for Pandora API",
     long_description=open("README.rst", "r").read(),
     author="Mike Crute",
