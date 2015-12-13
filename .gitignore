@@ -1,4 +1,6 @@
 *.pyc
+.coverage/
+.eggs/
 .pip/
 .pip2/
 .pip27/
@@ -12,4 +14,3 @@ coverage.xml
 dist/
 htmlcov/
 pydora.egg-info/
-.coverage/
