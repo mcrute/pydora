@@ -87,3 +87,28 @@ need to download the keys yourself you can find them at the link below.
 
 * `API Spec <http://6xq.net/playground/pandora-apidoc/>`_
 * `Partner Keys <http://6xq.net/playground/pandora-apidoc/json/partners/#partners>`_
+
+Contributing
+============
+If you would like to contribute to Pydora please visit the project's
+`GitHub page <https://github.com/mcrute/pydora>`_ and open a pull request with
+your changes. To have the best experience contributing, please:
+
+* Don't break backwards compatibility of public interfaces
+* Write tests for your new feature/bug fix
+* Ensure that existing tests pass
+* Update the readme/docstrings, if necessary
+* Follow the coding style of the current code-base
+* Ensure that your code is PEP8 compliant
+* Validate that your changes work with Python 2.7+ and 3.x
+
+All code is reviewed before acceptance and changes may be requested to better
+follow the conventions of the existing API.
+
+he build system runs ``python setup.py validate`` on all supported Python
+versions. You can, and should, run this on your pull request before submitting.
+
+Contributors
+============
+* John Cass (`jcass77 <https://github.com/jcass77>`_)
+* Thomas Weißschuh (`t-8c <https://github.com/t-8ch>`_)
