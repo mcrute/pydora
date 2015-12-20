@@ -271,8 +271,7 @@ class APIClient(BaseAPIClient):
         return self("ad.getAdMetadata",
                     adToken=ad_token,
                     returnAdTrackingTokens=True,
-                    supportAudioAds=True,
-                    includeBannerAd=True)
+                    supportAudioAds=True)
 
     def register_ad(self, station_id, tokens):
         return self("ad.registerAd",
