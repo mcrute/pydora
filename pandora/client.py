@@ -127,18 +127,17 @@ class APIClient(BaseAPIClient):
     def get_playlist(self, station_token):
         from .models.pandora import Playlist
 
-        raw_playlist = Playlist.from_json(self,
+        playlist = Playlist.from_json(self,
                                           self("station.getPlaylist",
                                                stationToken=station_token,
                                                includeTrackLength=True,
                                                xplatformAdCapable=True,
                                                audioAdPodCapable=True))
 
-        playlist = []
-        for track in raw_playlist:
+        for i, track in enumerate(playlist):
             if track.is_ad:
                 track = self.get_ad_item(station_token, track.ad_token)
-            playlist.append(track)
+                playlist[i] = track
 
         return playlist
 
