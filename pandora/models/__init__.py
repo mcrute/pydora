@@ -35,13 +35,14 @@ class PandoraModel(with_metaclass(ModelMetaClass, object)):
     def json_to_date(api_client, data):
         return datetime.utcfromtimestamp(data["time"] / 1000)
 
+    @classmethod
+    def from_json_list(cls, api_client, data):
+        return [cls.from_json(api_client, item) for item in data]
+
     def __init__(self, api_client):
         self._api_client = api_client
 
-        try:
-            safe_types = (type(None), basestring, int, bool)
-        except NameError:
-            safe_types = (type(None), str, bytes, int, bool)
+        safe_types = (type(None), str, bytes, int, bool)
 
         for key, value in self._fields.items():
             default = value.default
@@ -66,10 +67,6 @@ class PandoraModel(with_metaclass(ModelMetaClass, object)):
         self = cls(api_client)
         PandoraModel.populate_fields(api_client, self, data)
         return self
-
-    @classmethod
-    def from_json_list(cls, api_client, data):
-        return [cls.from_json(api_client, item) for item in data]
 
     def _base_repr(self, and_also=None):
         items = [
@@ -152,7 +149,10 @@ class PandoraDictListModel(PandoraModel, dict):
         self = cls(api_client)
         PandoraModel.populate_fields(api_client, self, data)
 
-        for item in data[self.__dict_list_key__] if self.__dict_list_key__ else data:
+        if self.__dict_list_key__:
+            data = data[self.__dict_list_key__]
+
+        for item in data:
             key = item[self.__dict_key__]
             self[key] = []
 

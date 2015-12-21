@@ -39,7 +39,6 @@ class Screen(object):
 
     @staticmethod
     def set_echo(enabled):
-
         fd = sys.stdin.fileno()
         if not os.isatty(fd):
             return
@@ -119,7 +118,7 @@ def iterate_forever(func, *args, **kwargs):
 
     while True:
         try:
-            yield next(output)
+            yield next(output).prepare_playback()
         except StopIteration:
             output = func(*args, **kwargs)
 

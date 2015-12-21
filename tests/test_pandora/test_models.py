@@ -153,3 +153,45 @@ class TestPandoraListModel(TestCase):
     def test_contains(self):
         self.assertTrue("foo" in self.result)
         self.assertTrue(self.result[0] in self.result)
+
+
+class TestPandoraDictListModel(TestCase):
+
+    JSON_DATA = {
+            "field1": 42,
+            "fieldD1": [
+                { "dictKey": "Foobear",
+                  "listKey": [
+                      { "idx": "foo", "fieldS1": "Foo" },
+                      { "idx": "bar", "fieldS1": "Bar" },
+                  ]
+                }
+            ]
+        }
+
+    class TestModel(m.PandoraDictListModel):
+
+        __dict_list_key__ = "fieldD1"
+        __list_key__ = "listKey"
+        __list_model__ = TestSubModel
+        __dict_key__ = "dictKey"
+
+        field1 = m.Field("field1")
+
+    def setUp(self):
+        self.result = self.TestModel.from_json(None, self.JSON_DATA)
+
+    def test_creates_sub_models(self):
+        self.assertEqual(42, self.result.field1)
+
+        self.assertEqual("Foo", self.result["Foobear"][0].fieldS1)
+        self.assertEqual("foo", self.result["Foobear"][0].idx)
+
+        self.assertEqual("Bar", self.result["Foobear"][1].fieldS1)
+        self.assertEqual("bar", self.result["Foobear"][1].idx)
+
+    def test_repr(self):
+        expected = ("TestModel(field1=42, {'Foobear': "
+                    "[TestSubModel(fieldS1='Foo', idx='foo'), "
+                    "TestSubModel(fieldS1='Bar', idx='bar')]})")
+        self.assertEqual(expected, repr(self.result))

@@ -28,6 +28,8 @@ class BaseAPIClient(object):
     MED_AUDIO_QUALITY = "mediumQuality"
     HIGH_AUDIO_QUALITY = "highQuality"
 
+    ALL_QUALITIES = [LOW_AUDIO_QUALITY, MED_AUDIO_QUALITY, HIGH_AUDIO_QUALITY]
+
     def __init__(self, transport, partner_user, partner_password, device,
                  default_audio_quality=MED_AUDIO_QUALITY):
         self.transport = transport
@@ -77,11 +79,25 @@ class BaseAPIClient(object):
                               password=self.password,
                               includePandoraOneInfo=True,
                               includeSubscriptionExpiration=True,
-                              returnCapped=True)
+                              returnCapped=True,
+                              includeAdAttributes=True,
+                              includeAdvertiserAttributes=True,
+                              xplatformAdCapable=True)
 
         self.transport.set_user(user)
 
         return user
+
+    @classmethod
+    def get_qualities(cls, start_at, return_all_if_invalid=True):
+        try:
+            idx = cls.ALL_QUALITIES.index(start_at)
+            return cls.ALL_QUALITIES[:idx + 1]
+        except ValueError:
+            if return_all_if_invalid:
+                return cls.ALL_QUALITIES[:]
+            else:
+                return []
 
     def __call__(self, method, **kwargs):
         try:
@@ -111,10 +127,20 @@ class APIClient(BaseAPIClient):
     def get_playlist(self, station_token):
         from .models.pandora import Playlist
 
-        return Playlist.from_json(self,
-                                  self("station.getPlaylist",
-                                       stationToken=station_token,
-                                       includeTrackLength=True))
+        raw_playlist = Playlist.from_json(self,
+                                          self("station.getPlaylist",
+                                               stationToken=station_token,
+                                               includeTrackLength=True,
+                                               xplatformAdCapable=True,
+                                               audioAdPodCapable=True))
+
+        playlist = []
+        for track in raw_playlist:
+            if track.is_ad:
+                track = self.get_ad_item(station_token, track.ad_token)
+            playlist.append(track)
+
+        return playlist
 
     def get_bookmarks(self):
         from .models.pandora import BookmarkList
@@ -193,9 +219,9 @@ class APIClient(BaseAPIClient):
     def get_genre_stations(self):
         from .models.pandora import GenreStationList
 
-        # categories = self("station.getGenreStations")["categories"]
         genres = self("station.getGenreStations")
-        genres['checksum'] = self.get_genre_stations_checksum()
+        genres["checksum"] = self.get_genre_stations_checksum()
+
         return GenreStationList.from_json(self, genres)
 
     def get_genre_stations_checksum(self):
@@ -232,3 +258,23 @@ class APIClient(BaseAPIClient):
         return self("music.shareMusic",
                     musicToken=music_token,
                     email=emails[0])
+
+    def get_ad_item(self, station_id, ad_token):
+        from .models.pandora import AdItem
+
+        ad_metadata = self.get_ad_metadata(ad_token)
+        ad_metadata["stationId"] = station_id
+
+        return AdItem.from_json(self, ad_metadata)
+
+    def get_ad_metadata(self, ad_token):
+        return self("ad.getAdMetadata",
+                    adToken=ad_token,
+                    returnAdTrackingTokens=True,
+                    supportAudioAds=True,
+                    includeBannerAd=True)
+
+    def register_ad(self, station_id, tokens):
+        return self("ad.registerAd",
+                    stationId=station_id,
+                    adTrackingTokens=tokens)

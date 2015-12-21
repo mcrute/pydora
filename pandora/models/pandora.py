@@ -1,4 +1,5 @@
 from .. import BaseAPIClient
+from . import with_metaclass, ModelMetaClass
 from . import Field, PandoraModel, PandoraListModel, PandoraDictListModel
 
 
@@ -29,15 +30,11 @@ class GenreStation(PandoraModel):
     id = Field("stationId")
     name = Field("stationName")
     token = Field("stationToken")
-
     category = Field("categoryName")
 
     def get_playlist(self):
-        # Not possible to retrieve playlist for genre stations directly.
-        # Need to 'create' an actual Station object first using
-        # APIClient.create_station
-        raise NotImplementedError("Cannot retrieve playlist for genre " + \
-                                  "stations.")
+        raise NotImplementedError("Genre stations do not have playlists. "
+                                  "Create a real station using the token.")
 
 
 class StationList(PandoraListModel):
@@ -53,54 +50,7 @@ class StationList(PandoraListModel):
         return checksum != self.checksum
 
 
-class PlaylistItem(PandoraModel):
-
-    artist_name = Field("artistName")
-    album_name = Field("albumName")
-    song_name = Field("songName")
-    song_rating = Field("songRating")
-    track_gain = Field("trackGain")
-    track_length = Field("trackLength", 0)
-    track_token = Field("trackToken")
-    audio_url = Field("audioUrl")
-    bitrate = Field("bitrate")
-    album_art_url = Field("albumArtUrl")
-    allow_feedback = Field("allowFeedback", True)
-    station_id = Field("stationId")
-
-    album_detail_url = Field("albumDetailUrl")
-    album_explore_url = Field("albumExplorerUrl")
-
-    amazon_album_asin = Field("amazonAlbumAsin")
-    amazon_album_digital_asin = Field("amazonAlbumDigitalAsin")
-    amazon_album_url = Field("amazonAlbumUrl")
-    amazon_song_digital_asin = Field("amazonSongDigitalAsin")
-
-    artist_detail_url = Field("artistDetailUrl")
-    artist_explore_url = Field("artistExplorerUrl")
-
-    itunes_song_url = Field("itunesSongUrl")
-
-    song_detail_url = Field("songDetailUrl")
-    song_explore_url = Field("songExplorerUrl")
-
-    def thumbs_up(self):
-        self._api_client.add_feedback(self.track_token, True)
-
-    def thumbs_down(self):
-        self._api_client.add_feedback(self.track_token, False)
-
-    def bookmark_song(self):
-        self._api_client.add_song_bookmark(self.track_token)
-
-    def bookmark_artist(self):
-        self._api_client.add_artist_bookmark(self.track_token)
-
-    def sleep(self):
-        self._api_client.sleep_song(self.track_token)
-
-    def get_is_playable(self):
-        return self._api_client.transport.test_url(self.audio_url)
+class PlaylistModel(PandoraModel):
 
     @classmethod
     def from_json(cls, api_client, data):
@@ -125,18 +75,17 @@ class PlaylistItem(PandoraModel):
         return self
 
     @classmethod
-    def get_audio_field(cls, data, field,
-                      preferred_quality=BaseAPIClient.MED_AUDIO_QUALITY):
+    def get_audio_field(cls, data, field, preferred_quality):
         """Get audio-related fields
 
-        Try to find fields for the audio url for specified preferred quality level, or
-        next-lowest available quality url otherwise.
+        Try to find fields for the audio url for specified preferred quality
+        level, or next-lowest available quality url otherwise.
         """
         audio_url = None
         url_map = data.get("audioUrlMap")
 
-        if url_map is None:
-            # No audio url available (e.g. ad tokens)
+        # No audio url available (e.g. ad tokens)
+        if not url_map:
             return None
 
         valid_audio_formats = [BaseAPIClient.HIGH_AUDIO_QUALITY,
@@ -147,17 +96,17 @@ class PlaylistItem(PandoraModel):
         # from the beginning of the list if nothing is found. Ensures that the
         # bitrate used will always be the same or lower quality than was
         # specified to prevent audio from skipping for slow connections.
-        i = 0
         if preferred_quality in valid_audio_formats:
             i = valid_audio_formats.index(preferred_quality)
+            valid_audio_formats = valid_audio_formats[i:]
 
-        for quality in valid_audio_formats[i:]:
+        for quality in valid_audio_formats:
             audio_url = url_map.get(quality)
 
-            if audio_url is not None:
+            if audio_url:
                 return audio_url[field]
 
-        return audio_url[field] if audio_url is not None else None
+        return audio_url[field] if audio_url else None
 
     @classmethod
     def get_audio_url(cls, data,
@@ -167,17 +116,116 @@ class PlaylistItem(PandoraModel):
         Try to find audio url for specified preferred quality level, or
         next-lowest available quality url otherwise.
         """
-        return cls.get_audio_field(data, "audioUrl", preferred_quality=preferred_quality)
+        return cls.get_audio_field(data, "audioUrl", preferred_quality)
 
     @classmethod
     def get_audio_bitrate(cls, data,
-                      preferred_quality=BaseAPIClient.MED_AUDIO_QUALITY):
+                          preferred_quality=BaseAPIClient.MED_AUDIO_QUALITY):
         """Get audio bitrate
 
-        Try to find bitrate of audio url for specified preferred quality level, or
-        next-lowest available quality url otherwise.
+        Try to find bitrate of audio url for specified preferred quality level,
+        or next-lowest available quality url otherwise.
         """
-        return cls.get_audio_field(data, "bitrate", preferred_quality=preferred_quality)
+        return cls.get_audio_field(data, "bitrate", preferred_quality)
+
+    def get_is_playable(self):
+        return self._api_client.transport.test_url(self.audio_url)
+
+    def prepare_playback(self):
+        """Prepare Track for Playback
+
+        This method must be called by clients before beginning playback
+        otherwise the track recieved may not be playable.
+        """
+        return self
+
+    def thumbs_up(self):
+        raise NotImplementedError
+
+    def thumbs_down(self):
+        raise NotImplementedError
+
+    def bookmark_song(self):
+        raise NotImplementedError
+
+    def bookmark_artist(self):
+        raise NotImplementedError
+
+    def sleep(self):
+        raise NotImplementedError
+
+
+class PlaylistItem(PlaylistModel):
+
+    artist_name = Field("artistName")
+    album_name = Field("albumName")
+    song_name = Field("songName")
+    song_rating = Field("songRating")
+    track_gain = Field("trackGain")
+    track_length = Field("trackLength", 0)
+    track_token = Field("trackToken")
+    audio_url = Field("audioUrl")
+    bitrate = Field("bitrate")
+    album_art_url = Field("albumArtUrl")
+    allow_feedback = Field("allowFeedback", True)
+    station_id = Field("stationId")
+
+    ad_token = Field("adToken")
+
+    album_detail_url = Field("albumDetailUrl")
+    album_explore_url = Field("albumExplorerUrl")
+
+    amazon_album_asin = Field("amazonAlbumAsin")
+    amazon_album_digital_asin = Field("amazonAlbumDigitalAsin")
+    amazon_album_url = Field("amazonAlbumUrl")
+    amazon_song_digital_asin = Field("amazonSongDigitalAsin")
+
+    artist_detail_url = Field("artistDetailUrl")
+    artist_explore_url = Field("artistExplorerUrl")
+
+    itunes_song_url = Field("itunesSongUrl")
+
+    song_detail_url = Field("songDetailUrl")
+    song_explore_url = Field("songExplorerUrl")
+
+    @property
+    def is_ad(self):
+        return self.ad_token is not None
+
+    def thumbs_up(self):
+        return self._api_client.add_feedback(self.track_token, True)
+
+    def thumbs_down(self):
+        return self._api_client.add_feedback(self.track_token, False)
+
+    def bookmark_song(self):
+        return self._api_client.add_song_bookmark(self.track_token)
+
+    def bookmark_artist(self):
+        return self._api_client.add_artist_bookmark(self.track_token)
+
+    def sleep(self):
+        return self._api_client.sleep_song(self.track_token)
+
+
+class AdItem(PlaylistModel):
+
+    title = Field("title")
+    company_name = Field("companyName")
+    tracking_tokens = Field("adTrackingTokens")
+    audio_url = Field("audioUrl")
+    station_id = Field("stationId")
+
+    @property
+    def is_ad(self):
+        return True
+
+    def register_ad(self, station_id):
+        self._api_client.register_ad(station_id, self.tracking_tokens)
+
+    def prepare_playback(self):
+        self.register_ad(self.station_id)
+        return super(AdItem, self).prepare_playback()
 
 
 class Playlist(PandoraListModel):
@@ -213,8 +261,8 @@ class Bookmark(PandoraModel):
 
 class BookmarkList(PandoraModel):
 
-    songs = Field("songs", formatter=Bookmark.from_json_list)
-    artists = Field("artists", formatter=Bookmark.from_json_list)
+    songs = Field("songs", formatter=PandoraModel.from_json_list)
+    artists = Field("artists", formatter=PandoraModel.from_json_list)
 
 
 class SearchResultItem(PandoraModel):
@@ -240,8 +288,8 @@ class SearchResult(PandoraModel):
 
     nearest_matches_available = Field("nearMatchesAvailable")
     explanation = Field("explanation")
-    songs = Field("songs", formatter=SearchResultItem.from_json_list)
-    artists = Field("artists", formatter=SearchResultItem.from_json_list)
+    songs = Field("songs", formatter=PandoraModel.from_json_list)
+    artists = Field("artists", formatter=PandoraModel.from_json_list)
 
 
 class GenreStationList(PandoraDictListModel):

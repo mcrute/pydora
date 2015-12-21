@@ -13,7 +13,6 @@ import random
 import time
 import json
 import base64
-from OpenSSL.SSL import SysCallError
 import requests
 from requests.adapters import HTTPAdapter
 from Crypto.Cipher import Blowfish
@@ -38,7 +37,6 @@ def retries(max_tries, exceptions=(Exception,)):
     function will only be retried if it raises one of the specified
     exceptions.
     """
-
     def decorator(func):
         def function(*args, **kwargs):
 
@@ -50,7 +48,8 @@ def retries(max_tries, exceptions=(Exception,)):
 
                 except exceptions:
                     if retries_left > 0:
-                        time.sleep(delay_exponential(0.5, 2, max_tries - retries_left))
+                        time.sleep(delay_exponential(
+                            0.5, 2, max_tries - retries_left))
                     else:
                         raise
                 else:
@@ -72,7 +71,6 @@ def delay_exponential(base, growth_factor, attempts):
     Base must be greater than 0, otherwise a ValueError will be
     raised.
     """
-
     if base == 'rand':
         base = random.random()
     elif base <= 0:
@@ -221,9 +219,10 @@ class APITransport(object):
         else:
             raise PandoraException.from_code(result["code"], result["message"])
 
-    # TODO: This decorator is a temporary workaround for handling SysCallErrors,
-    # see: https://github.com/shazow/urllib3/issues/367. Should be removed once a fix is applied in urllib3.
-    @retries(5, exceptions=(SysCallError,))
+    # TODO: This decorator is a temporary workaround for handling
+    # SysCallErrors, see: https://github.com/shazow/urllib3/issues/367.
+    # Should be removed once a fix is applied in urllib3.
+    @retries(5)
     def __call__(self, method, **data):
         self._start_request(method)
 

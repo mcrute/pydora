@@ -91,11 +91,17 @@ class PlayerApp(object):
     def play(self, song):
         """Play callback
         """
-        print("{} by {}".format(Colors.cyan(song.song_name),
-              Colors.yellow(song.artist_name)))
+        if song.is_ad:
+            print("{} ".format(Colors.cyan("Advertisement")))
+        else:
+            print("{} by {}".format(Colors.cyan(song.song_name),
+                  Colors.yellow(song.artist_name)))
 
     def skip_song(self, song):
-        self.player.stop()
+        if song.is_ad:
+            Screen.print_error("Cannot skip advertisements")
+        else:
+            self.player.stop()
 
     def pause_song(self, song):
         self.player.pause()
@@ -104,26 +110,51 @@ class PlayerApp(object):
         self.player.end_station()
 
     def dislike_song(self, song):
-        song.thumbs_down()
-        Screen.print_success("Track disliked")
-        self.player.stop()
+        try:
+            if song.thumbs_down():
+                Screen.print_success("Track disliked")
+                self.player.stop()
+            else:
+                Screen.print_error("Failed to dislike track")
+        except NotImplementedError:
+            Screen.print_error("Cannot dislike this type of track")
 
     def like_song(self, song):
-        song.thumbs_up()
-        Screen.print_success("Track liked")
+        try:
+            if song.thumbs_up():
+                Screen.print_success("Track liked")
+            else:
+                Screen.print_error("Failed to like track")
+        except NotImplementedError:
+            Screen.print_error("Cannot like this type of track")
 
     def bookmark_song(self, song):
-        song.bookmark_song()
-        Screen.print_success("Bookmarked song")
+        try:
+            if song.bookmark_song():
+                Screen.print_success("Bookmarked song")
+            else:
+                Screen.print_error("Failed to bookmark song")
+        except NotImplementedError:
+            Screen.print_error("Cannot bookmark this type of track")
 
     def bookmark_artist(self, song):
-        song.bookmark_artist()
-        Screen.print_success("Bookmarked artist")
+        try:
+            if song.bookmark_artist():
+                Screen.print_success("Bookmarked artist")
+            else:
+                Screen.print_error("Failed to bookmark artis")
+        except NotImplementedError:
+            Screen.print_error("Cannot bookmark artist for this type of track")
 
     def sleep_song(self, song):
-        song.sleep()
-        Screen.print_success("Song will not be played for 30 days")
-        self.player.stop()
+        try:
+            if song.sleep():
+                Screen.print_success("Song will not be played for 30 days")
+                self.player.stop()
+            else:
+                Screen.print_error("Failed to sleep song")
+        except NotImplementedError:
+            Screen.print_error("Cannot sleep this type of track")
 
     def quit(self, song):
         self.player.end_station()
