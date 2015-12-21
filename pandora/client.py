@@ -265,7 +265,7 @@ class APIClient(BaseAPIClient):
         ad_metadata = self.get_ad_metadata(ad_token)
         if not station_id:
             raise ValueError("The 'station_id' param must be defined, "
-                         "got: '%s'" % station_id)
+                             "got: '%s'" % station_id)
 
         ad_metadata["stationId"] = station_id
 
