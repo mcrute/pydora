@@ -5,10 +5,11 @@ from . import Field, PandoraModel, PandoraListModel, PandoraDictListModel
 
 class Station(PandoraModel):
 
-    can_add_music = Field("allowAddMusic", False)
-    can_delete = Field("allowDelete", True)
-    can_rename = Field("allowRename", True)
-    is_shared = Field("isShared", False)
+    can_add_music = Field("allowAddMusic")
+    can_delete = Field("allowDelete")
+    can_rename = Field("allowRename")
+    is_shared = Field("isShared")
+    is_quickmix = Field("isQuickMix")
 
     art_url = Field("artUrl")
     date_created = Field("dateCreated", formatter=PandoraModel.json_to_date)
@@ -162,12 +163,12 @@ class PlaylistItem(PlaylistModel):
     song_name = Field("songName")
     song_rating = Field("songRating")
     track_gain = Field("trackGain")
-    track_length = Field("trackLength", 0)
+    track_length = Field("trackLength")
     track_token = Field("trackToken")
     audio_url = Field("audioUrl")
     bitrate = Field("bitrate")
     album_art_url = Field("albumArtUrl")
-    allow_feedback = Field("allowFeedback", True)
+    allow_feedback = Field("allowFeedback")
     station_id = Field("stationId")
 
     ad_token = Field("adToken")
