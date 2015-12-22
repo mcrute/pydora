@@ -260,12 +260,11 @@ class APIClient(BaseAPIClient):
 
     def get_ad_item(self, station_id, ad_token):
         from .models.pandora import AdItem
-
-        ad_metadata = self.get_ad_metadata(ad_token)
         if not station_id:
             raise ValueError("The 'station_id' param must be defined, "
                              "got: '%s'" % station_id)
 
+        ad_metadata = self.get_ad_metadata(ad_token)
         ad_metadata["stationId"] = station_id
 
         return AdItem.from_json(self, ad_metadata)
