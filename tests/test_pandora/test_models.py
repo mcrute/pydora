@@ -1,6 +1,6 @@
 from unittest import TestCase
 from datetime import datetime
-from mock import mock
+from pandora.py2compat import Mock, patch
 from pandora import APIClient
 from pandora.models.pandora import AdItem, PlaylistModel
 
@@ -221,7 +221,7 @@ class TestAdItem(TestCase):
     }
 
     def setUp(self):
-        api_client_mock = mock.PropertyMock(spec=APIClient)
+        api_client_mock = Mock(spec=APIClient)
         api_client_mock.default_audio_quality = APIClient.HIGH_AUDIO_QUALITY
         self.result = AdItem.from_json(api_client_mock, self.JSON_DATA)
 
@@ -229,15 +229,15 @@ class TestAdItem(TestCase):
         assert self.result.is_ad is True
 
     def test_register_ad(self):
-        self.result._api_client.register_ad = mock.PropertyMock()
+        self.result._api_client.register_ad = Mock()
         self.result.register_ad('id_dummy')
 
         assert self.result._api_client.register_ad.called
 
     def test_prepare_playback(self):
-        with mock.patch.object(PlaylistModel, 'prepare_playback') as super_mock:
+        with patch.object(PlaylistModel, 'prepare_playback') as super_mock:
 
-            self.result.register_ad = mock.PropertyMock()
+            self.result.register_ad = Mock()
             self.result.prepare_playback()
             assert self.result.register_ad.called
             assert super_mock.called
