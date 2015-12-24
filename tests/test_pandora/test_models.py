@@ -1,5 +1,8 @@
 from unittest import TestCase
 from datetime import datetime
+from pandora.py2compat import Mock, patch
+from pandora import APIClient
+from pandora.models.pandora import AdItem, PlaylistModel
 
 import pandora.models as m
 
@@ -195,3 +198,46 @@ class TestPandoraDictListModel(TestCase):
                     "[TestSubModel(fieldS1='Foo', idx='foo'), "
                     "TestSubModel(fieldS1='Bar', idx='bar')]})")
         self.assertEqual(expected, repr(self.result))
+
+
+class TestAdItem(TestCase):
+
+    JSON_DATA = {
+        'audioUrlMap': {
+            'mediumQuality': {
+                'audioUrl': 'mock_med_url', 'bitrate': '64', 'protocol': 'http', 'encoding': 'aacplus'
+            },
+            'highQuality': {
+                'audioUrl': 'mock_high_url', 'bitrate': '64', 'protocol': 'http', 'encoding': 'aacplus'
+            },
+            'lowQuality': {
+                'audioUrl': 'mock_low_url', 'bitrate': '32', 'protocol': 'http', 'encoding': 'aacplus'}},
+            'clickThroughUrl': 'mock_click_url',
+            'imageUrl': 'mock_img_url',
+            'companyName': '',
+            'title': '',
+            'trackGain': '0.0',
+            'adTrackingTokens': ['mock_token_1', 'mock_token_2']
+    }
+
+    def setUp(self):
+        api_client_mock = Mock(spec=APIClient)
+        api_client_mock.default_audio_quality = APIClient.HIGH_AUDIO_QUALITY
+        self.result = AdItem.from_json(api_client_mock, self.JSON_DATA)
+
+    def test_is_ad_is_true(self):
+        assert self.result.is_ad is True
+
+    def test_register_ad(self):
+        self.result._api_client.register_ad = Mock()
+        self.result.register_ad('id_dummy')
+
+        assert self.result._api_client.register_ad.called
+
+    def test_prepare_playback(self):
+        with patch.object(PlaylistModel, 'prepare_playback') as super_mock:
+
+            self.result.register_ad = Mock()
+            self.result.prepare_playback()
+            assert self.result.register_ad.called
+            assert super_mock.called
