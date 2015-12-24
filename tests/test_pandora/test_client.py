@@ -2,7 +2,8 @@ from unittest import TestCase
 
 from pandora.client import APIClient, BaseAPIClient
 from pandora.errors import InvalidAuthToken
-from pandora.py2compat import Mock, MagicMock, call, patch
+from pandora.py2compat import Mock, call, patch
+from tests.test_pandora.test_models import TestAdItem
 
 
 class TestAPIClientLogin(TestCase):
@@ -95,26 +96,8 @@ class TestGettingQualities(TestCase):
 
 class TestGettingAds(TestCase):
 
-    mock_ad_metadata_result = {
-        'audioUrlMap': {
-            'mediumQuality': {
-                'audioUrl': 'mock_med_url', 'bitrate': '64', 'protocol': 'http', 'encoding': 'aacplus'
-            },
-            'highQuality': {
-                'audioUrl': 'mock_high_url', 'bitrate': '64', 'protocol': 'http', 'encoding': 'aacplus'
-            },
-            'lowQuality': {
-                'audioUrl': 'mock_low_url', 'bitrate': '32', 'protocol': 'http', 'encoding': 'aacplus'}},
-            'clickThroughUrl': 'mock_click_url',
-            'imageUrl': 'mock_img_url',
-            'companyName': '',
-            'title': '',
-            'trackGain': '0.0',
-            'adTrackingTokens': ['mock_token_1', 'mock_token_2']
-    }
-
     def test_get_ad_item_(self):
-        with patch.object(APIClient, '__call__', return_value=self.mock_ad_metadata_result) as ad_metadata_mock:
+        with patch.object(APIClient, '__call__', return_value=TestAdItem.JSON_DATA) as ad_metadata_mock:
             transport = Mock(side_effect=[InvalidAuthToken(), None])
 
             client = APIClient(transport, None, None, None, None)
@@ -129,9 +112,9 @@ class TestGettingAds(TestCase):
                                                       supportAudioAds=True)])
 
     def test_get_ad_item_with_no_station_id_specified_raises_exception(self):
-            transport = Mock(side_effect=[InvalidAuthToken(), None])
+        transport = Mock(side_effect=[InvalidAuthToken(), None])
 
-            client = APIClient(transport, None, None, None, None)
-            client.get_ad_metadata = Mock()
+        client = APIClient(transport, None, None, None, None)
+        client.get_ad_metadata = Mock()
 
-            self.assertRaises(ValueError, client.get_ad_item, '', 'mock_token')
+        self.assertRaises(ValueError, client.get_ad_item, '', 'mock_token')
