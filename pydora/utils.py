@@ -127,8 +127,10 @@ def iterate_forever(func, *args, **kwargs):
             output = func(*args, **kwargs)
         except errors.ParameterMissing as e:
             if isinstance(playlistItem, AdItem):
-                if not playlistItem.tracking_tokens or len(playlistItem.tracking_tokens) == 0:
-                    # Ad item does not contain any tracking tokens, yield without registering
+                if (not playlistItem.tracking_tokens or
+                        len(playlistItem.tracking_tokens) == 0):
+                    # Ad item does not contain any tracking tokens, yield
+                    # without registering
                     yield playlistItem
             # Something else went wrong, re-raise
             raise e
