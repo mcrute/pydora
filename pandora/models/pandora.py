@@ -215,6 +215,8 @@ class AdItem(PlaylistModel):
     company_name = Field("companyName")
     tracking_tokens = Field("adTrackingTokens")
     audio_url = Field("audioUrl")
+    image_url = Field("imageUrl")
+    click_through_url = Field("clickThroughUrl")
     station_id = Field("stationId")
 
     @property

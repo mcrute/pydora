@@ -5,6 +5,8 @@ import sys
 import termios
 import getpass
 import subprocess
+from pandora.models.pandora import AdItem
+from pandora import errors
 
 
 def input(prompt):
@@ -118,9 +120,20 @@ def iterate_forever(func, *args, **kwargs):
 
     while True:
         try:
-            yield next(output).prepare_playback()
+            playlistItem = next(output)
+            playlistItem.prepare_playback()
+            yield playlistItem
         except StopIteration:
             output = func(*args, **kwargs)
+        except errors.ParameterMissing as e:
+            if isinstance(playlistItem, AdItem):
+                if (not playlistItem.tracking_tokens or
+                        len(playlistItem.tracking_tokens) == 0):
+                    # Ad item does not contain any tracking tokens, yield
+                    # without registering
+                    yield playlistItem
+            # Something else went wrong, re-raise
+            raise e
 
 
 class SilentPopen(subprocess.Popen):

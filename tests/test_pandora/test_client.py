@@ -2,7 +2,8 @@ from unittest import TestCase
 
 from pandora.client import APIClient, BaseAPIClient
 from pandora.errors import InvalidAuthToken
-from pandora.py2compat import Mock, MagicMock, call, patch
+from pandora.py2compat import Mock, call, patch
+from tests.test_pandora.test_models import TestAdItem
 
 
 class TestAPIClientLogin(TestCase):
@@ -91,3 +92,29 @@ class TestGettingQualities(TestCase):
                 BaseAPIClient.MED_AUDIO_QUALITY]
 
         self.assertEqual(expected, result)
+
+
+class TestGettingAds(TestCase):
+
+    def test_get_ad_item_(self):
+        with patch.object(APIClient, '__call__', return_value=TestAdItem.JSON_DATA) as ad_metadata_mock:
+            transport = Mock(side_effect=[InvalidAuthToken(), None])
+
+            client = APIClient(transport, None, None, None, None)
+            client._authenticate = Mock()
+
+            ad_item = client.get_ad_item('mock_id', 'mock_token')
+            assert ad_item.station_id == 'mock_id'
+
+            ad_metadata_mock.assert_has_calls([call("ad.getAdMetadata",
+                                                      adToken='mock_token',
+                                                      returnAdTrackingTokens=True,
+                                                      supportAudioAds=True)])
+
+    def test_get_ad_item_with_no_station_id_specified_raises_exception(self):
+        transport = Mock(side_effect=[InvalidAuthToken(), None])
+
+        client = APIClient(transport, None, None, None, None)
+        client.get_ad_metadata = Mock()
+
+        self.assertRaises(ValueError, client.get_ad_item, '', 'mock_token')
