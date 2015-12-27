@@ -35,7 +35,7 @@ On Ubuntu install `mpg123`::
 
     # apt-get install mpg123
 
-On Mac OS X with `homebrew <>`_ installed::
+On Mac OS X with `homebrew <http://brew.sh/>`_ installed::
 
     # brew install mpg123
 
