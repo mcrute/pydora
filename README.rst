@@ -31,6 +31,14 @@ that. ::
     $ pip install pydora
     $ pydora-configure
 
+On Ubuntu install `mpg123`::
+
+    # apt-get install mpg123
+
+On Mac OS X with `homebrew <>`_ installed::
+
+    # brew install mpg123
+
 Simple Player
 =============
 Included is ``pydora``, a simple Pandora stream player that runs at the command
@@ -110,5 +118,6 @@ versions. You can, and should, run this on your pull request before submitting.
 
 Contributors
 ============
+* Mike Crute (`mcrute <https://github.com/mcrute>`_)
 * John Cass (`jcass77 <https://github.com/jcass77>`_)
 * Thomas Weißschuh (`t-8c <https://github.com/t-8ch>`_)
