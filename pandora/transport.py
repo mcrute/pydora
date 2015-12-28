@@ -9,6 +9,7 @@ exception.
 
 API consumers should use one of the API clients in the pandora.client package.
 """
+import logging
 import random
 import time
 import json
@@ -22,8 +23,10 @@ from .errors import PandoraException
 
 DEFAULT_API_HOST = "tuner.pandora.com/services/json/"
 
+logger = logging.getLogger(__name__)
 
-def retries(max_tries, exceptions=(Exception,)):
+
+def retries(max_tries, exceptions=(IOError,)):
     """Function decorator implementing retrying logic.
 
     exceptions: A tuple of exception classes; default (Exception,)
@@ -46,7 +49,11 @@ def retries(max_tries, exceptions=(Exception,)):
                     retries_left -= 1
                     return func(*args, **kwargs)
 
-                except exceptions:
+                except exceptions as e:
+                    # Don't retry for PandoraExceptions - unlikely that result
+                    # will change for same set of input parameters.
+                    if isinstance(e, PandoraException):
+                        continue
                     if retries_left > 0:
                         time.sleep(delay_exponential(
                             0.5, 2, max_tries - retries_left))
@@ -227,9 +234,13 @@ class APITransport(object):
         self._start_request(method)
 
         url = self._build_url(method)
+        log_data = data
         data = self._build_data(method, data)
         params = self._build_params(method)
+        logger.info('TRANSPORT: \nMETHOD: {}\nPARAMS: {}\nDATA: {}\nURL: {}'
+                    .format(method, params, log_data, url))
         result = self._make_http_request(url, data, params)
+        logger.info('TRANSPORT: \nRESULT: {}\n'.format(result))
 
         return self._parse_response(result)
 

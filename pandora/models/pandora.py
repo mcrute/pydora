@@ -130,6 +130,8 @@ class PlaylistModel(PandoraModel):
         return cls.get_audio_field(data, "bitrate", preferred_quality)
 
     def get_is_playable(self):
+        if not self.audio_url:
+            return False
         return self._api_client.transport.test_url(self.audio_url)
 
     def prepare_playback(self):
@@ -223,11 +225,26 @@ class AdItem(PlaylistModel):
     def is_ad(self):
         return True
 
-    def register_ad(self, station_id):
-        self._api_client.register_ad(station_id, self.tracking_tokens)
+    def register_ad(self, station_id=None):
+        if not station_id:
+            station_id = self.station_id
+        if self.tracking_tokens:
+            self._api_client.register_ad(station_id, self.tracking_tokens)
+        else:
+            raise ValueError('No ad tracking tokens available for '
+                             'registration.')
 
     def prepare_playback(self):
-        self.register_ad(self.station_id)
+        try:
+            self.register_ad(self.station_id)
+        except ValueError as e:
+            if not self.tracking_tokens:
+                # Ignore registration attempts if no ad tracking tokens are
+                # available
+                pass
+            else:
+                # Unexpected error, re-raise.
+                raise e
         return super(AdItem, self).prepare_playback()
 
 

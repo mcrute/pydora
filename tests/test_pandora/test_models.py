@@ -205,19 +205,19 @@ class TestAdItem(TestCase):
     JSON_DATA = {
         'audioUrlMap': {
             'mediumQuality': {
-                'audioUrl': 'mock_med_url', 'bitrate': '64', 'protocol': 'http', 'encoding': 'aacplus'
+                'audioUrl': 'med_url_mock', 'bitrate': '64', 'protocol': 'http', 'encoding': 'aacplus'
             },
             'highQuality': {
-                'audioUrl': 'mock_high_url', 'bitrate': '64', 'protocol': 'http', 'encoding': 'aacplus'
+                'audioUrl': 'high_url_mock', 'bitrate': '64', 'protocol': 'http', 'encoding': 'aacplus'
             },
             'lowQuality': {
-                'audioUrl': 'mock_low_url', 'bitrate': '32', 'protocol': 'http', 'encoding': 'aacplus'}},
-            'clickThroughUrl': 'mock_click_url',
-            'imageUrl': 'mock_img_url',
+                'audioUrl': 'low_url_mock', 'bitrate': '32', 'protocol': 'http', 'encoding': 'aacplus'}},
+            'clickThroughUrl': 'click_url_mock',
+            'imageUrl': 'img_url_mock',
             'companyName': '',
             'title': '',
             'trackGain': '0.0',
-            'adTrackingTokens': ['mock_token_1', 'mock_token_2']
+            'adTrackingTokens': ['token_1_mock', 'token_2_mock']
     }
 
     def setUp(self):
@@ -230,9 +230,18 @@ class TestAdItem(TestCase):
 
     def test_register_ad(self):
         self.result._api_client.register_ad = Mock()
-        self.result.register_ad('id_dummy')
+        self.result.register_ad('id_mock')
 
         assert self.result._api_client.register_ad.called
+
+    def test_register_ad_raises_exception_if_no_tracking_tokens_available(self):
+        with self.assertRaises(ValueError):
+            self.result.tracking_tokens = []
+            self.result._api_client.register_ad = Mock(spec=AdItem)
+
+            self.result.register_ad('id_mock')
+
+            assert self.result._api_client.register_ad.called
 
     def test_prepare_playback(self):
         with patch.object(PlaylistModel, 'prepare_playback') as super_mock:

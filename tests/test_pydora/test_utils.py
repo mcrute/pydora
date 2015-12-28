@@ -18,22 +18,22 @@ class TestIterateForever(TestCase):
         with patch.object(APIClient, 'get_playlist') as get_playlist_mock:
             with patch.object(APIClient, 'register_ad', side_effect=ParameterMissing("ParameterMissing")):
 
-                station = Station.from_json(self.client, {'stationToken': 'dummy_token'})
-                dummy_ad = AdItem.from_json(self.client, {'station_id': 'dummy_id'})
-                get_playlist_mock.return_value=iter([dummy_ad])
+                station = Station.from_json(self.client, {'stationToken': 'mock_token'})
+                ad_mock = AdItem.from_json(self.client, {'station_id': 'mock_id'})
+                get_playlist_mock.return_value=iter([ad_mock])
 
                 station_iter = iterate_forever(station.get_playlist)
 
                 next_track = station_iter.next()
-                self.assertEqual(dummy_ad, next_track)
+                self.assertEqual(ad_mock, next_track)
 
     def test_reraise_missing_params_exception(self):
         with patch.object(APIClient, 'get_playlist', side_effect=ParameterMissing("ParameterMissing")) as get_playlist_mock:
                 with self.assertRaises(ParameterMissing):
 
-                    station = Station.from_json(self.client, {'stationToken': 'dummy_token'})
-                    dummy_track = PlaylistItem.from_json(self.client, {'token': 'dummy_token'})
-                    get_playlist_mock.return_value=iter([dummy_track])
+                    station = Station.from_json(self.client, {'stationToken': 'mock_token'})
+                    mock_track = PlaylistItem.from_json(self.client, {'token': 'mock_token'})
+                    get_playlist_mock.return_value=iter([mock_track])
 
                     station_iter = iterate_forever(station.get_playlist)
                     station_iter.next()
