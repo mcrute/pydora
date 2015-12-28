@@ -1,7 +1,7 @@
 from unittest import TestCase
 
 from pandora.client import APIClient, BaseAPIClient
-from pandora.errors import InvalidAuthToken
+from pandora.errors import InvalidAuthToken, ParameterMissing
 from pandora.py2compat import Mock, call, patch
 from tests.test_pandora.test_models import TestAdItem
 
@@ -117,4 +117,4 @@ class TestGettingAds(TestCase):
         client = APIClient(transport, None, None, None, None)
         client.get_ad_metadata = Mock()
 
-        self.assertRaises(ValueError, client.get_ad_item, '', 'mock_token')
+        self.assertRaises(ParameterMissing, client.get_ad_item, '', 'mock_token')

@@ -1,6 +1,7 @@
 from .. import BaseAPIClient
 from . import with_metaclass, ModelMetaClass
 from . import Field, PandoraModel, PandoraListModel, PandoraDictListModel
+from ..errors import ParameterMissing
 
 
 class Station(PandoraModel):
@@ -231,13 +232,13 @@ class AdItem(PlaylistModel):
         if self.tracking_tokens:
             self._api_client.register_ad(station_id, self.tracking_tokens)
         else:
-            raise ValueError('No ad tracking tokens available for '
-                             'registration.')
+            raise ParameterMissing('No ad tracking tokens available '
+                                          'for registration.')
 
     def prepare_playback(self):
         try:
             self.register_ad(self.station_id)
-        except ValueError as e:
+        except ParameterMissing as e:
             if not self.tracking_tokens:
                 # Ignore registration attempts if no ad tracking tokens are
                 # available

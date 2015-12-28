@@ -3,6 +3,7 @@ from datetime import datetime
 from pandora.py2compat import Mock, patch
 from pandora import APIClient
 from pandora.models.pandora import AdItem, PlaylistModel
+from pandora.errors import ParameterMissing
 
 import pandora.models as m
 
@@ -235,7 +236,7 @@ class TestAdItem(TestCase):
         assert self.result._api_client.register_ad.called
 
     def test_register_ad_raises_exception_if_no_tracking_tokens_available(self):
-        with self.assertRaises(ValueError):
+        with self.assertRaises(ParameterMissing):
             self.result.tracking_tokens = []
             self.result._api_client.register_ad = Mock(spec=AdItem)
 

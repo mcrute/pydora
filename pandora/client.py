@@ -262,8 +262,8 @@ class APIClient(BaseAPIClient):
         from .models.pandora import AdItem
 
         if not station_id:
-            raise ValueError("The 'station_id' param must be defined, "
-                             "got: '{}'".format(station_id))
+            raise errors.ParameterMissing("The 'station_id' param must be "
+                                          "defined, got: '{}'".format(station_id))
 
         ad_metadata = self.get_ad_metadata(ad_token)
         ad_metadata["stationId"] = station_id
