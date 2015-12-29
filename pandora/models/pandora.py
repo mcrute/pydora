@@ -232,8 +232,8 @@ class AdItem(PlaylistModel):
         if self.tracking_tokens:
             self._api_client.register_ad(station_id, self.tracking_tokens)
         else:
-            raise ParameterMissing('No ad tracking tokens available '
-                                          'for registration.')
+            raise ParameterMissing('No ad tracking tokens available for '
+                                   'registration.')
 
     def prepare_playback(self):
         try:
