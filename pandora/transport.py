@@ -26,7 +26,7 @@ DEFAULT_API_HOST = "tuner.pandora.com/services/json/"
 logger = logging.getLogger(__name__)
 
 
-def retries(max_tries, exceptions=(IOError,)):
+def retries(max_tries, exceptions=(Exception,)):
     """Function decorator implementing retrying logic.
 
     exceptions: A tuple of exception classes; default (Exception,)
