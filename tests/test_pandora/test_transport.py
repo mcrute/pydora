@@ -6,7 +6,7 @@ from pandora.py2compat import Mock, call
 from tests.test_pandora.test_clientbuilder import TestSettingsDictBuilder
 
 
-class SysCallError(IOError):
+class SysCallError(Exception):
     pass
 
 
