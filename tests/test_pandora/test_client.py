@@ -64,12 +64,12 @@ class TestCallingAPIClient(TestCase):
             client = APIClient(transport, None, None, None, None)
             client._authenticate = Mock()
 
-            client.get_playlist('mock_token')
+            client.get_playlist('token_mock')
 
             playlist_mock.assert_has_calls([call("station.getPlaylist",
                                              audioAdPodCapable=True,
                                              includeTrackLength=True,
-                                             stationToken='mock_token',
+                                             stationToken='token_mock',
                                              xplatformAdCapable=True)])
 
 
@@ -103,11 +103,11 @@ class TestGettingAds(TestCase):
             client = APIClient(transport, None, None, None, None)
             client._authenticate = Mock()
 
-            ad_item = client.get_ad_item('mock_id', 'mock_token')
-            assert ad_item.station_id == 'mock_id'
+            ad_item = client.get_ad_item('id_mock', 'token_mock')
+            assert ad_item.station_id == 'id_mock'
 
             ad_metadata_mock.assert_has_calls([call("ad.getAdMetadata",
-                                                      adToken='mock_token',
+                                                      adToken='token_mock',
                                                       returnAdTrackingTokens=True,
                                                       supportAudioAds=True)])
 
@@ -117,4 +117,4 @@ class TestGettingAds(TestCase):
         client = APIClient(transport, None, None, None, None)
         client.get_ad_metadata = Mock()
 
-        self.assertRaises(ParameterMissing, client.get_ad_item, '', 'mock_token')
+        self.assertRaises(ParameterMissing, client.get_ad_item, '', 'token_mock')

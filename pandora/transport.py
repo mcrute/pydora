@@ -23,8 +23,6 @@ from .errors import PandoraException
 
 DEFAULT_API_HOST = "tuner.pandora.com/services/json/"
 
-logger = logging.getLogger(__name__)
-
 
 def retries(max_tries, exceptions=(Exception,)):
     """Function decorator implementing retrying logic.
@@ -234,13 +232,9 @@ class APITransport(object):
         self._start_request(method)
 
         url = self._build_url(method)
-        log_data = data
         data = self._build_data(method, data)
         params = self._build_params(method)
-        logger.info('TRANSPORT: \nMETHOD: {}\nPARAMS: {}\nDATA: {}\nURL: {}'
-                    .format(method, params, log_data, url))
         result = self._make_http_request(url, data, params)
-        logger.info('TRANSPORT: \nRESULT: {}\n'.format(result))
 
         return self._parse_response(result)
 
