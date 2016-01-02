@@ -266,10 +266,10 @@ class APIClient(BaseAPIClient):
                                           "defined, got: '{}'"
                                           .format(station_id))
 
-        ad_metadata = self.get_ad_metadata(ad_token)
-        ad_metadata["stationId"] = station_id
-
-        return AdItem.from_json(self, ad_metadata)
+        ad_item = AdItem.from_json(self, self.get_ad_metadata(ad_token))
+        ad_item.station_id = station_id
+        ad_item.ad_token = ad_token
+        return ad_item
 
     def get_ad_metadata(self, ad_token):
         return self("ad.getAdMetadata",

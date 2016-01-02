@@ -105,6 +105,7 @@ class TestGettingAds(TestCase):
 
             ad_item = client.get_ad_item('id_mock', 'token_mock')
             assert ad_item.station_id == 'id_mock'
+            assert ad_item.ad_token == 'token_mock'
 
             ad_metadata_mock.assert_has_calls([call("ad.getAdMetadata",
                                                       adToken='token_mock',

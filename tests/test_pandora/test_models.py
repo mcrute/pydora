@@ -225,6 +225,8 @@ class TestAdItem(TestCase):
         api_client_mock = Mock(spec=APIClient)
         api_client_mock.default_audio_quality = APIClient.HIGH_AUDIO_QUALITY
         self.result = AdItem.from_json(api_client_mock, self.JSON_DATA)
+        self.result.station_id = 'station_id_mock'
+        self.result.ad_token = 'token_mock'
 
     def test_is_ad_is_true(self):
         assert self.result.is_ad is True
