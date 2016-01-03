@@ -220,8 +220,8 @@ class AdItem(PlaylistModel):
     audio_url = Field("audioUrl")
     image_url = Field("imageUrl")
     click_through_url = Field("clickThroughUrl")
-    station_id = Field("stationId")
-    ad_token = Field("adToken")
+    station_id = None
+    ad_token = None
 
     @property
     def is_ad(self):
