@@ -222,6 +222,7 @@ class APIClient(BaseAPIClient):
 
         genre_stations = GenreStationList.from_json(self, genres)
         genre_stations.checksum = self.get_genre_stations_checksum()
+        return genre_stations
 
     def get_genre_stations_checksum(self):
         return self("station.getGenreStationsChecksum")["checksum"]
