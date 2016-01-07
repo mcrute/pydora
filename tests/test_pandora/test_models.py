@@ -253,3 +253,23 @@ class TestAdItem(TestCase):
             self.result.prepare_playback()
             assert self.result.register_ad.called
             assert super_mock.called
+
+    def test_prepare_playback_raises_paramater_missing(self):
+        with patch.object(PlaylistModel, 'prepare_playback') as super_mock:
+
+            self.result.register_ad = Mock(side_effect=ParameterMissing('No ad tracking tokens provided for '
+                                                                        'registration.')
+                                           )
+            self.assertRaises(ParameterMissing, self.result.prepare_playback)
+            assert self.result.register_ad.called
+            assert not super_mock.called
+
+    def test_prepare_playback_handles_paramater_missing_if_no_tokens(self):
+        with patch.object(PlaylistModel, 'prepare_playback') as super_mock:
+
+            self.result.tracking_tokens = []
+            self.result.register_ad = Mock(side_effect=ParameterMissing('No ad tracking tokens provided for '
+                                                                        'registration.'))
+            self.result.prepare_playback()
+            assert self.result.register_ad.called
+            assert super_mock.called
