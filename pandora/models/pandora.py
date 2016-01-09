@@ -240,12 +240,7 @@ class AdItem(PlaylistModel):
         try:
             self.register_ad(self.station_id)
         except ParameterMissing as e:
-            if not self.tracking_tokens:
-                # Ignore registration attempts if no ad tracking tokens are
-                # available
-                pass
-            else:
-                # Unexpected error, re-raise.
+            if self.tracking_tokens:
                 raise e
         return super(AdItem, self).prepare_playback()
 
