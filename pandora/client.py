@@ -73,16 +73,19 @@ class BaseAPIClient(object):
     def _authenticate(self):
         self._partner_login()
 
-        user = self.transport("auth.userLogin",
-                              loginType="user",
-                              username=self.username,
-                              password=self.password,
-                              includePandoraOneInfo=True,
-                              includeSubscriptionExpiration=True,
-                              returnCapped=True,
-                              includeAdAttributes=True,
-                              includeAdvertiserAttributes=True,
-                              xplatformAdCapable=True)
+        try:
+            user = self.transport("auth.userLogin",
+                                  loginType="user",
+                                  username=self.username,
+                                  password=self.password,
+                                  includePandoraOneInfo=True,
+                                  includeSubscriptionExpiration=True,
+                                  returnCapped=True,
+                                  includeAdAttributes=True,
+                                  includeAdvertiserAttributes=True,
+                                  xplatformAdCapable=True)
+        except errors.InvalidPartnerLogin:
+            raise errors.InvalidUserLogin()
 
         self.transport.set_user(user)
 

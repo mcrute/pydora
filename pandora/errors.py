@@ -95,3 +95,14 @@ class PandoraException(Exception):
 
 
 PandoraException._export_exceptions(locals())
+
+
+class InvalidUserLogin(InvalidPartnerLogin):
+    """Pydora Internal Login Error
+
+    This is thrown around a user login to disambiguate a login that is invalid
+    due to user error vs a login that is invalid due to a partner credential
+    error. The Pandora API returns 1002 in both cases.
+    """
+
+    message = "Invalid User Login"

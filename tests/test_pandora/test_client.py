@@ -42,6 +42,12 @@ class TestAPIClientLogin(TestCase):
         self.assertIs(self.StubTransport.FAKE_USER, transport.user)
         self.assertIs(self.StubTransport.FAKE_PARTNER, transport.partner)
 
+    def test_login_user_error(self):
+        with self.assertRaises(errors.InvalidUserLogin):
+            transport = Mock(side_effect=[None, errors.InvalidPartnerLogin])
+            client = BaseAPIClient(transport, None, None, None)
+            client.login("foobear", "secret")
+
 
 class TestCallingAPIClient(TestCase):
 
