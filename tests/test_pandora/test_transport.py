@@ -18,7 +18,7 @@ class TestTransport(TestCase):
 
             time.sleep = Mock()
             client.transport._make_http_request = Mock(
-                    side_effect=SysCallError("mock_error"))
+                    side_effect=SysCallError("error_mock"))
             client.transport._start_request = Mock()
 
             client("method")

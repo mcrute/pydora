@@ -219,9 +219,10 @@ class APIClient(BaseAPIClient):
         from .models.pandora import GenreStationList
 
         genres = self("station.getGenreStations")
-        genres["checksum"] = self.get_genre_stations_checksum()
 
-        return GenreStationList.from_json(self, genres)
+        genre_stations = GenreStationList.from_json(self, genres)
+        genre_stations.checksum = self.get_genre_stations_checksum()
+        return genre_stations
 
     def get_genre_stations_checksum(self):
         return self("station.getGenreStationsChecksum")["checksum"]
@@ -262,13 +263,14 @@ class APIClient(BaseAPIClient):
         from .models.pandora import AdItem
 
         if not station_id:
-            raise ValueError("The 'station_id' param must be defined, "
-                             "got: '{}'".format(station_id))
+            raise errors.ParameterMissing("The 'station_id' param must be "
+                                          "defined, got: '{}'"
+                                          .format(station_id))
 
-        ad_metadata = self.get_ad_metadata(ad_token)
-        ad_metadata["stationId"] = station_id
-
-        return AdItem.from_json(self, ad_metadata)
+        ad_item = AdItem.from_json(self, self.get_ad_metadata(ad_token))
+        ad_item.station_id = station_id
+        ad_item.ad_token = ad_token
+        return ad_item
 
     def get_ad_metadata(self, ad_token):
         return self("ad.getAdMetadata",

@@ -3,6 +3,7 @@ from datetime import datetime
 from pandora.py2compat import Mock, patch
 from pandora import APIClient
 from pandora.models.pandora import AdItem, PlaylistModel
+from pandora.errors import ParameterMissing
 
 import pandora.models as m
 
@@ -205,39 +206,70 @@ class TestAdItem(TestCase):
     JSON_DATA = {
         'audioUrlMap': {
             'mediumQuality': {
-                'audioUrl': 'mock_med_url', 'bitrate': '64', 'protocol': 'http', 'encoding': 'aacplus'
+                'audioUrl': 'med_url_mock', 'bitrate': '64', 'protocol': 'http', 'encoding': 'aacplus'
             },
             'highQuality': {
-                'audioUrl': 'mock_high_url', 'bitrate': '64', 'protocol': 'http', 'encoding': 'aacplus'
+                'audioUrl': 'high_url_mock', 'bitrate': '64', 'protocol': 'http', 'encoding': 'aacplus'
             },
             'lowQuality': {
-                'audioUrl': 'mock_low_url', 'bitrate': '32', 'protocol': 'http', 'encoding': 'aacplus'}},
-            'clickThroughUrl': 'mock_click_url',
-            'imageUrl': 'mock_img_url',
+                'audioUrl': 'low_url_mock', 'bitrate': '32', 'protocol': 'http', 'encoding': 'aacplus'}},
+            'clickThroughUrl': 'click_url_mock',
+            'imageUrl': 'img_url_mock',
             'companyName': '',
             'title': '',
             'trackGain': '0.0',
-            'adTrackingTokens': ['mock_token_1', 'mock_token_2']
+            'adTrackingTokens': ['token_1_mock', 'token_2_mock']
     }
 
     def setUp(self):
         api_client_mock = Mock(spec=APIClient)
         api_client_mock.default_audio_quality = APIClient.HIGH_AUDIO_QUALITY
         self.result = AdItem.from_json(api_client_mock, self.JSON_DATA)
+        self.result.station_id = 'station_id_mock'
+        self.result.ad_token = 'token_mock'
 
     def test_is_ad_is_true(self):
         assert self.result.is_ad is True
 
     def test_register_ad(self):
         self.result._api_client.register_ad = Mock()
-        self.result.register_ad('id_dummy')
+        self.result.register_ad('id_mock')
 
         assert self.result._api_client.register_ad.called
+
+    def test_register_ad_raises_exception_if_no_tracking_tokens_available(self):
+        with self.assertRaises(ParameterMissing):
+            self.result.tracking_tokens = []
+            self.result._api_client.register_ad = Mock(spec=AdItem)
+
+            self.result.register_ad('id_mock')
+
+            assert self.result._api_client.register_ad.called
 
     def test_prepare_playback(self):
         with patch.object(PlaylistModel, 'prepare_playback') as super_mock:
 
             self.result.register_ad = Mock()
+            self.result.prepare_playback()
+            assert self.result.register_ad.called
+            assert super_mock.called
+
+    def test_prepare_playback_raises_paramater_missing(self):
+        with patch.object(PlaylistModel, 'prepare_playback') as super_mock:
+
+            self.result.register_ad = Mock(side_effect=ParameterMissing('No ad tracking tokens provided for '
+                                                                        'registration.')
+                                           )
+            self.assertRaises(ParameterMissing, self.result.prepare_playback)
+            assert self.result.register_ad.called
+            assert not super_mock.called
+
+    def test_prepare_playback_handles_paramater_missing_if_no_tokens(self):
+        with patch.object(PlaylistModel, 'prepare_playback') as super_mock:
+
+            self.result.tracking_tokens = []
+            self.result.register_ad = Mock(side_effect=ParameterMissing('No ad tracking tokens provided for '
+                                                                        'registration.'))
             self.result.prepare_playback()
             assert self.result.register_ad.called
             assert super_mock.called
