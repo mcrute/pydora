@@ -56,8 +56,6 @@ def retries(max_tries, exceptions=(Exception,)):
                             0.5, 2, max_tries - retries_left))
                     else:
                         raise
-                else:
-                    break
 
         return function
 

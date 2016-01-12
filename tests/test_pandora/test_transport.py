@@ -1,5 +1,6 @@
 import time
 from unittest import TestCase
+from pandora.errors import PandoraException
 
 from pandora.py2compat import Mock, call
 
@@ -25,3 +26,16 @@ class TestTransport(TestCase):
 
         client.transport._start_request.assert_has_calls([call("method")])
         assert client.transport._start_request.call_count == 5
+
+    def test_call_should_not_retry_for_pandora_exceptions(self):
+        client = TestSettingsDictBuilder._build_minimal()
+
+        time.sleep = Mock()
+        client.transport._make_http_request = Mock(
+                side_effect=PandoraException("error_mock"))
+        client.transport._start_request = Mock()
+
+        client("method")
+
+        client.transport._start_request.assert_has_calls([call("method")])
+        assert client.transport._start_request.call_count == 1
