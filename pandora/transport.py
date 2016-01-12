@@ -50,7 +50,7 @@ def retries(max_tries, exceptions=(Exception,)):
                     # Don't retry for PandoraExceptions - unlikely that result
                     # will change for same set of input parameters.
                     if isinstance(e, PandoraException):
-                        continue
+                        break
                     if retries_left > 0:
                         time.sleep(delay_exponential(
                             0.5, 2, max_tries - retries_left))
