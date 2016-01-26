@@ -50,14 +50,12 @@ def retries(max_tries, exceptions=(Exception,)):
                     # Don't retry for PandoraExceptions - unlikely that result
                     # will change for same set of input parameters.
                     if isinstance(e, PandoraException):
-                        continue
+                        raise
                     if retries_left > 0:
                         time.sleep(delay_exponential(
                             0.5, 2, max_tries - retries_left))
                     else:
                         raise
-                else:
-                    break
 
         return function
 
@@ -88,14 +86,14 @@ class RetryingSession(requests.Session):
     """Requests Session With Retry Support
 
     This Requests session uses an HTTPAdapter that retries on connection
-    failure at least once. The Pandora API is fairly aggressive about closing
+    failure three times. The Pandora API is fairly aggressive about closing
     connections on clients and the default session doesn't retry.
     """
 
     def __init__(self):
         super(RetryingSession, self).__init__()
-        self.mount('https://', HTTPAdapter(max_retries=1))
-        self.mount('http://', HTTPAdapter(max_retries=1))
+        self.mount('https://', HTTPAdapter(max_retries=3))
+        self.mount('http://', HTTPAdapter(max_retries=3))
 
 
 class APITransport(object):
@@ -226,7 +224,7 @@ class APITransport(object):
     # TODO: This decorator is a temporary workaround for handling
     # SysCallErrors, see: https://github.com/shazow/urllib3/issues/367.
     # Should be removed once a fix is applied in urllib3.
-    @retries(5)
+    @retries(3)
     def __call__(self, method, **data):
         self._start_request(method)
 
