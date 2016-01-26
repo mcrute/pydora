@@ -25,7 +25,7 @@ class TestTransport(TestCase):
             client("method")
 
         client.transport._start_request.assert_has_calls([call("method")])
-        assert client.transport._start_request.call_count == 5
+        assert client.transport._start_request.call_count == 3
 
     def test_call_should_not_retry_for_pandora_exceptions(self):
         with self.assertRaises(PandoraException):
