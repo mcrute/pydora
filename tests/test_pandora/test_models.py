@@ -2,7 +2,7 @@ from unittest import TestCase
 from datetime import datetime
 from pandora.py2compat import Mock, patch
 from pandora import APIClient
-from pandora.models.pandora import AdItem, PlaylistModel
+from pandora.models.pandora import AdItem, PlaylistModel, SearchResultItem, SearchResult
 from pandora.errors import ParameterMissing
 
 import pandora.models as m
@@ -273,3 +273,75 @@ class TestAdItem(TestCase):
             self.result.prepare_playback()
             assert self.result.register_ad.called
             assert super_mock.called
+
+
+class TestSearchResultItem(TestCase):
+
+    JSON_DATA = {
+        "artistName": "artist_name_mock",
+        "musicToken": "S0000000",
+        "songName": "song_name_mock",
+        "score": 100
+    }
+
+    def setUp(self):
+        api_client_mock = Mock(spec=APIClient)
+        api_client_mock.default_audio_quality = APIClient.HIGH_AUDIO_QUALITY
+        self.result = SearchResultItem.from_json(api_client_mock, self.JSON_DATA)
+
+    def test_repr(self):
+        expected = ("SearchResultItem(artist='artist_name_mock', likely_match=False, score=100, "
+                    "song_name='song_name_mock', token='S0000000')")
+        self.assertEqual(expected, repr(self.result))
+
+    def test_is_song_true(self):
+        assert self.result.is_song is True
+
+    def test_is_song_false(self):
+        self.result.song_name = None
+        assert self.result.is_song is False
+
+    def test_create_station_song(self):
+        self.result._api_client.create_station = Mock()
+
+        self.result.create_station()
+        self.result._api_client.create_station.assert_called_with(track_token=self.result.token)
+
+    def test_create_station_artist(self):
+        self.result.song_name = None
+        self.result._api_client.create_station = Mock()
+
+        self.result.create_station()
+        self.result._api_client.create_station.assert_called_with(artist_token=self.result.token)
+
+
+class TestSearchResult(TestCase):
+
+    JSON_DATA = {
+        'nearMatchesAvailable': True,
+        'explanation': '',
+        'songs': [{
+            'artistName': 'song_artist_mock',
+            'musicToken': 'S0000000',
+            'songName': 'song_name_mock',
+            'score': 100
+        }],
+        'artists': [{
+            'artistName': 'artist_mock',
+            'musicToken': 'R000000',
+            'likelyMatch': False,
+            'score': 80
+        }]
+    }
+
+    def setUp(self):
+        api_client_mock = Mock(spec=APIClient)
+        api_client_mock.default_audio_quality = APIClient.HIGH_AUDIO_QUALITY
+        self.result = SearchResult.from_json(api_client_mock, self.JSON_DATA)
+
+    def test_repr(self):
+        expected = ("SearchResult(artists=[SearchResultItem(artist='artist_mock', "
+                    "likely_match=False, score=80, song_name=None, token='R000000')], explanation='', "
+                    "nearest_matches_available=True, songs=[SearchResultItem(artist='song_artist_mock', "
+                    "likely_match=False, score=100, song_name='song_name_mock', token='S0000000')])")
+        self.assertEqual(expected, repr(self.result))
