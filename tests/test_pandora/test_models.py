@@ -294,12 +294,24 @@ class TestSearchResultItem(TestCase):
                     "song_name='song_name_mock', token='S0000000')")
         self.assertEqual(expected, repr(self.result))
 
-    def test_is_song_true(self):
-        assert self.result.is_song is True
+    def test_is_song(self):
+        assert self.result.is_song
 
-    def test_is_song_false(self):
-        self.result.song_name = None
-        assert self.result.is_song is False
+        self.result.token = 'R123456'
+        assert not self.result.is_song
+
+    def test_is_artist(self):
+        assert not self.result.is_artist
+
+        self.result.token = 'R123456'
+        assert self.result.is_artist
+
+    def test_is_composer(self):
+        assert not self.result.is_composer
+
+        self.result.token = 'C12345'
+        assert self.result.is_composer
+
 
     def test_create_station_song(self):
         self.result._api_client.create_station = Mock()
@@ -308,7 +320,7 @@ class TestSearchResultItem(TestCase):
         self.result._api_client.create_station.assert_called_with(track_token=self.result.token)
 
     def test_create_station_artist(self):
-        self.result.song_name = None
+        self.result.token = 'R123456'
         self.result._api_client.create_station = Mock()
 
         self.result.create_station()
