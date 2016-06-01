@@ -1,3 +1,5 @@
+import re
+
 from .. import BaseAPIClient
 from . import with_metaclass, ModelMetaClass
 from . import Field, PandoraModel, PandoraListModel, PandoraDictListModel
@@ -292,7 +294,15 @@ class SearchResultItem(PandoraModel):
 
     @property
     def is_song(self):
-        return self.song_name is not None
+        return self.token.startswith('S')
+
+    @property
+    def is_artist(self):
+        return self.token.startswith('R')
+
+    @property
+    def is_composer(self):
+        return self.token.startswith('C')
 
     def create_station(self):
         if self.is_song:
