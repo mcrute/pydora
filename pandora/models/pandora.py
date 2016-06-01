@@ -1,5 +1,3 @@
-import re
-
 from .. import BaseAPIClient
 from . import with_metaclass, ModelMetaClass
 from . import Field, PandoraModel, PandoraListModel, PandoraDictListModel
