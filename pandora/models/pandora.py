@@ -294,18 +294,15 @@ class SearchResultItem(PandoraModel):
 
     @property
     def is_song(self):
-        # Song result tokens start with 'S', followed by seven digits.
-        return re.compile('^([S])(\d{7})$').match(self.token)
+        return self.token.startswith('S')
 
     @property
     def is_artist(self):
-        # Artist result tokens start with 'R', followed by six digits.
-        return re.compile('^([R])(\d{6})$').match(self.token)
+        return self.token.startswith('R')
 
     @property
     def is_composer(self):
-        # Composer result tokens start with 'C', followed by five digits.
-        return re.compile('^([C])(\d{5})$').match(self.token)
+        return self.token.startswith('C')
 
     def create_station(self):
         if self.is_song:
