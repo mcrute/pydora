@@ -293,11 +293,13 @@ class SearchResultItem(PandoraModel):
 
     @property
     def is_artist(self):
-        return type(self) is ArtistSearchResultItem and self.token.startswith("R")
+        return type(self) is ArtistSearchResultItem and \
+               self.token.startswith("R")
 
     @property
     def is_composer(self):
-        return type(self) is ArtistSearchResultItem and self.token.startswith("C")
+        return type(self) is ArtistSearchResultItem and \
+               self.token.startswith("C")
 
     @property
     def is_genre_station(self):
@@ -310,12 +312,16 @@ class SearchResultItem(PandoraModel):
     def from_json(cls, api_client, data):
         if data["musicToken"].startswith("S"):
             return SongSearchResultItem.from_json(api_client, data)
-        elif data["musicToken"].startswith("R") or data["musicToken"].startswith("C"):
+
+        elif data["musicToken"].startswith("R") or \
+                data["musicToken"].startswith("C"):
             return ArtistSearchResultItem.from_json(api_client, data)
+
         elif data["musicToken"].startswith("G"):
             return GenreStationSearchResultItem.from_json(api_client, data)
         else:
-            raise NotImplementedError("Unknown result type '{}'".format(data["musicToken"]))
+            raise NotImplementedError("Unknown result type '{}'"
+                                      .format(data["musicToken"]))
 
 
 class ArtistSearchResultItem(SearchResultItem):
@@ -368,7 +374,9 @@ class SearchResult(PandoraModel):
     explanation = Field("explanation")
     songs = Field("songs", formatter=SongSearchResultItem.from_json_list)
     artists = Field("artists", formatter=ArtistSearchResultItem.from_json_list)
-    genre_stations = Field("genreStations", formatter=GenreStationSearchResultItem.from_json_list)
+    genre_stations = Field(
+        "genreStations",
+        formatter=GenreStationSearchResultItem.from_json_list)
 
 
 class GenreStationList(PandoraDictListModel):
