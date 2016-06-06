@@ -174,12 +174,14 @@ class APIClient(BaseAPIClient):
         return self("bookmark.deleteArtistBookmark",
                     bookmarkToken=bookmark_token)
 
-    def search(self, search_text):
+    def search(self, search_text, include_near_matches=False, include_genre_stations=False):
         from .models.pandora import SearchResult
 
         return SearchResult.from_json(self,
                                       self("music.search",
-                                           searchText=search_text))
+                                           searchText=search_text,
+                                           includeNearMatches=include_near_matches,
+                                           includeGenreStations=include_genre_stations))
 
     def add_feedback(self, track_token, positive):
         return self("station.addFeedback",

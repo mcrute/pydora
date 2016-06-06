@@ -277,7 +277,111 @@ class TestAdItem(TestCase):
 
 class TestSearchResultItem(TestCase):
 
-    JSON_DATA = {
+    SONG_JSON_DATA = {
+        "artistName": "artist_name_mock",
+        "musicToken": "S0000000",
+        "songName": "song_name_mock",
+        "score": 100
+    }
+
+    ARTIST_JSON_DATA = {
+        "artistName": "artist_name_mock",
+        "musicToken": "R0000000",
+        "likelyMatch": False,
+        "score": 100
+    }
+
+    COMPOSER_JSON_DATA = {
+        "artistName": "composer_name_mock",
+        "musicToken": "C0000000",
+        "likelyMatch": False,
+        "score": 100
+    }
+
+    GENRE_JSON_DATA = {
+        "stationName": "station_name_mock",
+        "musicToken": "G0000000",
+        "score": 100
+    }
+
+    def setUp(self):
+        self.api_client_mock = Mock(spec=APIClient)
+        self.api_client_mock.default_audio_quality = APIClient.HIGH_AUDIO_QUALITY
+
+    def test_is_song(self):
+        result = SearchResultItem.from_json(self.api_client_mock, self.SONG_JSON_DATA)
+        assert result.is_song
+        assert not result.is_artist
+        assert not result.is_composer
+        assert not result.is_genre_station
+
+    def test_is_artist(self):
+        result = SearchResultItem.from_json(self.api_client_mock, self.ARTIST_JSON_DATA)
+        assert not result.is_song
+        assert result.is_artist
+        assert not result.is_composer
+        assert not result.is_genre_station
+
+    def test_is_composer(self):
+        result = SearchResultItem.from_json(self.api_client_mock, self.COMPOSER_JSON_DATA)
+        assert not result.is_song
+        assert not result.is_artist
+        assert result.is_composer
+        assert not result.is_genre_station
+
+    def test_is_genre_station(self):
+        result = SearchResultItem.from_json(self.api_client_mock, self.GENRE_JSON_DATA)
+        assert not result.is_song
+        assert not result.is_artist
+        assert not result.is_composer
+        assert result.is_genre_station
+
+    def test_create_station(self):
+        result = SearchResultItem.from_json(self.api_client_mock, self.SONG_JSON_DATA)
+
+        self.assertRaises(NotImplementedError, result.create_station())
+
+
+class TestArtistSearchResultItem(TestCase):
+
+    ARTIST_JSON_DATA = {
+        "artistName": "artist_name_mock",
+        "musicToken": "R0000000",
+        "likelyMatch": False,
+        "score": 100
+    }
+
+    COMPOSER_JSON_DATA = {
+        "artistName": "composer_name_mock",
+        "musicToken": "C0000000",
+        "likelyMatch": False,
+        "score": 100
+    }
+
+    def setUp(self):
+        self.api_client_mock = Mock(spec=APIClient)
+        self.api_client_mock.default_audio_quality = APIClient.HIGH_AUDIO_QUALITY
+
+    def test_repr(self):
+        result = SearchResultItem.from_json(self.api_client_mock, self.ARTIST_JSON_DATA)
+        expected = ("ArtistSearchResultItem(artist='artist_name_mock', likely_match=False, score=100, token='R0000000')")
+        self.assertEqual(expected, repr(result))
+
+        result = SearchResultItem.from_json(self.api_client_mock, self.COMPOSER_JSON_DATA)
+        expected = ("ArtistSearchResultItem(artist='composer_name_mock', likely_match=False, score=100, token='C0000000')")
+        self.assertEqual(expected, repr(result))
+
+    def test_create_station(self):
+        result = SearchResultItem.from_json(self.api_client_mock, self.ARTIST_JSON_DATA)
+        result._api_client.create_station = Mock()
+
+        result.create_station()
+        result._api_client.create_station.assert_called_with(artist_token=result.token)
+
+
+class TestSongSearchResultItem(TestCase):
+
+    SONG_JSON_DATA = {
         "artistName": "artist_name_mock",
         "musicToken": "S0000000",
         "songName": "song_name_mock",
@@ -285,46 +389,45 @@ class TestSearchResultItem(TestCase):
     }
 
     def setUp(self):
-        api_client_mock = Mock(spec=APIClient)
-        api_client_mock.default_audio_quality = APIClient.HIGH_AUDIO_QUALITY
-        self.result = SearchResultItem.from_json(api_client_mock, self.JSON_DATA)
+        self.api_client_mock = Mock(spec=APIClient)
+        self.api_client_mock.default_audio_quality = APIClient.HIGH_AUDIO_QUALITY
 
     def test_repr(self):
-        expected = ("SearchResultItem(artist='artist_name_mock', likely_match=False, score=100, "
-                    "song_name='song_name_mock', token='S0000000')")
-        self.assertEqual(expected, repr(self.result))
+        result = SearchResultItem.from_json(self.api_client_mock, self.SONG_JSON_DATA)
+        expected = ("SongSearchResultItem(artist='artist_name_mock', score=100, song_name='song_name_mock', token='S0000000')")
+        self.assertEqual(expected, repr(result))
 
-    def test_is_song(self):
-        assert self.result.is_song
+    def test_create_station(self):
+        result = SearchResultItem.from_json(self.api_client_mock, self.SONG_JSON_DATA)
+        result._api_client.create_station = Mock()
 
-        self.result.token = 'R123456'
-        assert not self.result.is_song
-
-    def test_is_artist(self):
-        assert not self.result.is_artist
-
-        self.result.token = 'R123456'
-        assert self.result.is_artist
-
-    def test_is_composer(self):
-        assert not self.result.is_composer
-
-        self.result.token = 'C12345'
-        assert self.result.is_composer
+        result.create_station()
+        result._api_client.create_station.assert_called_with(track_token=result.token)
 
 
-    def test_create_station_song(self):
-        self.result._api_client.create_station = Mock()
+class TestGenreStationSearchResultItem(TestCase):
 
-        self.result.create_station()
-        self.result._api_client.create_station.assert_called_with(track_token=self.result.token)
+    GENRE_JSON_DATA = {
+        "stationName": "station_name_mock",
+        "musicToken": "G0000000",
+        "score": 100
+    }
 
-    def test_create_station_artist(self):
-        self.result.token = 'R123456'
-        self.result._api_client.create_station = Mock()
+    def setUp(self):
+        self.api_client_mock = Mock(spec=APIClient)
+        self.api_client_mock.default_audio_quality = APIClient.HIGH_AUDIO_QUALITY
 
-        self.result.create_station()
-        self.result._api_client.create_station.assert_called_with(artist_token=self.result.token)
+    def test_repr(self):
+        result = SearchResultItem.from_json(self.api_client_mock, self.GENRE_JSON_DATA)
+        expected = ("GenreStationSearchResultItem(score=100, station_name='station_name_mock', token='G0000000')")
+        self.assertEqual(expected, repr(result))
+
+    def test_create_station(self):
+        result = SearchResultItem.from_json(self.api_client_mock, self.GENRE_JSON_DATA)
+        result._api_client.create_station = Mock()
+
+        result.create_station()
+        result._api_client.create_station.assert_called_with(search_token=result.token)
 
 
 class TestSearchResult(TestCase):
@@ -343,6 +446,11 @@ class TestSearchResult(TestCase):
             'musicToken': 'R000000',
             'likelyMatch': False,
             'score': 80
+        }],
+        'genreStations': [{
+            'musicToken': 'G0000',
+            'stationName': 'station_mock',
+            'score': 50
         }]
     }
 
@@ -352,8 +460,9 @@ class TestSearchResult(TestCase):
         self.result = SearchResult.from_json(api_client_mock, self.JSON_DATA)
 
     def test_repr(self):
-        expected = ("SearchResult(artists=[SearchResultItem(artist='artist_mock', "
-                    "likely_match=False, score=80, song_name=None, token='R000000')], explanation='', "
-                    "nearest_matches_available=True, songs=[SearchResultItem(artist='song_artist_mock', "
-                    "likely_match=False, score=100, song_name='song_name_mock', token='S0000000')])")
+        expected = ("SearchResult(artists=[ArtistSearchResultItem(artist='artist_mock', likely_match=False, score=80, "
+                    "token='R000000')], explanation='', genre_stations=[GenreStationSearchResultItem(score=50, "
+                    "station_name='station_mock', token='G0000')], nearest_matches_available=True, "
+                    "songs=[SongSearchResultItem(artist='song_artist_mock', score=100, song_name='song_name_mock', "
+                    "token='S0000000')])")
         self.assertEqual(expected, repr(self.result))
