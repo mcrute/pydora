@@ -4,7 +4,7 @@ from setuptools import setup, find_packages
 
 setup(
     name="pydora",
-    version="1.7.2",
+    version="1.7.3",
     description="Python wrapper for Pandora API",
     long_description=open("README.rst", "r").read(),
     author="Mike Crute",
