@@ -336,11 +336,6 @@ class TestSearchResultItem(TestCase):
         assert not result.is_composer
         assert result.is_genre_station
 
-    def test_create_station(self):
-        result = SearchResultItem.from_json(self.api_client_mock, self.SONG_JSON_DATA)
-
-        self.assertRaises(NotImplementedError, result.create_station())
-
 
 class TestArtistSearchResultItem(TestCase):
 
