@@ -289,21 +289,21 @@ class SearchResultItem(PandoraModel):
 
     @property
     def is_song(self):
-        return type(self) is SongSearchResultItem
+        return isinstance(self, SongSearchResultItem)
 
     @property
     def is_artist(self):
-        return type(self) is ArtistSearchResultItem and \
+        return isinstance(self, ArtistSearchResultItem) and \
                self.token.startswith("R")
 
     @property
     def is_composer(self):
-        return type(self) is ArtistSearchResultItem and \
+        return isinstance(self, ArtistSearchResultItem) and \
                self.token.startswith("C")
 
     @property
     def is_genre_station(self):
-        return type(self) is GenreStationSearchResultItem
+        return isinstance(self, GenreStationSearchResultItem)
 
     def create_station(self):
         raise NotImplementedError
@@ -313,14 +313,13 @@ class SearchResultItem(PandoraModel):
         if data["musicToken"].startswith("S"):
             return SongSearchResultItem.from_json(api_client, data)
 
-        elif data["musicToken"].startswith("R") or \
-                data["musicToken"].startswith("C"):
+        elif data["musicToken"].startswith(("R", "C")):
             return ArtistSearchResultItem.from_json(api_client, data)
 
         elif data["musicToken"].startswith("G"):
             return GenreStationSearchResultItem.from_json(api_client, data)
         else:
-            raise NotImplementedError("Unknown result type '{}'"
+            raise NotImplementedError("Unknown result token type '{}'"
                                       .format(data["musicToken"]))
 
 
