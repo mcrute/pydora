@@ -14,6 +14,7 @@ setup(
     packages=find_packages(exclude=["tests", "tests.*"]),
     setup_requires=[
         "py_release_tools",
+        "wheel",
     ],
     install_requires=[
         "pycrypto>=2.6.1",
