@@ -129,7 +129,6 @@ class SettingsDict(TranslatingDict):
     VALUE_TRANSLATIONS = {}
 
     def was_translated(self, from_key, to_key):
-        # TODO: Notify of deprecations
         pass
 
 
@@ -174,6 +173,9 @@ class FileBasedClientBuilder(APIClientBuilder):
     def path(self, path):
         self._path = os.path.expanduser(path)
 
+    def parse_config(self):
+        raise NotImplementedError
+
     def build(self):
         if not self.file_exists:
             raise IOError("File not found: {}".format(self.path))
@@ -204,8 +206,8 @@ class PydoraConfigFileBuilder(FileBasedClientBuilder):
     def parse_config(self):
         cfg = ConfigParser()
 
-        with open(self.path) as fp:
-            cfg.read_file(fp)
+        with open(self.path) as file:
+            cfg.read_file(file)
 
         settings = PydoraConfigFileBuilder.cfg_to_dict(cfg, "api")
         settings["user"] = PydoraConfigFileBuilder.cfg_to_dict(
@@ -242,8 +244,8 @@ class PianobarConfigFileBuilder(FileBasedClientBuilder):
     def parse_config(self):
         settings = PianobarSettingsDict()
 
-        with open(self.path, "r") as fp:
-            for line in fp.readlines():
+        with open(self.path, "r") as file:
+            for line in file.readlines():
                 line = line.strip()
 
                 if line and not line.startswith("#"):

@@ -82,7 +82,7 @@ class PandoraException(Exception):
         return "".join(output)
 
     @staticmethod
-    def _export_exceptions(export_to):
+    def export_exceptions(export_to):
         for code, api_message in __API_EXCEPTIONS__.items():
             name = PandoraException._format_name(api_message)
 
@@ -94,7 +94,7 @@ class PandoraException(Exception):
             export_to[name] = __API_EXCEPTIONS__[code] = exception
 
 
-PandoraException._export_exceptions(locals())
+PandoraException.export_exceptions(locals())
 
 
 class InvalidUserLogin(InvalidPartnerLogin):

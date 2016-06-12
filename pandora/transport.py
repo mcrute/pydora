@@ -23,6 +23,9 @@ from .errors import PandoraException
 DEFAULT_API_HOST = "tuner.pandora.com/services/json/"
 
 
+# This decorator is a temporary workaround for handling SysCallErrors, see:
+# https://github.com/shazow/urllib3/issues/367. Should be removed once a fix is
+# applied in urllib3.
 def retries(max_tries, exceptions=(Exception,)):
     """Function decorator implementing retrying logic.
 
@@ -46,10 +49,10 @@ def retries(max_tries, exceptions=(Exception,)):
                     retries_left -= 1
                     return func(*args, **kwargs)
 
-                except exceptions as e:
+                except exceptions as exc:
                     # Don't retry for PandoraExceptions - unlikely that result
                     # will change for same set of input parameters.
-                    if isinstance(e, PandoraException):
+                    if isinstance(exc, PandoraException):
                         raise
                     if retries_left > 0:
                         time.sleep(delay_exponential(
@@ -179,9 +182,9 @@ class APITransport(object):
 
         params = self.remove_empty_values(params)
 
-        r = self._http.post(url, data=data, params=params)
-        r.raise_for_status()
-        return r.content
+        result = self._http.post(url, data=data, params=params)
+        result.raise_for_status()
+        return result.content
 
     def test_url(self, url):
         return self._http.head(url).status_code == requests.codes.OK
@@ -221,9 +224,6 @@ class APITransport(object):
         else:
             raise PandoraException.from_code(result["code"], result["message"])
 
-    # TODO: This decorator is a temporary workaround for handling
-    # SysCallErrors, see: https://github.com/shazow/urllib3/issues/367.
-    # Should be removed once a fix is applied in urllib3.
     @retries(3)
     def __call__(self, method, **data):
         self._start_request(method)

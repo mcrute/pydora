@@ -70,10 +70,10 @@ class Player(object):
                 readers, _, _ = select.select(
                     [self._control_channel, self._process.stdout], [], [], 1)
 
-                for fd in readers:
-                    value = fd.readline().strip()
+                for handle in readers:
+                    value = handle.readline().strip()
 
-                    if fd.fileno() == self._control_fd:
+                    if handle.fileno() == self._control_fd:
                         self._callbacks.input(value, song)
                     else:
                         if self._player_stopped(value):

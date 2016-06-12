@@ -25,10 +25,11 @@ def deprecated(in_version, remove_version, message):
     Decorator to warn that a function is deprecated and what version it will be
     removed in.
     """
-    def wrapper(f):
-        @wraps(f)
+    def wrapper(wrapped):
+        @wraps(wrapped)
         def inner_wrapper(self, *args, **kwargs):
-            warn_deprecated(in_version, remove_version, f.func_name, message)
-            return f(self, *args, **kwargs)
+            warn_deprecated(
+                in_version, remove_version, wrapped.func_name, message)
+            return wrapped(self, *args, **kwargs)
         return inner_wrapper
     return wrapper

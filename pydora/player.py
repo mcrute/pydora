@@ -10,7 +10,7 @@ from __future__ import print_function
 
 import os
 import sys
-from pandora import APIClient, clientbuilder
+from pandora import clientbuilder
 
 from .mpg123 import Player
 from .utils import Colors, Screen
@@ -82,9 +82,9 @@ class PlayerApp(object):
         """
         Screen.clear()
 
-        for i, s in enumerate(self.stations):
+        for i, station in enumerate(self.stations):
             i = "{:>3}".format(i)
-            print("{}: {}".format(Colors.yellow(i), s.name))
+            print("{}: {}".format(Colors.yellow(i), station.name))
 
         return self.stations[Screen.get_integer("Station: ")]
 
@@ -95,7 +95,7 @@ class PlayerApp(object):
             print("{} ".format(Colors.cyan("Advertisement")))
         else:
             print("{} by {}".format(Colors.cyan(song.song_name),
-                  Colors.yellow(song.artist_name)))
+                                    Colors.yellow(song.artist_name)))
 
     def skip_song(self, song):
         if song.is_ad:

@@ -5,8 +5,6 @@ import sys
 import termios
 import getpass
 import subprocess
-from pandora.models.pandora import AdItem
-from pandora import errors
 
 
 def input(prompt):
@@ -19,13 +17,13 @@ def input(prompt):
 
 class Colors(object):
 
-    def __wrap_with(code):
+    def __wrap_with(raw_code):
         @staticmethod
         def inner(text, bold=False):
-            c = code
+            code = raw_code
             if bold:
-                c = "1;{}".format(c)
-            return "\033[{}m{}\033[0m".format(c, text)
+                code = "1;{}".format(code)
+            return "\033[{}m{}\033[0m".format(code, text)
         return inner
 
     red = __wrap_with("31")
@@ -41,20 +39,18 @@ class Screen(object):
 
     @staticmethod
     def set_echo(enabled):
-        fd = sys.stdin.fileno()
-        if not os.isatty(fd):
+        handle = sys.stdin.fileno()
+        if not os.isatty(handle):
             return
 
-        (iflag, oflag, cflag,
-         lflag, ispeed, ospeed, cc) = termios.tcgetattr(fd)
+        attrs = termios.tcgetattr(handle)
 
         if enabled:
-            lflag |= termios.ECHO
+            attrs[3] |= termios.ECHO
         else:
-            lflag &= ~termios.ECHO
+            attrs[3] &= ~termios.ECHO
 
-        termios.tcsetattr(fd, termios.TCSANOW,
-                          [iflag, oflag, cflag, lflag, ispeed, ospeed, cc])
+        termios.tcsetattr(handle, termios.TCSANOW, attrs)
 
     @staticmethod
     def clear():
@@ -120,9 +116,9 @@ def iterate_forever(func, *args, **kwargs):
 
     while True:
         try:
-            playlistItem = next(output)
-            playlistItem.prepare_playback()
-            yield playlistItem
+            playlist_item = next(output)
+            playlist_item.prepare_playback()
+            yield playlist_item
         except StopIteration:
             output = func(*args, **kwargs)
 

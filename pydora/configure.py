@@ -10,7 +10,7 @@ from pandora.clientbuilder import PydoraConfigFileBuilder
 from .utils import Screen, Colors
 
 
-class umask(object):
+class Umask(object):
     """Set/Restore Umask Context Manager
     """
 
@@ -36,7 +36,7 @@ class PandoraKeysConfigParser(object):
                 "plain/json/partners.rst")
 
     FIELD_RE = re.compile(
-            ":(?P<key>[^:]+): (?:`{2})?(?P<value>[^`\n]+)(?:`{2})?$")
+        ":(?P<key>[^:]+): (?:`{2})?(?P<value>[^`\n]+)(?:`{2})?$")
 
     def _fixup_key(self, key):
         key = key.lower()
@@ -89,8 +89,8 @@ class PandoraKeysConfigParser(object):
             elif self._is_device_terminator(line):
                 key = self._clean_device_name(buffer.pop())
                 current_partner = partners[key] = {
-                        "api_host": self._format_api_host(api_host)
-                        }
+                    "api_host": self._format_api_host(api_host)
+                    }
 
             buffer.append(line.strip().lower())
 
@@ -142,8 +142,8 @@ class Configurator(object):
             self.cfg.set("api", key, value)
 
     def write_config(self):
-        with umask(0o077), open(self.builder.path, "w") as fp:
-            self.cfg.write(fp)
+        with Umask(0o077), open(self.builder.path, "w") as file:
+            self.cfg.write(file)
 
     def configure(self):
         if self.builder.file_exists:

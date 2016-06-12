@@ -1,5 +1,4 @@
 from .. import BaseAPIClient
-from . import with_metaclass, ModelMetaClass
 from . import Field, PandoraModel, PandoraListModel, PandoraDictListModel
 from ..errors import ParameterMissing
 
@@ -239,9 +238,9 @@ class AdItem(PlaylistModel):
     def prepare_playback(self):
         try:
             self.register_ad(self.station_id)
-        except ParameterMissing as e:
+        except ParameterMissing as exc:
             if self.tracking_tokens:
-                raise e
+                raise exc
         return super(AdItem, self).prepare_playback()
 
 
