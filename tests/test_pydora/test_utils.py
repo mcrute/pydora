@@ -24,7 +24,7 @@ class TestIterateForever(TestCase):
 
                 station_iter = iterate_forever(station.get_playlist)
 
-                next_track = station_iter.next()
+                next_track = next(station_iter)
                 self.assertEqual(ad_mock, next_track)
 
     def test_reraise_missing_params_exception(self):
@@ -36,4 +36,4 @@ class TestIterateForever(TestCase):
                     get_playlist_mock.return_value=iter([track_mock])
 
                     station_iter = iterate_forever(station.get_playlist)
-                    station_iter.next()
+                    next(station_iter)
