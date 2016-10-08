@@ -95,7 +95,7 @@ class PlayerApp(object):
             print(u"{} ".format(Colors.cyan("Advertisement")))
         else:
             print(u"{} by {}".format(Colors.cyan(song.song_name),
-                                    Colors.yellow(song.artist_name)))
+                                     Colors.yellow(song.artist_name)))
 
     def skip_song(self, song):
         if song.is_ad:
