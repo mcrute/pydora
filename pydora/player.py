@@ -84,7 +84,7 @@ class PlayerApp(object):
 
         for i, station in enumerate(self.stations):
             i = "{:>3}".format(i)
-            print("{}: {}".format(Colors.yellow(i), station.name))
+            print(u"{}: {}".format(Colors.yellow(i), station.name))
 
         return self.stations[Screen.get_integer("Station: ")]
 
@@ -92,9 +92,9 @@ class PlayerApp(object):
         """Play callback
         """
         if song.is_ad:
-            print("{} ".format(Colors.cyan("Advertisement")))
+            print(u"{} ".format(Colors.cyan("Advertisement")))
         else:
-            print("{} by {}".format(Colors.cyan(song.song_name),
+            print(u"{} by {}".format(Colors.cyan(song.song_name),
                                     Colors.yellow(song.artist_name)))
 
     def skip_song(self, song):

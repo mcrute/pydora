@@ -22,8 +22,8 @@ class Colors(object):
         def inner(text, bold=False):
             code = raw_code
             if bold:
-                code = "1;{}".format(code)
-            return "\033[{}m{}\033[0m".format(code, text)
+                code = u"1;{}".format(code)
+            return u"\033[{}m{}\033[0m".format(code, text)
         return inner
 
     red = __wrap_with("31")
