@@ -97,7 +97,7 @@ class PandoraException(Exception):
 PandoraException.export_exceptions(locals())
 
 
-class InvalidUserLogin(InvalidPartnerLogin):
+class InvalidUserLogin(InvalidPartnerLogin):  # noqa: F821
     """Pydora Internal Login Error
 
     This is thrown around a user login to disambiguate a login that is invalid

@@ -1,6 +1,33 @@
 #!/usr/bin/env python
 
+from setuptools.command.test import test
 from setuptools import setup, find_packages
+
+
+class TestsWithCoverage(test):
+
+    description = "run unit tests with coverage"
+
+    def run(self):
+        # Must install test_requires before importing coverage
+        self.install_dists(self.distribution)
+
+        from coverage import coverage
+
+        cov = coverage(data_file=".coverage", branch=True,
+                       source=self.distribution.packages)
+        cov.start()
+
+        # Unittest calls exit prior to python 3. How naughty
+        try:
+            super(TestsWithCoverage, self).run()
+        except SystemExit:
+            pass
+
+        cov.stop()
+        cov.xml_report(outfile="coverage.xml")
+        cov.html_report()
+
 
 setup(
     name="pydora",
@@ -12,9 +39,16 @@ setup(
     url="https://github.com/mcrute/pydora",
     test_suite="tests.discover_suite",
     packages=find_packages(exclude=["tests", "tests.*"]),
+    cmdclass={
+        "test": TestsWithCoverage,
+    },
     setup_requires=[
-        "py_release_tools",
         "wheel",
+        "flake8>=3.3",
+    ],
+    tests_require=[
+        "mock>=1.0",
+        "coverage>=4.0",
     ],
     install_requires=[
         "pycrypto>=2.6.1",
