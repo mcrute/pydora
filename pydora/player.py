@@ -97,10 +97,13 @@ class PlayerApp(object):
             Screen.print_error("No valid config found")
             sys.exit(1)
 
-    def station_selection_menu(self):
+    def station_selection_menu(self, error=None):
         """Format a station menu and make the user select a station
         """
         Screen.clear()
+
+        if error:
+            Screen.print_error("{}\n".format(error))
 
         for i, station in enumerate(self.stations):
             i = "{:>3}".format(i)
@@ -205,7 +208,7 @@ class PlayerApp(object):
         try:
             cmd = getattr(self, self.CMD_MAP[input][1])
         except (IndexError, KeyError):
-            return Screen.print_error("Invalid command!")
+            return Screen.print_error("Invalid command {!r}!".format(input))
 
         cmd(song)
 
@@ -222,10 +225,22 @@ class PlayerApp(object):
         self.client = self.get_client()
         self.stations = self.client.get_station_list()
 
+        error = None
+
         while True:
             try:
-                station = self.station_selection_menu()
+                station = self.station_selection_menu(error)
+                error = None
+            except IndexError:
+                error = "Invalid station selection."
+                continue
+            except KeyboardInterrupt:
+                sys.exit(0)
+
+            try:
                 self.player.play_station(station)
+            except UnsupportedEncoding as ex:
+                error = str(ex)
             except KeyboardInterrupt:
                 sys.exit(0)
 
