@@ -68,6 +68,10 @@ class PlaylistModel(PandoraModel):
                 newval = cls.get_audio_bitrate(
                     data, api_client.default_audio_quality)
 
+            if value.field == "encoding" and newval is None:
+                newval = cls.get_audio_encoding(
+                    data, api_client.default_audio_quality)
+
             if newval and value.formatter:
                 newval = value.formatter(newval)
 
@@ -129,6 +133,16 @@ class PlaylistModel(PandoraModel):
         """
         return cls.get_audio_field(data, "bitrate", preferred_quality)
 
+    @classmethod
+    def get_audio_encoding(cls, data,
+                           preferred_quality=BaseAPIClient.MED_AUDIO_QUALITY):
+        """Get audio encoding
+
+        Try to find encoding of audio url for specified preferred quality
+        level, or next-lowest available quality url otherwise.
+        """
+        return cls.get_audio_field(data, "encoding", preferred_quality)
+
     def get_is_playable(self):
         if not self.audio_url:
             return False
@@ -169,6 +183,7 @@ class PlaylistItem(PlaylistModel):
     track_token = Field("trackToken")
     audio_url = Field("audioUrl")
     bitrate = Field("bitrate")
+    encoding = Field("encoding")
     album_art_url = Field("albumArtUrl")
     allow_feedback = Field("allowFeedback")
     station_id = Field("stationId")
