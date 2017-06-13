@@ -57,6 +57,8 @@ class PlayerApp(object):
         "a": ("bookmark artist", "bookmark_artist"),
         "S": ("sleep song for 30 days", "sleep_song"),
         "Q": ("quit player", "quit"),
+        "vu": ("raise volume", "raise_volume"),
+        "vd": ("lower volume", "lower_volume"),
         "?": ("display this help", "help"),
     }
 
@@ -171,6 +173,18 @@ class PlayerApp(object):
                 self.player.stop()
             else:
                 Screen.print_error("Failed to sleep song")
+        except NotImplementedError:
+            Screen.print_error("Cannot sleep this type of track")
+
+    def raise_volume(self, song):
+        try:
+            self.player.raise_volume()
+        except NotImplementedError:
+            Screen.print_error("Cannot sleep this type of track")
+
+    def lower_volume(self, song):
+        try:
+            self.player.lower_volume()
         except NotImplementedError:
             Screen.print_error("Cannot sleep this type of track")
 
