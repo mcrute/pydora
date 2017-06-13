@@ -12,8 +12,9 @@ import os
 import sys
 from pandora import clientbuilder
 
-from .mpg123 import Player
 from .utils import Colors, Screen
+from .mpg123 import MPG123Player, VLCPlayer
+from .mpg123 import UnsupportedEncoding, PlayerUnusable
 
 
 class PlayerCallbacks(object):
@@ -61,7 +62,24 @@ class PlayerApp(object):
 
     def __init__(self):
         self.client = None
-        self.player = Player(self, sys.stdin)
+
+    def get_player(self):
+        try:
+            player = VLCPlayer(self, sys.stdin)
+            Screen.print_success("Using VLC")
+            return player
+        except PlayerUnusable:
+            pass
+
+        try:
+            player = MPG123Player(self, sys.stdin)
+            Screen.print_success("Using mpg123")
+            return player
+        except PlayerUnusable:
+            pass
+
+        Screen.print_error("Unable to find a player")
+        sys.exit(1)
 
     def get_client(self):
         cfg_file = os.environ.get("PYDORA_CFG", "")
@@ -184,6 +202,9 @@ class PlayerApp(object):
         Screen.set_echo(True)
 
     def run(self):
+        self.player = self.get_player()
+        self.player.start()
+
         self.client = self.get_client()
         self.stations = self.client.get_station_list()
 
