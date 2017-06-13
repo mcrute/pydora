@@ -88,9 +88,23 @@ class PlaylistModel(PandoraModel):
         """
         audio_url = None
         url_map = data.get("audioUrlMap")
+        audio_url = data.get("audioUrl")
 
+        # Only an audio URL, not a quality map. This happens for most of the
+        # mobile client tokens and some of the others now. In this case
+        # substitute the empirically determined default values in the format
+        # used by the rest of the function so downstream consumers continue to
+        # work.
+        if audio_url and not url_map:
+            url_map = {
+                BaseAPIClient.HIGH_AUDIO_QUALITY: {
+                    "audioUrl": audio_url,
+                    "bitrate": 64,
+                    "encoding": "aacplus",
+                }
+            }
         # No audio url available (e.g. ad tokens)
-        if not url_map:
+        elif not url_map:
             return None
 
         valid_audio_formats = [BaseAPIClient.HIGH_AUDIO_QUALITY,
