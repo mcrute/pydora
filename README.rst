@@ -85,7 +85,9 @@ When playing the following keys work (press enter afterwards):
 
 Note that volume control is currently only supported with the VLC back-end.
 
-sample config::
+Sample Config File
+==================
+::
 
     [api]
     api_host = hostname
