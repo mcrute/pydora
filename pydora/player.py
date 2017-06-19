@@ -218,12 +218,23 @@ class PlayerApp(object):
     def post_poll(self):
         Screen.set_echo(True)
 
+    def pre_flight_checks(self):
+        # See #52, this key no longer passes some server-side check
+        if self.client.partner_user == "iphone":
+            Screen.print_error((
+                "The `iphone` partner key set is no longer compatible with "
+                "pydora. Please re-run pydora-configure to re-generate "
+                "your config file before continuing."))
+            sys.exit(1)
+
     def run(self):
         self.player = self.get_player()
         self.player.start()
 
         self.client = self.get_client()
         self.stations = self.client.get_station_list()
+
+        self.pre_flight_checks()
 
         error = None
 
