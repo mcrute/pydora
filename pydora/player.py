@@ -198,7 +198,8 @@ class PlayerApp(object):
     def help(self, song):
         print("")
         print("\n".join([
-            "\t{} - {}".format(k, v[0]) for k, v in self.CMD_MAP.items()
+            "\t{:>2} - {}".format(k, v[0])
+            for k, v in sorted(self.CMD_MAP.items())
         ]))
         print("")
 
