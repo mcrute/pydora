@@ -5,4 +5,6 @@ python:
   - "3.4"
   - "3.5"
   - "3.6"
+# Travis versions of these are really outdated
+before_script: pip install -U mock nose pytest
 script: python setup.py validate
