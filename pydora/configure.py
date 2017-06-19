@@ -108,8 +108,12 @@ class Configurator(object):
         self.builder = PydoraConfigFileBuilder()
 
         self.cfg = ConfigParser()
-        self.cfg.add_section("user")
-        self.cfg.add_section("api")
+
+        if self.builder.file_exists:
+            self.read_config()
+        else:
+            self.cfg.add_section("user")
+            self.cfg.add_section("api")
 
     def fail(self, message):
         print(Screen.print_error(message))
@@ -124,7 +128,7 @@ class Configurator(object):
 
     def get_partner_config(self):
         try:
-            return PandoraKeysConfigParser().load()["ios"]
+            return PandoraKeysConfigParser().load()["android"]
         except:
             self.fail("Error loading config file. Unable to continue.")
 
@@ -141,13 +145,20 @@ class Configurator(object):
         for key, value in config.items():
             self.cfg.set("api", key, value)
 
+    def read_config(self):
+        with open(self.builder.path) as file:
+            self.cfg.read_file(file)
+
     def write_config(self):
         with Umask(0o077), open(self.builder.path, "w") as file:
             self.cfg.write(file)
 
     def configure(self):
         if self.builder.file_exists:
-            self.finished("You already have a pydora config!")
+            self.print_message("You already have a pydora config.")
+            self.add_partner_config(self.get_partner_config())
+            self.write_config()
+            self.finished("Freshened your API keys!")
 
         self.print_message("Welcome to Pydora, let's configure a few things")
         self.add_partner_config(self.get_partner_config())
