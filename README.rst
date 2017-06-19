@@ -8,18 +8,22 @@ Pandora API Client
 .. image:: https://img.shields.io/travis/mcrute/pydora.svg
     :target: https://travis-ci.org/mcrute/pydora
 
-.. image:: https://img.shields.io/pypi/dm/pydora.svg
-    :target: https://pypi.python.org/pypi/pydora
-
 This code is licensed under the MIT license.
 
-This is a reasonably complete implementation of the Pandora API. It does not
-implement any of the undocumented features and does not implement most of the
-account management features as they were deemed not terribly useful.
+This is a reasonably complete implementation of the Pandora API that supports
+Python 2 and 3. It does not implement any of the undocumented features and does
+not implement most of the account management features as they are not terribly
+useful.
 
-I don't provide any keys or passwords for Pandora in this repo, you'll have to
-go get those for yourself. Make something awesome with this library, don't
-abuse Pandora, that's not cool.
+Keys or passwords for Pandora are **not** provided in this repo, you'll have to
+`go get those <http://6xq.net/playground/pandora-apidoc/json/partners/#partners>`_
+for yourself. Make something awesome with this library, don't abuse Pandora,
+that's not cool.
+
+The easy entry-point for programmatic use is
+``pandora.clientbuilder.PydoraConfigFileBuilder``. All programmatic APIs are in
+the ``pandora`` package. The remainder of this README is targeted at users of
+the ``pydora`` command-line player.
 
 Installing
 ==========
@@ -31,39 +35,55 @@ that. ::
     $ pip install pydora
     $ pydora-configure
 
-On Ubuntu install `mpg123`::
+On Ubuntu install `vlc` or `vlc`::
 
-    # apt-get install mpg123
+    # apt-get install vlc
 
-On Mac OS X with `homebrew <http://brew.sh/>`_ installed::
+To install VLC on Mac OS X visit the `VLC site
+<https://www.videolan.org/vlc/>`_ to download ``VLC.app``, then drag-and-drop
+the bundle into your ``/Applications`` folder. pydora will auto-detect this.
 
-    # brew install mpg123
+Audio Output Backend
+====================
+The ``pydora`` player does not directly support audio output but instead relies
+upon external audio output backends. The two supported backends are VLC and
+mpg123. The main difference between the two backends is the supported file
+formats. VLC supports a vast array of codecs, including MP3 and AAC, the two
+formats that Pandora uses. mpg123 on the other hand supports only MP3. As of
+2017 Pandora has started to prefer AAC files over MP3 which necessitates VLC.
+The ``pydora`` player will try to auto-detect whatever player exists on your
+system, prefering VLC, and will use that audio output backend. If you notice a
+lot of skipping in a playlist consider installing VLC.
 
 Simple Player
 =============
 Included is ``pydora``, a simple Pandora stream player that runs at the command
-line. It requires that mpg123 be installed with HTTP support as well as a
-settings file (example below) located in ``~/.pydora.cfg``. Alternatively an
+line. It requires that mpg123 or VLC be installed with HTTP support as well as
+a settings file (example below) located in ``~/.pydora.cfg``. Alternatively an
 environment variable ``PYDORA_CFG`` can point to the path of the config file.
 
 The player only supports basic functionality for now. It will display a station
 list, allow listening to any station, basic feeback and bookmarking are also
-supported. The player starts an mpg123 process in remote control mode and feeds
-commands to it. It does not download any music but rather streams them directly
-from Pandora.
+supported. The player starts an mpg123 or VLC process in remote control mode
+and feeds commands to it. It does not download any music but rather streams
+them directly from Pandora.
 
 When playing the following keys work (press enter afterwards):
 
-* n - next song
-* p - pause or resume song
-* s - station list (stops song)
-* d - thumbs down track
-* u - thumbs up track
-* b - bookmark song
-* a - bookmark artist
-* S - sleep song
-* Q - quit program
-* ? - display help
+* n  - next song
+* p  - pause or resume song
+* s  - station list (stops song)
+* d  - thumbs down track
+* u  - thumbs up track
+* b  - bookmark song
+* a  - bookmark artist
+* S  - sleep song
+* Q  - quit program
+* vu - volume up
+* vd - volume down
+* ?  - display help
+
+Note that volume control is currently only supported with the VLC back-end.
 
 sample config::
 
