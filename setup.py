@@ -1,5 +1,6 @@
 #!/usr/bin/env python
 
+import itertools
 from setuptools.command.test import test
 from setuptools import setup, find_packages
 
@@ -8,6 +9,13 @@ from setuptools import setup, find_packages
 class TestsWithCoverage(test, object):
 
     description = "run unit tests with coverage"
+
+    # Copypasta from setuptools 36.0.1 because older versions don't have it
+    @staticmethod
+    def install_dists(dist):
+        ir_d = dist.fetch_build_eggs(dist.install_requires or [])
+        tr_d = dist.fetch_build_eggs(dist.tests_require or [])
+        return itertools.chain(ir_d, tr_d)
 
     def run(self):
         # Must install test_requires before importing coverage
