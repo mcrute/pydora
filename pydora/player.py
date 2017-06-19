@@ -3,7 +3,7 @@
 Sample Barebones Pandora Player
 
 This is a very simple Pandora player that streams music from Pandora. It
-requires mpg123 to function. No songs are downloaded, they are streamed
+requires mpg123 or VLC to function. No songs are downloaded, they are streamed
 directly from Pandora's servers.
 """
 from __future__ import print_function
@@ -13,8 +13,8 @@ import sys
 from pandora import clientbuilder
 
 from .utils import Colors, Screen
-from .mpg123 import MPG123Player, VLCPlayer
-from .mpg123 import UnsupportedEncoding, PlayerUnusable
+from .audio_backend import MPG123Player, VLCPlayer
+from .audio_backend import UnsupportedEncoding, PlayerUnusable
 
 
 class PlayerCallbacks(object):
