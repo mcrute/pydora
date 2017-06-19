@@ -4,7 +4,8 @@ from setuptools.command.test import test
 from setuptools import setup, find_packages
 
 
-class TestsWithCoverage(test):
+# Python 2 setuptools test class is not an object
+class TestsWithCoverage(test, object):
 
     description = "run unit tests with coverage"
 
