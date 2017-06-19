@@ -56,7 +56,7 @@ setup(
         "flake8>=3.3",
     ],
     tests_require=[
-        "mock>=1.0",
+        "mock>=2.0",
         "coverage>=4.0",
     ],
     install_requires=[
