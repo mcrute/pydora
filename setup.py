@@ -57,10 +57,10 @@ setup(
     ],
     tests_require=[
         "mock>=2.0",
-        "coverage>=4.0",
+        "coverage>=4.1",
     ],
     install_requires=[
-        "pycrypto>=2.6.1",
+        "pycrypto>=2.6",
         "requests>=2",
     ],
     entry_points={
