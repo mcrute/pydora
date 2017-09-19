@@ -10,9 +10,11 @@ from __future__ import print_function
 
 import os
 import sys
+import argparse
 from pandora import clientbuilder
 
 from .utils import Colors, Screen
+from .audio_backend import RemoteVLC
 from .audio_backend import MPG123Player, VLCPlayer
 from .audio_backend import UnsupportedEncoding, PlayerUnusable
 
@@ -66,7 +68,20 @@ class PlayerApp(object):
         self.client = None
         self.screen = Screen()
 
-    def get_player(self):
+    def get_player(self, vlc_net=None):
+        # The user must explicitly request network VLC so we should always
+        # honor that request, to this end we try network first and fail hard
+        # if that isn't available.
+        if vlc_net:
+            try:
+                host, port = vlc_net.split(":")
+                player = RemoteVLC(host, port, self, sys.stdin)
+                Screen.print_success("Using Remote VLC")
+                return player
+            except PlayerUnusable:
+                Screen.print_error("Unable to connect to vlc")
+                raise
+
         try:
             player = VLCPlayer(self, sys.stdin)
             self.screen.print_success("Using VLC")
@@ -232,8 +247,16 @@ class PlayerApp(object):
                 "your config file before continuing."))
             sys.exit(1)
 
+    def _parse_args(self):
+        parser = argparse.ArgumentParser(
+            description="command line Pandora player")
+        parser.add_argument(
+            "--vlc-net", dest="vlc_net",
+            help="connect to VLC over the network (host:port)")
+        return parser.parse_args()
+
     def run(self):
-        self.player = self.get_player()
+        self.player = self.get_player(self._parse_args().vlc_net)
         self.player.start()
 
         self.client = self.get_client()
@@ -258,6 +281,7 @@ class PlayerApp(object):
             except UnsupportedEncoding as ex:
                 error = str(ex)
             except KeyboardInterrupt:
+                self.player.stop()
                 sys.exit(0)
 
 

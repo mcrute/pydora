@@ -55,6 +55,31 @@ The ``pydora`` player will try to auto-detect whatever player exists on your
 system, prefering VLC, and will use that audio output backend. If you notice a
 lot of skipping in a playlist consider installing VLC.
 
+Remote VLC Backend
+------------------
+It is also possible to remotely control a copy of VLC running on another
+machine if you're unable or unwilling to install Pydora on your playback
+machine. To do this start VLC on the remote machine with the ``rc-host`` option
+set. For example::
+
+    vlc -I rc --advanced --rc-host=0.0.0.0:1234
+
+Once VLC is running start Pydora with the ``vlc-net`` option and specify the
+remote host and port that VLC is listening on. For example::
+
+    pydora --vlc-net 192.168.0.12:1234
+
+Pydora will now send all audio playback requests to the remote VLC. It does
+this using a text control protocol; all audio data is streamed directly from
+the internet to VLC and is not passed over the pydora control channel. Because
+of this it is possible for the control channel to run over a very low bandwidth
+connection.
+
+**Note**: VLC doesn't provide any security so anyone on the network will be
+able to control VLC. It is generally safer to bind VLC to ``127.0.0.1`` and use
+something like SSH forwarding to securely forward the port to a remote host but
+that's outside of the scope of this README.
+
 Simple Player
 =============
 Included is ``pydora``, a simple Pandora stream player that runs at the command

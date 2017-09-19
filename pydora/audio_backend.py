@@ -2,6 +2,7 @@ import os
 import time
 import fcntl
 import select
+import socket
 
 from pandora.py2compat import which
 from .utils import iterate_forever, SilentPopen
@@ -141,6 +142,13 @@ class BasePlayer(object):
         self._process = SilentPopen(self._cmd)
         self._post_start()
 
+    def _get_select_readers(self):
+        """Return a list of file-like objects for reading
+
+        Will be passed to select() to poll for readers.
+        """
+        return [self._control_channel, self._process.stdout]
+
     def play(self, song):
         """Play a new song from a Pandora model
 
@@ -159,7 +167,7 @@ class BasePlayer(object):
                 self._loop_hook()
 
                 readers, _, _ = select.select(
-                    [self._control_channel, self._process.stdout], [], [], 1)
+                    self._get_select_readers(), [], [], 1)
 
                 for handle in readers:
                     if handle.fileno() == self._control_fd:
@@ -272,3 +280,35 @@ class VLCPlayer(BasePlayer):
         if (time.time() - self._last_poll) >= self.POLL_INTERVAL:
             self._send_cmd("status")
             self._last_poll = time.time()
+
+
+class RemoteVLC(VLCPlayer):
+
+    def __init__(self, host, port, callbacks, control_channel):
+        self._connect_to = (host, int(port))
+        self._control_sock = None
+        super(RemoteVLC, self).__init__(callbacks, control_channel)
+
+    def _get_select_readers(self):
+        return [self._control_channel, self._control_sock]
+
+    def _send_cmd(self, cmd):
+        self._control_sock.sendall("{}\n".format(cmd).encode("utf-8"))
+
+    def _read_from_process(self, handle):
+        return handle.recv(self.CHUNK_SIZE).strip()
+
+    def _ensure_started(self):
+        if not self._control_sock:
+            self._control_sock = socket.create_connection(self._connect_to)
+            self._control_sock.setblocking(False)
+
+    def _find_path(self):
+        try:
+            self._ensure_started()
+        except socket.error:
+            raise PlayerUnusable("Unable to connect to VLC")
+
+    def _post_start(self):
+        # This is a NOOP for network VLC
+        pass
