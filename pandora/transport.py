@@ -255,7 +255,7 @@ class BlowfishCryptor(object):
     def _add_padding(data):
         block_size = Blowfish.block_size
         pad_size = len(data) % block_size
-        padding = bytes(chr(pad_size) * (block_size - pad_size), "ascii")
+        padding = (chr(pad_size) * (block_size - pad_size)).encode("ascii")
         return data.encode("utf-8") + padding
 
     @staticmethod
