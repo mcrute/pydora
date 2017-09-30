@@ -64,23 +64,24 @@ class PlayerApp(object):
 
     def __init__(self):
         self.client = None
+        self.screen = Screen()
 
     def get_player(self):
         try:
             player = VLCPlayer(self, sys.stdin)
-            Screen.print_success("Using VLC")
+            self.screen.print_success("Using VLC")
             return player
         except PlayerUnusable:
             pass
 
         try:
             player = MPG123Player(self, sys.stdin)
-            Screen.print_success("Using mpg123")
+            self.screen.print_success("Using mpg123")
             return player
         except PlayerUnusable:
             pass
 
-        Screen.print_error("Unable to find a player")
+        self.screen.print_error("Unable to find a player")
         sys.exit(1)
 
     def get_client(self):
@@ -94,22 +95,22 @@ class PlayerApp(object):
             return builder.build()
 
         if not self.client:
-            Screen.print_error("No valid config found")
+            self.screen.print_error("No valid config found")
             sys.exit(1)
 
     def station_selection_menu(self, error=None):
         """Format a station menu and make the user select a station
         """
-        Screen.clear()
+        self.screen.clear()
 
         if error:
-            Screen.print_error("{}\n".format(error))
+            self.screen.print_error("{}\n".format(error))
 
         for i, station in enumerate(self.stations):
             i = "{:>3}".format(i)
             print(u"{}: {}".format(Colors.yellow(i), station.name))
 
-        return self.stations[Screen.get_integer("Station: ")]
+        return self.stations[self.screen.get_integer("Station: ")]
 
     def play(self, song):
         """Play callback
@@ -122,7 +123,7 @@ class PlayerApp(object):
 
     def skip_song(self, song):
         if song.is_ad:
-            Screen.print_error("Cannot skip advertisements")
+            self.screen.print_error("Cannot skip advertisements")
         else:
             self.player.stop()
 
@@ -135,61 +136,63 @@ class PlayerApp(object):
     def dislike_song(self, song):
         try:
             if song.thumbs_down():
-                Screen.print_success("Track disliked")
+                self.screen.print_success("Track disliked")
                 self.player.stop()
             else:
-                Screen.print_error("Failed to dislike track")
+                self.screen.print_error("Failed to dislike track")
         except NotImplementedError:
-            Screen.print_error("Cannot dislike this type of track")
+            self.screen.print_error("Cannot dislike this type of track")
 
     def like_song(self, song):
         try:
             if song.thumbs_up():
-                Screen.print_success("Track liked")
+                self.screen.print_success("Track liked")
             else:
-                Screen.print_error("Failed to like track")
+                self.screen.print_error("Failed to like track")
         except NotImplementedError:
-            Screen.print_error("Cannot like this type of track")
+            self.screen.print_error("Cannot like this type of track")
 
     def bookmark_song(self, song):
         try:
             if song.bookmark_song():
-                Screen.print_success("Bookmarked song")
+                self.screen.print_success("Bookmarked song")
             else:
-                Screen.print_error("Failed to bookmark song")
+                self.screen.print_error("Failed to bookmark song")
         except NotImplementedError:
-            Screen.print_error("Cannot bookmark this type of track")
+            self.screen.print_error("Cannot bookmark this type of track")
 
     def bookmark_artist(self, song):
         try:
             if song.bookmark_artist():
-                Screen.print_success("Bookmarked artist")
+                self.screen.print_success("Bookmarked artist")
             else:
-                Screen.print_error("Failed to bookmark artis")
+                self.screen.print_error("Failed to bookmark artis")
         except NotImplementedError:
-            Screen.print_error("Cannot bookmark artist for this type of track")
+            self.screen.print_error(
+                "Cannot bookmark artist for this type of track")
 
     def sleep_song(self, song):
         try:
             if song.sleep():
-                Screen.print_success("Song will not be played for 30 days")
+                self.screen.print_success(
+                    "Song will not be played for 30 days")
                 self.player.stop()
             else:
-                Screen.print_error("Failed to sleep song")
+                self.screen.print_error("Failed to sleep song")
         except NotImplementedError:
-            Screen.print_error("Cannot sleep this type of track")
+            self.screen.print_error("Cannot sleep this type of track")
 
     def raise_volume(self, song):
         try:
             self.player.raise_volume()
         except NotImplementedError:
-            Screen.print_error("Cannot sleep this type of track")
+            self.screen.print_error("Cannot sleep this type of track")
 
     def lower_volume(self, song):
         try:
             self.player.lower_volume()
         except NotImplementedError:
-            Screen.print_error("Cannot sleep this type of track")
+            self.screen.print_error("Cannot sleep this type of track")
 
     def quit(self, song):
         self.player.end_station()
@@ -209,20 +212,21 @@ class PlayerApp(object):
         try:
             cmd = getattr(self, self.CMD_MAP[input][1])
         except (IndexError, KeyError):
-            return Screen.print_error("Invalid command {!r}!".format(input))
+            return self.screen.print_error(
+                "Invalid command {!r}!".format(input))
 
         cmd(song)
 
     def pre_poll(self):
-        Screen.set_echo(False)
+        self.screen.set_echo(False)
 
     def post_poll(self):
-        Screen.set_echo(True)
+        self.screen.set_echo(True)
 
     def pre_flight_checks(self):
         # See #52, this key no longer passes some server-side check
         if self.client.partner_user == "iphone":
-            Screen.print_error((
+            self.screen.print_error((
                 "The `iphone` partner key set is no longer compatible with "
                 "pydora. Please re-run pydora-configure to re-generate "
                 "your config file before continuing."))

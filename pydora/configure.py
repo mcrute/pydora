@@ -108,6 +108,7 @@ class Configurator(object):
         self.builder = PydoraConfigFileBuilder()
 
         self.cfg = ConfigParser()
+        self.screen = Screen()
 
         if self.builder.file_exists:
             self.read_config()
@@ -116,11 +117,11 @@ class Configurator(object):
             self.cfg.add_section("api")
 
     def fail(self, message):
-        print(Screen.print_error(message))
+        print(self.screen.print_error(message))
         sys.exit(1)
 
     def finished(self, message):
-        Screen.print_success(message)
+        self.screen.print_success(message)
         sys.exit(0)
 
     def print_message(self, message):
@@ -133,10 +134,10 @@ class Configurator(object):
             self.fail("Error loading config file. Unable to continue.")
 
     def get_value(self, section, key, prompt):
-        self.cfg.set(section, key, Screen.get_string(prompt))
+        self.cfg.set(section, key, self.screen.get_string(prompt))
 
     def get_password(self, section, key, prompt):
-        self.cfg.set(section, key, Screen.get_password(prompt))
+        self.cfg.set(section, key, self.screen.get_password(prompt))
 
     def set_static_value(self, section, key, value):
         self.cfg.set(section, key, value)

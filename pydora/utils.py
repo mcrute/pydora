@@ -6,13 +6,14 @@ import getpass
 import subprocess
 from pandora.py2compat import input
 
-try:
-    import termios
-except ImportError:
-    # Windows does not have a termios module
-    termios = None
 
+class TerminalPlatformUnsupported(Exception):
+    """Platform-specific functionality is not supported
 
+    Raised by code that can not be used to interact with the terminal on this
+    platform.
+    """
+    pass
 
 
 class Colors(object):
@@ -35,25 +36,100 @@ class Colors(object):
     white = __wrap_with("37")
 
 
-class Screen(object):
+class PosixEchoControl(object):
+    """Posix Console Echo Control Driver
 
-    @staticmethod
-    def set_echo(enabled):
-        if not termios:
-            return
+    Uses termios on POSIX compliant platforms to control console echo. Is not
+    supported on Windows as termios is not available and will throw a
+    TerminalPlatformUnsupported exception if contructed on Windows.
+    """
 
+    def __init__(self):
+        try:
+            import termios
+            self.termios = termios
+        except ImportError:
+            raise TerminalPlatformUnsupported("POSIX not supported")
+
+    def set_echo(self, enabled):
         handle = sys.stdin.fileno()
         if not os.isatty(handle):
             return
 
-        attrs = termios.tcgetattr(handle)
+        attrs = self.termios.tcgetattr(handle)
 
         if enabled:
-            attrs[3] |= termios.ECHO
+            attrs[3] |= self.termios.ECHO
         else:
-            attrs[3] &= ~termios.ECHO
+            attrs[3] &= ~self.termios.ECHO
 
-        termios.tcsetattr(handle, termios.TCSANOW, attrs)
+        self.termios.tcsetattr(handle, self.termios.TCSANOW, attrs)
+
+
+class Win32EchoControl(object):
+    """Windows Console Echo Control Driver
+
+    This uses the console API from WinCon.h and ctypes to control console echo
+    on Windows clients. It is not possible to construct this class on
+    non-Windows systems, on those systems it will throw a
+    TerminalPlatformUnsupported exception.
+    """
+
+    STD_INPUT_HANDLE = -10
+    ENABLE_ECHO_INPUT = 0x4
+    DISABLE_ECHO_INPUT = ~ENABLE_ECHO_INPUT
+
+    def __init__(self):
+        import ctypes
+
+        if not hasattr(ctypes, "windll"):
+            raise TerminalPlatformUnsupported("Windows not supported")
+
+        from ctypes import wintypes
+
+        self.ctypes = ctypes
+        self.wintypes = wintypes
+        self.kernel32 = ctypes.windll.kernel32
+
+    def _GetStdHandle(self, handle):
+        return self.kernel32.GetStdHandle(handle)
+
+    def _GetConsoleMode(self, handle):
+        mode = self.wintypes.DWORD()
+        self.kernel32.GetConsoleMode(handle, self.ctypes.byref(mode))
+        return mode.value
+
+    def _SetConsoleMode(self, handle, value):
+        self.kernel32.SetConsoleMode(handle, value)
+
+    def set_echo(self, enabled):
+        stdin = self._GetStdHandle(self.STD_INPUT_HANDLE)
+        mode = self._GetConsoleMode(stdin)
+
+        if enabled:
+            self._SetConsoleMode(stdin, mode | self.ENABLE_ECHO_INPUT)
+        else:
+            self._SetConsoleMode(stdin, mode & self.DISABLE_ECHO_INPUT)
+
+
+class Screen(object):
+
+    def __init__(self):
+        try:
+            self._echo_driver = PosixEchoControl()
+        except TerminalPlatformUnsupported:
+            pass
+
+        try:
+            self._echo_driver = Win32EchoControl()
+        except TerminalPlatformUnsupported:
+            pass
+
+        if not self._echo_driver:
+            raise TerminalPlatformUnsupported("No supported terminal driver")
+
+    def set_echo(self, enabled):
+        self._echo_driver.set_echo(enabled)
 
     @staticmethod
     def clear():
