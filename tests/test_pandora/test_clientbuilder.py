@@ -65,8 +65,8 @@ class TestSettingsDictBuilder(TestCase):
     @classmethod
     def _build_minimal(self):
         return cb.SettingsDictBuilder({
-            "DECRYPTION_KEY": "dec",
-            "ENCRYPTION_KEY": "enc",
+            "DECRYPTION_KEY": "blowfishkey",
+            "ENCRYPTION_KEY": "blowfishkey",
             "PARTNER_USER": "user",
             "PARTNER_PASSWORD": "pass",
             "DEVICE": "dev",
@@ -75,8 +75,8 @@ class TestSettingsDictBuilder(TestCase):
     @classmethod
     def _build_maximal(self):
         return cb.SettingsDictBuilder({
-            "DECRYPTION_KEY": "dec",
-            "ENCRYPTION_KEY": "enc",
+            "DECRYPTION_KEY": "blowfishkey",
+            "ENCRYPTION_KEY": "blowfishkey",
             "PARTNER_USER": "user",
             "PARTNER_PASSWORD": "pass",
             "DEVICE": "dev",

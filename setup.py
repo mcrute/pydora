@@ -56,12 +56,12 @@ setup(
         "flake8>=3.3",
     ],
     tests_require=[
-        "mock>=2.0",
-        "coverage>=4.1",
+        "mock>=2,<3",
+        "coverage>=4.1,<5",
     ],
     install_requires=[
-        "pycrypto>=2.6",
-        "requests>=2",
+        "cryptography>=2,<3",
+        "requests>=2,<3",
     ],
     entry_points={
         "console_scripts": [

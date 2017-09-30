@@ -15,7 +15,10 @@ import json
 import base64
 import requests
 from requests.adapters import HTTPAdapter
-from Crypto.Cipher import Blowfish
+from cryptography.hazmat.backends import default_backend
+from cryptography.hazmat.primitives.ciphers import Cipher
+from cryptography.hazmat.primitives.ciphers.modes import ECB
+from cryptography.hazmat.primitives.ciphers.algorithms import Blowfish
 
 from .errors import PandoraException
 
@@ -236,6 +239,51 @@ class APITransport(object):
         return self._parse_response(result)
 
 
+class BlowfishCryptor(object):
+    """Low-Level Blowfish Cryptography
+
+    Handles symmetric Blowfish cryptography of raw byte messages with or
+    without padding. Does not handle messages that are encoded in other formats
+    like hex or base64.
+    """
+
+    def __init__(self, key):
+        self.cipher = Cipher(
+            Blowfish(key.encode("ascii")), ECB(), backend=default_backend())
+
+    @staticmethod
+    def _add_padding(data):
+        block_size = Blowfish.block_size
+        pad_size = len(data) % block_size
+        padding = bytes(chr(pad_size) * (block_size - pad_size), "ascii")
+        return data.encode("utf-8") + padding
+
+    @staticmethod
+    def _strip_padding(data):
+        pad_size = int(data[-1])
+        if not data[-pad_size:] == bytes((pad_size,)) * pad_size:
+            raise ValueError('Invalid padding')
+        return data[:-pad_size]
+
+    @staticmethod
+    def _make_bytearray(data):
+        return bytearray(len(data) + (Blowfish.block_size - 1))
+
+    def decrypt(self, data, strip_padding=True):
+        buf = self._make_bytearray(data)
+        dec = self.cipher.decryptor()
+        len_dec = dec.update_into(data, buf)
+        data = bytes(buf[:len_dec]) + dec.finalize()
+        return self._strip_padding(data) if strip_padding else data
+
+    def encrypt(self, data):
+        data = self._add_padding(data)
+        enc = self.cipher.encryptor()
+        buf = self._make_bytearray(data)
+        len_enc = enc.update_into(data, buf)
+        return bytes(buf[:len_enc]) + enc.finalize()
+
+
 class Encryptor(object):
     """Pandora Blowfish Encryptor
 
@@ -244,8 +292,8 @@ class Encryptor(object):
     """
 
     def __init__(self, in_key, out_key):
-        self.bf_out = Blowfish.new(out_key, Blowfish.MODE_ECB)
-        self.bf_in = Blowfish.new(in_key, Blowfish.MODE_ECB)
+        self.bf_out = BlowfishCryptor(out_key)
+        self.bf_in = BlowfishCryptor(in_key)
 
     @staticmethod
     def _decode_hex(data):
@@ -256,22 +304,10 @@ class Encryptor(object):
         return base64.b16encode(data).lower()
 
     def decrypt(self, data):
-        data = self.bf_out.decrypt(self._decode_hex(data))
-        return json.loads(self.strip_padding(data))
+        return json.loads(self.bf_out.decrypt(self._decode_hex(data)))
 
     def decrypt_sync_time(self, data):
-        return int(self.bf_in.decrypt(self._decode_hex(data))[4:-2])
-
-    def add_padding(self, data):
-        block_size = Blowfish.block_size
-        pad_size = len(data) % block_size
-        return data + (chr(pad_size) * (block_size - pad_size))
-
-    def strip_padding(self, data):
-        pad_size = int(data[-1])
-        if not data[-pad_size:] == bytes((pad_size,)) * pad_size:
-            raise ValueError('Invalid padding')
-        return data[:-pad_size]
+        return int(self.bf_in.decrypt(self._decode_hex(data), False)[4:-2])
 
     def encrypt(self, data):
-        return self._encode_hex(self.bf_out.encrypt(self.add_padding(data)))
+        return self._encode_hex(self.bf_out.encrypt(data))
