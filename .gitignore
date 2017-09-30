@@ -1,6 +1,7 @@
 *.pyc
 .coverage/
 .eggs/
+.env/
 .pip/
 .pip2/
 .pip27/
