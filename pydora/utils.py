@@ -2,10 +2,11 @@ from __future__ import print_function
 
 import os
 import sys
-import termios
 import getpass
 import subprocess
 
+if sys.platform != 'win32':
+    import termios
 
 def input(prompt):
     try:
@@ -43,14 +44,15 @@ class Screen(object):
         if not os.isatty(handle):
             return
 
-        attrs = termios.tcgetattr(handle)
+        if sys.platform != 'win32':
+            attrs = termios.tcgetattr(handle)
 
-        if enabled:
-            attrs[3] |= termios.ECHO
-        else:
-            attrs[3] &= ~termios.ECHO
+            if enabled:
+                attrs[3] |= termios.ECHO
+            else:
+                attrs[3] &= ~termios.ECHO
 
-        termios.tcsetattr(handle, termios.TCSANOW, attrs)
+            termios.tcsetattr(handle, termios.TCSANOW, attrs)
 
     @staticmethod
     def clear():
