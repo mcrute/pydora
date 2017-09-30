@@ -18,6 +18,15 @@ except ImportError:
             return self.readfp(fp)
 
 
+# Used in pydora
+def input(prompt):
+    try:
+        return raw_input(prompt)
+    except NameError:
+        import builtins
+        return builtins.input(prompt)
+
+
 # Only used in tests
 try:
     from unittest.mock import Mock, MagicMock, call, patch  # noqa: F401

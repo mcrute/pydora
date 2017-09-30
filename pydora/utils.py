@@ -4,6 +4,7 @@ import os
 import sys
 import getpass
 import subprocess
+from pandora.py2compat import input
 
 try:
     import termios
@@ -12,12 +13,6 @@ except ImportError:
     termios = None
 
 
-def input(prompt):
-    try:
-        return raw_input(prompt)
-    except NameError:
-        import builtins
-        return builtins.input(prompt)
 
 
 class Colors(object):
