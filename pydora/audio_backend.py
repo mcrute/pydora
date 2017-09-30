@@ -3,9 +3,13 @@ import time
 import fcntl
 import select
 import socket
+import logging
 
 from pandora.py2compat import which
 from .utils import iterate_forever, SilentPopen
+
+
+log = logging.getLogger("pydora.audio_backend")
 
 
 class PlayerException(Exception):
@@ -139,6 +143,7 @@ class BasePlayer(object):
         if not getattr(self, "_cmd"):
             raise RuntimeError("Player command is not configured")
 
+        log.debug("Starting playback command: %r", self._cmd)
         self._process = SilentPopen(self._cmd)
         self._post_start()
 
@@ -211,6 +216,7 @@ class MPG123Player(BasePlayer):
         if not loc:
             raise PlayerUnusable("Unable to find mpg123")
 
+        log.info("Using mpg123 at path %s", loc)
         return loc
 
     def _load_track(self, song):
@@ -246,6 +252,7 @@ class VLCPlayer(BasePlayer):
         if not loc:
             raise PlayerUnusable("Unable to find VLC")
 
+        log.info("Using vlc at location %s", loc)
         return loc
 
     def raise_volume(self):
@@ -300,6 +307,7 @@ class RemoteVLC(VLCPlayer):
 
     def _ensure_started(self):
         if not self._control_sock:
+            log.debug("Connecting to remote VLC at %r", self._connect_to)
             self._control_sock = socket.create_connection(self._connect_to)
             self._control_sock.setblocking(False)
 

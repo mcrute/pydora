@@ -10,6 +10,7 @@ from __future__ import print_function
 
 import os
 import sys
+import logging
 import argparse
 from pandora import clientbuilder
 
@@ -253,10 +254,20 @@ class PlayerApp(object):
         parser.add_argument(
             "--vlc-net", dest="vlc_net",
             help="connect to VLC over the network (host:port)")
+        parser.add_argument(
+            "-v", dest="verbose", action="store_true",
+            help="enable verbose logging")
         return parser.parse_args()
 
     def run(self):
-        self.player = self.get_player(self._parse_args().vlc_net)
+        args = self._parse_args()
+
+        if args.verbose:
+            logging.basicConfig(level=logging.DEBUG)
+        else:
+            logging.basicConfig(level=logging.ERROR)
+
+        self.player = self.get_player(args.vlc_net)
         self.player.start()
 
         self.client = self.get_client()
