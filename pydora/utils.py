@@ -2,9 +2,14 @@ from __future__ import print_function
 
 import os
 import sys
-import termios
 import getpass
 import subprocess
+
+try:
+    import termios
+except ImportError:
+    # Windows does not have a termios module
+    termios = None
 
 
 def input(prompt):
@@ -39,6 +44,9 @@ class Screen(object):
 
     @staticmethod
     def set_echo(enabled):
+        if not termios:
+            return
+
         handle = sys.stdin.fileno()
         if not os.isatty(handle):
             return
