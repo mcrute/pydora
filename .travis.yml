@@ -5,6 +5,10 @@ python:
   - "3.4"
   - "3.5"
   - "3.6"
-# Travis versions of these are really outdated
-before_script: pip install -U mock nose pytest
-script: python setup.py validate
+before_script:
+    # Travis versions of these are really outdated
+    - pip install -U mock nose pytest
+    # Install wheel with pip instead of building from source
+    - pip install  cryptography
+script:
+    - python setup.py validate
