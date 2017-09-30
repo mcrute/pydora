@@ -102,13 +102,6 @@ class Screen(object):
                 print(Colors.red("Invalid Input!"))
 
 
-def clear_screen():
-    """Clear the terminal
-    """
-    sys.stdout.write("\x1b[2J\x1b[H")
-    sys.stdout.flush()
-
-
 def iterate_forever(func, *args, **kwargs):
     """Iterate over a finite iterator forever
 
