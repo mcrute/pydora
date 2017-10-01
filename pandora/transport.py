@@ -15,10 +15,6 @@ import json
 import base64
 import requests
 from requests.adapters import HTTPAdapter
-from cryptography.hazmat.backends import default_backend
-from cryptography.hazmat.primitives.ciphers import Cipher
-from cryptography.hazmat.primitives.ciphers.modes import ECB
-from cryptography.hazmat.primitives.ciphers.algorithms import Blowfish
 
 from .errors import PandoraException
 
@@ -245,17 +241,16 @@ class BlowfishCryptor(object):
     Handles symmetric Blowfish cryptography of raw byte messages with or
     without padding. Does not handle messages that are encoded in other formats
     like hex or base64.
+
+    Subclasses implement the cryptography based on different back-end
+    libraries.
     """
 
-    def __init__(self, key):
-        self.cipher = Cipher(
-            Blowfish(key.encode("ascii")), ECB(), backend=default_backend())
+    block_size = 8
 
-    @staticmethod
-    def _add_padding(data):
-        block_size = Blowfish.block_size
-        pad_size = len(data) % block_size
-        padding = (chr(pad_size) * (block_size - pad_size)).encode("ascii")
+    def _add_padding(self, data):
+        pad_size = self.block_size - (len(data) % self.block_size)
+        padding = (chr(pad_size) * pad_size).encode("ascii")
         return data.encode("utf-8") + padding
 
     @staticmethod
@@ -265,9 +260,25 @@ class BlowfishCryptor(object):
             raise ValueError('Invalid padding')
         return data[:-pad_size]
 
-    @staticmethod
-    def _make_bytearray(data):
-        return bytearray(len(data) + (Blowfish.block_size - 1))
+
+class CryptographyBlowfish(BlowfishCryptor):
+    """Cryptography Blowfish Cryptor
+
+    Uses the python cryptography library which wraps OpenSSL. Compatible with
+    both Python 2 and 3 but requires a native dependency.
+    """
+
+    def __init__(self, key):
+        from cryptography.hazmat.backends import default_backend
+        from cryptography.hazmat.primitives.ciphers import Cipher
+        from cryptography.hazmat.primitives.ciphers.modes import ECB
+        from cryptography.hazmat.primitives.ciphers.algorithms import Blowfish
+
+        self.cipher = Cipher(
+            Blowfish(key.encode("ascii")), ECB(), backend=default_backend())
+
+    def _make_bytearray(self, data):
+        return bytearray(len(data) + (self.block_size - 1))
 
     def decrypt(self, data, strip_padding=True):
         buf = self._make_bytearray(data)
@@ -284,6 +295,24 @@ class BlowfishCryptor(object):
         return bytes(buf[:len_enc]) + enc.finalize()
 
 
+class PurePythonBlowfish(BlowfishCryptor):
+    """Pure Python 3 Blowfish Cryptor
+
+    Uses the pure python blowfish library but is only compatible with Python 3.
+    """
+
+    def __init__(self, key):
+        import blowfish
+        self.cipher = blowfish.Cipher(key.encode("ascii"))
+
+    def decrypt(self, data, strip_padding=True):
+        data = b"".join(self.cipher.decrypt_ecb(data))
+        return self._strip_padding(data) if strip_padding else data
+
+    def encrypt(self, data):
+        return b"".join(self.cipher.encrypt_ecb(self._add_padding(data)))
+
+
 class Encryptor(object):
     """Pandora Blowfish Encryptor
 
@@ -292,8 +321,8 @@ class Encryptor(object):
     """
 
     def __init__(self, in_key, out_key):
-        self.bf_out = BlowfishCryptor(out_key)
-        self.bf_in = BlowfishCryptor(in_key)
+        self.bf_out = CryptographyBlowfish(out_key)
+        self.bf_in = CryptographyBlowfish(in_key)
 
     @staticmethod
     def _decode_hex(data):
