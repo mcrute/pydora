@@ -18,6 +18,11 @@ from requests.adapters import HTTPAdapter
 
 from .errors import PandoraException
 
+try:
+    import blowfish
+except ImportError:
+    blowfish = None
+
 
 DEFAULT_API_HOST = "tuner.pandora.com/services/json/"
 
@@ -302,7 +307,6 @@ class PurePythonBlowfish(BlowfishCryptor):
     """
 
     def __init__(self, key):
-        import blowfish
         self.cipher = blowfish.Cipher(key.encode("ascii"))
 
     def decrypt(self, data, strip_padding=True):
@@ -314,11 +318,7 @@ class PurePythonBlowfish(BlowfishCryptor):
 
 
 # Python 3 users can use pure-python mode, if possible prefer that as default
-try:
-    import blowfish
-    default_crypto_class = PurePythonBlowfish
-except ImportError:
-    default_crypto_class = CryptographyBlowfish
+_default_crypto = PurePythonBlowfish if blowfish else CryptographyBlowfish
 
 
 class Encryptor(object):
@@ -328,7 +328,7 @@ class Encryptor(object):
     API request and response. It handles the formats that the API expects.
     """
 
-    def __init__(self, in_key, out_key, crypto_class=default_crypto_class):
+    def __init__(self, in_key, out_key, crypto_class=_default_crypto):
         self.bf_out = crypto_class(out_key)
         self.bf_in = crypto_class(in_key)
 
