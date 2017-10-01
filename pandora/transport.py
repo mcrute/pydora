@@ -320,9 +320,9 @@ class Encryptor(object):
     API request and response. It handles the formats that the API expects.
     """
 
-    def __init__(self, in_key, out_key):
-        self.bf_out = CryptographyBlowfish(out_key)
-        self.bf_in = CryptographyBlowfish(in_key)
+    def __init__(self, in_key, out_key, crypto_class=CryptographyBlowfish):
+        self.bf_out = crypto_class(out_key)
+        self.bf_in = crypto_class(in_key)
 
     @staticmethod
     def _decode_hex(data):
