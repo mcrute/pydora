@@ -1,5 +1,6 @@
 #!/usr/bin/env python
 
+import sys
 import itertools
 from setuptools.command.test import test
 from setuptools import setup, find_packages
@@ -38,6 +39,27 @@ class TestsWithCoverage(test, object):
         cov.html_report()
 
 
+requires = {
+    "setup_requires": [
+        "wheel",
+        "flake8>=3.3",
+    ],
+    "tests_require": [
+        "mock>=2,<3",
+        "coverage>=4.1,<5",
+    ],
+    "install_requires": [
+        "requests>=2,<3",
+    ],
+}
+
+
+if sys.version_info.major == 3 and sys.version_info.minor >= 4:
+    requires["install_requires"].append("blowfish>=0.6.1,<1.0")
+else:
+    requires["install_requires"].append("cryptography>=2,<3")
+
+
 setup(
     name="pydora",
     version="1.10.0",
@@ -51,19 +73,6 @@ setup(
     cmdclass={
         "test": TestsWithCoverage,
     },
-    setup_requires=[
-        "wheel",
-        "flake8>=3.3",
-    ],
-    tests_require=[
-        "mock>=2,<3",
-        "coverage>=4.1,<5",
-    ],
-    install_requires=[
-        'cryptography>=2,<3;python_version<"3.4"',
-        'blowfish<1.0;python_version>="3.4"',
-        "requests>=2,<3",
-    ],
     entry_points={
         "console_scripts": [
             "pydora = pydora.player:main",
@@ -84,5 +93,6 @@ setup(
         "Programming Language :: Python :: 3.6",
         "Topic :: Internet :: WWW/HTTP",
         "Topic :: Multimedia :: Sound/Audio :: Players",
-    ]
+    ],
+    **requires
 )
