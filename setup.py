@@ -60,7 +60,8 @@ setup(
         "coverage>=4.1,<5",
     ],
     install_requires=[
-        "cryptography>=2,<3",
+        'cryptography>=2,<3;python_version<"3.4"',
+        'blowfish<1.0;python_version>="3.4"',
         "requests>=2,<3",
     ],
     entry_points={

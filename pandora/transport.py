@@ -313,6 +313,14 @@ class PurePythonBlowfish(BlowfishCryptor):
         return b"".join(self.cipher.encrypt_ecb(self._add_padding(data)))
 
 
+# Python 3 users can use pure-python mode, if possible prefer that as default
+try:
+    import blowfish
+    default_crypto_class = PurePythonBlowfish
+except ImportError:
+    default_crypto_class = CryptographyBlowfish
+
+
 class Encryptor(object):
     """Pandora Blowfish Encryptor
 
@@ -320,7 +328,7 @@ class Encryptor(object):
     API request and response. It handles the formats that the API expects.
     """
 
-    def __init__(self, in_key, out_key, crypto_class=CryptographyBlowfish):
+    def __init__(self, in_key, out_key, crypto_class=default_crypto_class):
         self.bf_out = crypto_class(out_key)
         self.bf_in = crypto_class(in_key)
 
