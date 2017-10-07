@@ -1,11 +1,14 @@
 from unittest import TestCase
 from datetime import datetime
 from pandora.py2compat import Mock, patch
-from pandora import APIClient
-from pandora.models.pandora import AdItem, PlaylistModel, SearchResultItem, SearchResult
+
+from pandora.client import APIClient
 from pandora.errors import ParameterMissing
+from pandora.models.pandora import SearchResult
+from pandora.models.pandora import AdItem, PlaylistModel, SearchResultItem
 
 import pandora.models as m
+
 
 class TestField(TestCase):
 

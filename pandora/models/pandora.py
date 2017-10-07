@@ -1,6 +1,6 @@
-from .. import BaseAPIClient
-from . import Field, PandoraModel, PandoraListModel, PandoraDictListModel
+from ..client import BaseAPIClient
 from ..errors import ParameterMissing
+from . import Field, PandoraModel, PandoraListModel, PandoraDictListModel
 
 
 class Station(PandoraModel):

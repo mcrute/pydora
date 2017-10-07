@@ -7,7 +7,8 @@ configuration formats into a fully built APIClient.
 import os.path
 
 from .py2compat import ConfigParser
-from . import Encryptor, APITransport, DEFAULT_API_HOST, APIClient
+from .client import APIClient
+from .transport import Encryptor, APITransport, DEFAULT_API_HOST
 
 
 class TranslatingDict(dict):

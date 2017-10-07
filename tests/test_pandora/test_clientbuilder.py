@@ -3,7 +3,8 @@ from unittest import TestCase
 
 import pandora.clientbuilder as cb
 from pandora.py2compat import Mock
-from pandora import APIClient, DEFAULT_API_HOST
+from pandora.client import APIClient
+from pandora.transport import DEFAULT_API_HOST
 
 
 class TestTranslatingDict(TestCase):
