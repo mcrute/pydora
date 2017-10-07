@@ -29,7 +29,7 @@ def deprecated(in_version, remove_version, message):
         @wraps(wrapped)
         def inner_wrapper(self, *args, **kwargs):
             warn_deprecated(
-                in_version, remove_version, wrapped.func_name, message)
+                in_version, remove_version, wrapped.__name__, message)
             return wrapped(self, *args, **kwargs)
         return inner_wrapper
     return wrapper
