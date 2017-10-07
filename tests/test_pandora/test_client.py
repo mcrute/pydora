@@ -65,13 +65,12 @@ class TestCallingAPIClient(TestCase):
         transport.assert_has_calls([call("method"), call("method")])
 
     def test_playlist_fetches_ads(self):
-        fake_playlist = { "items": [
-            { "songName": "test" },
-            { "adToken": "foo" },
-            { "songName": "test" },
+        fake_playlist = {"items": [
+            {"songName": "test"},
+            {"adToken": "foo"},
+            {"songName": "test"},
         ]}
-        with patch.object(
-            APIClient, '__call__', return_value=fake_playlist) as mock:
+        with patch.object(APIClient, '__call__', return_value=fake_playlist):
             client = APIClient(Mock(), None, None, None, None)
             client._authenticate = Mock()
 
@@ -88,10 +87,10 @@ class TestCallingAPIClient(TestCase):
             client.get_playlist('token_mock')
 
             playlist_mock.assert_has_calls([call("station.getPlaylist",
-                                             audioAdPodCapable=True,
-                                             includeTrackLength=True,
-                                             stationToken='token_mock',
-                                             xplatformAdCapable=True)])
+                                                 audioAdPodCapable=True,
+                                                 includeTrackLength=True,
+                                                 stationToken='token_mock',
+                                                 xplatformAdCapable=True)])
 
 
 class TestGettingQualities(TestCase):
@@ -118,8 +117,10 @@ class TestGettingQualities(TestCase):
 class TestGettingAds(TestCase):
 
     def test_get_ad_item_(self):
-        with patch.object(APIClient, '__call__',
-                return_value=TestAdItem.JSON_DATA) as ad_metadata_mock:
+        metamock = patch.object(
+            APIClient, '__call__', return_value=TestAdItem.JSON_DATA)
+
+        with metamock as ad_metadata_mock:
             transport = Mock(side_effect=[errors.InvalidAuthToken(), None])
 
             client = APIClient(transport, None, None, None, None)
@@ -129,10 +130,9 @@ class TestGettingAds(TestCase):
             assert ad_item.station_id == 'id_mock'
             assert ad_item.ad_token == 'token_mock'
 
-            ad_metadata_mock.assert_has_calls([call("ad.getAdMetadata",
-                                                    adToken='token_mock',
-                                                    returnAdTrackingTokens=True,
-                                                    supportAudioAds=True)])
+            ad_metadata_mock.assert_has_calls([
+                call("ad.getAdMetadata", adToken='token_mock',
+                     returnAdTrackingTokens=True, supportAudioAds=True)])
 
     def test_get_ad_item_with_no_station_id_specified_raises_exception(self):
         transport = Mock(side_effect=[errors.InvalidAuthToken(), None])
@@ -175,7 +175,7 @@ class TestCreatingGenreStation(TestCase):
     def test_has_initial_checksum(self):
         fake_data = {
             "categories": [
-                { "categoryName": "foo", "stations": [] },
+                {"categoryName": "foo", "stations": []},
             ],
 
             # Not actually part of the genre station response but is needed to

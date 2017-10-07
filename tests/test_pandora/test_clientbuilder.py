@@ -11,8 +11,8 @@ class TestTranslatingDict(TestCase):
 
     class TestDict(cb.TranslatingDict):
 
-        KEY_TRANSLATIONS = { "FOO": "BAR" }
-        VALUE_TRANSLATIONS = { "BAZ": lambda v: v + 1 }
+        KEY_TRANSLATIONS = {"FOO": "BAR"}
+        VALUE_TRANSLATIONS = {"BAZ": lambda v: v + 1}
         callback_value = None
 
         def was_translated(self, from_key, to_key):
@@ -22,7 +22,7 @@ class TestTranslatingDict(TestCase):
         self.dct = self.TestDict()
 
     def test_construction_with_dict(self):
-        dct = self.TestDict({ "BIZ": 1, "BUZ": 2 })
+        dct = self.TestDict({"BIZ": 1, "BUZ": 2})
 
         self.assertEqual(1, dct["BIZ"])
         self.assertEqual(2, dct["BUZ"])
@@ -42,7 +42,7 @@ class TestTranslatingDict(TestCase):
         self.assertEqual(True, self.dct["BAR"])
 
     def test_value_translation(self):
-        dct = self.TestDict({ " Baz": 41 })
+        dct = self.TestDict({" Baz": 41})
 
         self.assertEqual(42, dct["BAZ"])
 
@@ -96,8 +96,8 @@ class TestSettingsDictBuilder(TestCase):
 
         self.assertEqual({}, client.transport._http.proxies)
         self.assertEqual(DEFAULT_API_HOST, client.transport.api_host)
-        self.assertEqual(APIClient.MED_AUDIO_QUALITY,
-                client.default_audio_quality)
+        self.assertEqual(
+            APIClient.MED_AUDIO_QUALITY, client.default_audio_quality)
 
     def test_validate_client(self):
         client = TestSettingsDictBuilder._build_maximal()
@@ -125,7 +125,7 @@ class TestFileBasedBuilder(TestCase):
         DEFAULT_CONFIG_FILE = "foo"
 
         def parse_config(self):
-            return { "USER": { "USERNAME": "U", "PASSWORD": "P" }}
+            return {"USER": {"USERNAME": "U", "PASSWORD": "P"}}
 
         def build_from_settings_dict(self, config):
             mock = Mock()

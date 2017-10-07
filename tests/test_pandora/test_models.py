@@ -37,7 +37,7 @@ class TestModelMetaClass(TestCase):
 
 class TestPandoraModel(TestCase):
 
-    JSON_DATA = { "field2": ["test2"], "field3": 41 }
+    JSON_DATA = {"field2": ["test2"], "field3": 41}
 
     class TestModel(m.PandoraModel):
 
@@ -57,7 +57,7 @@ class TestPandoraModel(TestCase):
 
     def test_json_to_date(self):
         expected = datetime(2015, 7, 18, 3, 8, 17)
-        result = m.PandoraModel.json_to_date(None, { "time": 1437188897616 })
+        result = m.PandoraModel.json_to_date(None, {"time": 1437188897616})
         # Python2.7 doesn't restore microseconds and we don't care about
         # it anyhow so just remove it for this test
         self.assertEqual(expected, result.replace(microsecond=0))
@@ -113,8 +113,8 @@ class TestPandoraListModel(TestCase):
     JSON_DATA = {
             "field1": 42,
             "field2": [
-                { "idx": "foo", "fieldS1": "Foo" },
-                { "idx": "bar", "fieldS1": "Bar" },
+                {"idx": "foo", "fieldS1": "Foo"},
+                {"idx": "bar", "fieldS1": "Bar"},
                 ]
             }
 
@@ -166,11 +166,12 @@ class TestPandoraDictListModel(TestCase):
     JSON_DATA = {
             "field1": 42,
             "fieldD1": [
-                { "dictKey": "Foobear",
-                  "listKey": [
-                      { "idx": "foo", "fieldS1": "Foo" },
-                      { "idx": "bar", "fieldS1": "Bar" },
-                  ]
+                {
+                    "dictKey": "Foobear",
+                    "listKey": [
+                        {"idx": "foo", "fieldS1": "Foo"},
+                        {"idx": "bar", "fieldS1": "Bar"},
+                    ]
                 }
             ]
         }
@@ -205,11 +206,8 @@ class TestPandoraDictListModel(TestCase):
 
 class TestPlaylistItemModel(TestCase):
 
-    AUDIO_URL_NO_MAP = { "audioUrl": "foo" }
-    WEIRD_FORMAT = { "audioUrlMap": {
-        "highQuality": {
-        }
-    }}
+    AUDIO_URL_NO_MAP = {"audioUrl": "foo"}
+    WEIRD_FORMAT = {"audioUrlMap": {"highQuality": {}}}
 
     def test_audio_url_without_map(self):
         item = pm.PlaylistItem.from_json(Mock(), self.AUDIO_URL_NO_MAP)
@@ -248,19 +246,30 @@ class TestAdItem(TestCase):
     JSON_DATA = {
         'audioUrlMap': {
             'mediumQuality': {
-                'audioUrl': 'med_url_mock', 'bitrate': '64', 'protocol': 'http', 'encoding': 'aacplus'
+                'audioUrl': 'med_url_mock',
+                'bitrate': '64',
+                'protocol': 'http',
+                'encoding': 'aacplus'
             },
             'highQuality': {
-                'audioUrl': 'high_url_mock', 'bitrate': '64', 'protocol': 'http', 'encoding': 'aacplus'
+                'audioUrl': 'high_url_mock',
+                'bitrate': '64',
+                'protocol': 'http',
+                'encoding': 'aacplus'
             },
             'lowQuality': {
-                'audioUrl': 'low_url_mock', 'bitrate': '32', 'protocol': 'http', 'encoding': 'aacplus'}},
-            'clickThroughUrl': 'click_url_mock',
-            'imageUrl': 'img_url_mock',
-            'companyName': '',
-            'title': '',
-            'trackGain': '0.0',
-            'adTrackingTokens': ['token_1_mock', 'token_2_mock']
+                'audioUrl': 'low_url_mock',
+                'bitrate': '32',
+                'protocol': 'http',
+                'encoding': 'aacplus'
+            }
+        },
+        'clickThroughUrl': 'click_url_mock',
+        'imageUrl': 'img_url_mock',
+        'companyName': '',
+        'title': '',
+        'trackGain': '0.0',
+        'adTrackingTokens': ['token_1_mock', 'token_2_mock']
     }
 
     def setUp(self):
@@ -279,7 +288,7 @@ class TestAdItem(TestCase):
 
         assert self.result._api_client.register_ad.called
 
-    def test_register_ad_raises_exception_if_no_tracking_tokens_available(self):
+    def test_register_ad_raises_if_no_tracking_tokens_available(self):
         with self.assertRaises(ParameterMissing):
             self.result.tracking_tokens = []
             self.result._api_client.register_ad = Mock(spec=pm.AdItem)
@@ -299,8 +308,8 @@ class TestAdItem(TestCase):
     def test_prepare_playback_raises_paramater_missing(self):
         with patch.object(pm.PlaylistModel, 'prepare_playback') as super_mock:
 
-            self.result.register_ad = Mock(side_effect=ParameterMissing('No ad tracking tokens provided for '
-                                                                        'registration.')
+            self.result.register_ad = Mock(side_effect=ParameterMissing(
+                'No ad tracking tokens provided for registration.')
                                            )
             self.assertRaises(ParameterMissing, self.result.prepare_playback)
             assert self.result.register_ad.called
@@ -310,8 +319,8 @@ class TestAdItem(TestCase):
         with patch.object(pm.PlaylistModel, 'prepare_playback') as super_mock:
 
             self.result.tracking_tokens = []
-            self.result.register_ad = Mock(side_effect=ParameterMissing('No ad tracking tokens provided for '
-                                                                        'registration.'))
+            self.result.register_ad = Mock(side_effect=ParameterMissing(
+                'No ad tracking tokens provided for registration.'))
             self.result.prepare_playback()
             assert self.result.register_ad.called
             assert super_mock.called
@@ -354,7 +363,8 @@ class TestSearchResultItem(TestCase):
 
     def setUp(self):
         self.api_client_mock = Mock(spec=APIClient)
-        self.api_client_mock.default_audio_quality = APIClient.HIGH_AUDIO_QUALITY
+        self.api_client_mock.default_audio_quality = \
+            APIClient.HIGH_AUDIO_QUALITY
 
     def test_is_song(self):
         result = pm.SearchResultItem.from_json(
@@ -412,17 +422,22 @@ class TestArtistSearchResultItem(TestCase):
 
     def setUp(self):
         self.api_client_mock = Mock(spec=APIClient)
-        self.api_client_mock.default_audio_quality = APIClient.HIGH_AUDIO_QUALITY
+        self.api_client_mock.default_audio_quality = \
+            APIClient.HIGH_AUDIO_QUALITY
 
     def test_repr(self):
         result = pm.SearchResultItem.from_json(
             self.api_client_mock, self.ARTIST_JSON_DATA)
-        expected = ("ArtistSearchResultItem(artist='artist_name_mock', likely_match=False, score=100, token='R0000000')")
+        expected = (
+            "ArtistSearchResultItem(artist='artist_name_mock', "
+            "likely_match=False, score=100, token='R0000000')")
         self.assertEqual(expected, repr(result))
 
         result = pm.SearchResultItem.from_json(
             self.api_client_mock, self.COMPOSER_JSON_DATA)
-        expected = ("ArtistSearchResultItem(artist='composer_name_mock', likely_match=False, score=100, token='C0000000')")
+        expected = (
+            "ArtistSearchResultItem(artist='composer_name_mock', "
+            "likely_match=False, score=100, token='C0000000')")
         self.assertEqual(expected, repr(result))
 
     def test_create_station(self):
@@ -431,7 +446,8 @@ class TestArtistSearchResultItem(TestCase):
         result._api_client.create_station = Mock()
 
         result.create_station()
-        result._api_client.create_station.assert_called_with(artist_token=result.token)
+        result._api_client.create_station.assert_called_with(
+            artist_token=result.token)
 
 
 class TestSongSearchResultItem(TestCase):
@@ -445,12 +461,15 @@ class TestSongSearchResultItem(TestCase):
 
     def setUp(self):
         self.api_client_mock = Mock(spec=APIClient)
-        self.api_client_mock.default_audio_quality = APIClient.HIGH_AUDIO_QUALITY
+        self.api_client_mock.default_audio_quality = \
+            APIClient.HIGH_AUDIO_QUALITY
 
     def test_repr(self):
         result = pm.SearchResultItem.from_json(
             self.api_client_mock, self.SONG_JSON_DATA)
-        expected = ("SongSearchResultItem(artist='artist_name_mock', score=100, song_name='song_name_mock', token='S0000000')")
+        expected = (
+            "SongSearchResultItem(artist='artist_name_mock', score=100, "
+            "song_name='song_name_mock', token='S0000000')")
         self.assertEqual(expected, repr(result))
 
     def test_create_station(self):
@@ -459,7 +478,8 @@ class TestSongSearchResultItem(TestCase):
         result._api_client.create_station = Mock()
 
         result.create_station()
-        result._api_client.create_station.assert_called_with(track_token=result.token)
+        result._api_client.create_station.assert_called_with(
+            track_token=result.token)
 
 
 class TestGenreStationSearchResultItem(TestCase):
@@ -472,12 +492,15 @@ class TestGenreStationSearchResultItem(TestCase):
 
     def setUp(self):
         self.api_client_mock = Mock(spec=APIClient)
-        self.api_client_mock.default_audio_quality = APIClient.HIGH_AUDIO_QUALITY
+        self.api_client_mock.default_audio_quality = \
+            APIClient.HIGH_AUDIO_QUALITY
 
     def test_repr(self):
         result = pm.SearchResultItem.from_json(
             self.api_client_mock, self.GENRE_JSON_DATA)
-        expected = ("GenreStationSearchResultItem(score=100, station_name='station_name_mock', token='G0000000')")
+        expected = (
+            "GenreStationSearchResultItem(score=100, "
+            "station_name='station_name_mock', token='G0000000')")
         self.assertEqual(expected, repr(result))
 
     def test_create_station(self):
@@ -486,7 +509,8 @@ class TestGenreStationSearchResultItem(TestCase):
         result._api_client.create_station = Mock()
 
         result.create_station()
-        result._api_client.create_station.assert_called_with(search_token=result.token)
+        result._api_client.create_station.assert_called_with(
+            search_token=result.token)
 
 
 class TestSearchResult(TestCase):
@@ -516,14 +540,20 @@ class TestSearchResult(TestCase):
     def setUp(self):
         api_client_mock = Mock(spec=APIClient)
         api_client_mock.default_audio_quality = APIClient.HIGH_AUDIO_QUALITY
-        self.result = pm.SearchResult.from_json(api_client_mock, self.JSON_DATA)
+        self.result = pm.SearchResult.from_json(
+            api_client_mock, self.JSON_DATA)
 
     def test_repr(self):
-        expected = ("SearchResult(artists=[ArtistSearchResultItem(artist='artist_mock', likely_match=False, score=80, "
-                    "token='R000000')], explanation='', genre_stations=[GenreStationSearchResultItem(score=50, "
-                    "station_name='station_mock', token='G0000')], nearest_matches_available=True, "
-                    "songs=[SongSearchResultItem(artist='song_artist_mock', score=100, song_name='song_name_mock', "
-                    "token='S0000000')])")
+        expected = (
+            "SearchResult(artists=[ArtistSearchResultItem("
+            "artist='artist_mock', likely_match=False, score=80, "
+            "token='R000000')], explanation='', genre_stations=["
+            "GenreStationSearchResultItem(score=50, "
+            "station_name='station_mock', token='G0000')], "
+            "nearest_matches_available=True, "
+            "songs=[SongSearchResultItem(artist='song_artist_mock', "
+            "score=100, song_name='song_name_mock', "
+            "token='S0000000')])")
         self.assertEqual(expected, repr(self.result))
 
 
@@ -532,7 +562,7 @@ class TestGenreStationList(TestCase):
     TEST_DATA = {
         "checksum": "bar",
         "categories": [
-            { "categoryName": "foo", "stations": [] },
+            {"categoryName": "foo", "stations": []},
         ]
     }
 
@@ -561,8 +591,8 @@ class TestStationList(TestCase):
 
 class TestBookmark(TestCase):
 
-    SONG_BOOKMARK = { "songName": "foo", "bookmarkToken": "token" }
-    ARTIST_BOOKMARK = { "artistName": "foo", "bookmarkToken": "token" }
+    SONG_BOOKMARK = {"songName": "foo", "bookmarkToken": "token"}
+    ARTIST_BOOKMARK = {"artistName": "foo", "bookmarkToken": "token"}
 
     def setUp(self):
         self.client = Mock()

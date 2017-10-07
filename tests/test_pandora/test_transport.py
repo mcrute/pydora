@@ -164,7 +164,7 @@ class TestParseResponse(TestCase):
 
     def test_with_valid_response(self):
         res = self.transport._parse_response(self.VALID_MSG_JSON)
-        self.assertEqual({ "foo": "bar" }, res)
+        self.assertEqual({"foo": "bar"}, res)
 
     def test_with_valid_response_no_body(self):
         res = self.transport._parse_response(self.VALID_MSG_NO_BODY_JSON)
@@ -208,9 +208,9 @@ class TestTransportRequestPrep(TestCase):
 
         self.transport._http = http
         res = self.transport._make_http_request(
-            "/url", b"data", { "a":None, "b":"c" })
+            "/url", b"data", {"a": None, "b": "c"})
 
-        http.post.assert_called_with("/url", data=b"data", params={"b":"c"})
+        http.post.assert_called_with("/url", data=b"data", params={"b": "c"})
         retval.raise_for_status.assert_called_with()
 
         self.assertEqual("foo", res)
@@ -223,7 +223,7 @@ class TestTransportRequestPrep(TestCase):
         self.transport.start_time = 23
 
         with patch.object(time, "time", return_value=20):
-            val = self.transport._build_data("foo", {"a":"b", "c":None})
+            val = self.transport._build_data("foo", {"a": "b", "c": None})
 
         val = json.loads(val)
         self.assertEqual("b", val["a"])
@@ -238,7 +238,7 @@ class TestTransportRequestPrep(TestCase):
 
         with patch.object(time, "time", return_value=20):
             val = self.transport._build_data(
-                t.APITransport.NO_ENCRYPT[0], {"a":"b", "c":None})
+                t.APITransport.NO_ENCRYPT[0], {"a": "b", "c": None})
 
         val = json.loads(val)
         self.assertEqual("b", val["a"])
@@ -324,7 +324,7 @@ class TestEncryptor(TestCase):
 
     def test_decrypt(self):
         self.assertEqual(
-            { "foo": "bar" }, self.cryptor.decrypt(self.ENCODED_JSON))
+            {"foo": "bar"}, self.cryptor.decrypt(self.ENCODED_JSON))
 
     def test_encrypt(self):
         self.assertEqual(
