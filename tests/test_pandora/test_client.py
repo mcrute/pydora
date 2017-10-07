@@ -1,6 +1,7 @@
 from unittest import TestCase
 
 from pandora import errors
+from pandora.models.pandora import AdItem
 from pandora.client import APIClient, BaseAPIClient
 from pandora.py2compat import Mock, call, patch
 from tests.test_pandora.test_models import TestAdItem
@@ -62,6 +63,20 @@ class TestCallingAPIClient(TestCase):
 
         client._authenticate.assert_called_with()
         transport.assert_has_calls([call("method"), call("method")])
+
+    def test_playlist_fetches_ads(self):
+        fake_playlist = { "items": [
+            { "songName": "test" },
+            { "adToken": "foo" },
+            { "songName": "test" },
+        ]}
+        with patch.object(
+            APIClient, '__call__', return_value=fake_playlist) as mock:
+            client = APIClient(Mock(), None, None, None, None)
+            client._authenticate = Mock()
+
+            items = client.get_playlist('token_mock')
+            self.assertIsInstance(items[1], AdItem)
 
     def test_ad_support_enabled_parameters(self):
         with patch.object(APIClient, '__call__') as playlist_mock:
@@ -127,3 +142,47 @@ class TestGettingAds(TestCase):
 
         self.assertRaises(
                 errors.ParameterMissing, client.get_ad_item, '', 'token_mock')
+
+
+class TestCreatingStation(TestCase):
+
+    def test_using_search_token(self):
+        client = APIClient(Mock(), None, None, None, None)
+        client.create_station(search_token="foo")
+        client.transport.assert_called_with(
+            "station.createStation", musicToken="foo")
+
+    def test_using_artist_token(self):
+        client = APIClient(Mock(), None, None, None, None)
+        client.create_station(artist_token="foo")
+        client.transport.assert_called_with(
+            "station.createStation", trackToken="foo", musicType="artist")
+
+    def test_using_track_token(self):
+        client = APIClient(Mock(), None, None, None, None)
+        client.create_station(track_token="foo")
+        client.transport.assert_called_with(
+            "station.createStation", trackToken="foo", musicType="song")
+
+    def test_with_no_token(self):
+        with self.assertRaises(KeyError):
+            client = APIClient(Mock(), None, None, None, None)
+            client.create_station()
+
+
+class TestCreatingGenreStation(TestCase):
+
+    def test_has_initial_checksum(self):
+        fake_data = {
+            "categories": [
+                { "categoryName": "foo", "stations": [] },
+            ],
+
+            # Not actually part of the genre station response but is needed to
+            # fake out the mock for get_genre_stations_checksum
+            "checksum": "foo"
+        }
+        with patch.object(APIClient, '__call__', return_value=fake_data):
+            client = APIClient(Mock(), None, None, None, None)
+            station = client.get_genre_stations()
+            self.assertEqual(station.checksum, "foo")

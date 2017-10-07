@@ -4,10 +4,9 @@ from pandora.py2compat import Mock, patch
 
 from pandora.client import APIClient
 from pandora.errors import ParameterMissing
-from pandora.models.pandora import SearchResult
-from pandora.models.pandora import AdItem, PlaylistModel, SearchResultItem
 
 import pandora.models as m
+import pandora.models.pandora as pm
 
 
 class TestField(TestCase):
@@ -204,6 +203,46 @@ class TestPandoraDictListModel(TestCase):
         self.assertEqual(expected, repr(self.result))
 
 
+class TestPlaylistItemModel(TestCase):
+
+    AUDIO_URL_NO_MAP = { "audioUrl": "foo" }
+    WEIRD_FORMAT = { "audioUrlMap": {
+        "highQuality": {
+        }
+    }}
+
+    def test_audio_url_without_map(self):
+        item = pm.PlaylistItem.from_json(Mock(), self.AUDIO_URL_NO_MAP)
+        self.assertEqual(item.bitrate, 64)
+        self.assertEqual(item.encoding, "aacplus")
+        self.assertEqual(item.audio_url, "foo")
+
+    # I don't think this case makes a lot of sense because you should always
+    # return None if you make it all the way through the loop without finding a
+    # valid url... but I didn't add the original code so just going to test it
+    # and leave it alone for now ~mcrute
+    def test_empty_quality_map_url_is_map(self):
+        item = pm.PlaylistItem.from_json(Mock(), self.WEIRD_FORMAT)
+        self.assertIsNone(item.bitrate)
+        self.assertIsNone(item.encoding)
+        self.assertIsNone(item.audio_url)
+
+
+class TestPlaylistModel(TestCase):
+
+    def test_unplayable_get_is_playable(self):
+        playlist = pm.PlaylistModel(Mock())
+        playlist.audio_url = ""
+        self.assertFalse(playlist.get_is_playable())
+
+    def test_playable_get_is_playable(self):
+        client = Mock()
+        playlist = pm.PlaylistModel(client)
+        playlist.audio_url = "foo"
+        playlist.get_is_playable()
+        client.transport.test_url.assert_called_with("foo")
+
+
 class TestAdItem(TestCase):
 
     JSON_DATA = {
@@ -227,7 +266,7 @@ class TestAdItem(TestCase):
     def setUp(self):
         api_client_mock = Mock(spec=APIClient)
         api_client_mock.default_audio_quality = APIClient.HIGH_AUDIO_QUALITY
-        self.result = AdItem.from_json(api_client_mock, self.JSON_DATA)
+        self.result = pm.AdItem.from_json(api_client_mock, self.JSON_DATA)
         self.result.station_id = 'station_id_mock'
         self.result.ad_token = 'token_mock'
 
@@ -243,14 +282,14 @@ class TestAdItem(TestCase):
     def test_register_ad_raises_exception_if_no_tracking_tokens_available(self):
         with self.assertRaises(ParameterMissing):
             self.result.tracking_tokens = []
-            self.result._api_client.register_ad = Mock(spec=AdItem)
+            self.result._api_client.register_ad = Mock(spec=pm.AdItem)
 
             self.result.register_ad('id_mock')
 
             assert self.result._api_client.register_ad.called
 
     def test_prepare_playback(self):
-        with patch.object(PlaylistModel, 'prepare_playback') as super_mock:
+        with patch.object(pm.PlaylistModel, 'prepare_playback') as super_mock:
 
             self.result.register_ad = Mock()
             self.result.prepare_playback()
@@ -258,7 +297,7 @@ class TestAdItem(TestCase):
             assert super_mock.called
 
     def test_prepare_playback_raises_paramater_missing(self):
-        with patch.object(PlaylistModel, 'prepare_playback') as super_mock:
+        with patch.object(pm.PlaylistModel, 'prepare_playback') as super_mock:
 
             self.result.register_ad = Mock(side_effect=ParameterMissing('No ad tracking tokens provided for '
                                                                         'registration.')
@@ -268,7 +307,7 @@ class TestAdItem(TestCase):
             assert not super_mock.called
 
     def test_prepare_playback_handles_paramater_missing_if_no_tokens(self):
-        with patch.object(PlaylistModel, 'prepare_playback') as super_mock:
+        with patch.object(pm.PlaylistModel, 'prepare_playback') as super_mock:
 
             self.result.tracking_tokens = []
             self.result.register_ad = Mock(side_effect=ParameterMissing('No ad tracking tokens provided for '
@@ -307,37 +346,52 @@ class TestSearchResultItem(TestCase):
         "score": 100
     }
 
+    UNKNOWN_JSON_DATA = {
+        "stationName": "unknown_name_mock",
+        "musicToken": "U0000000",
+        "score": 100
+    }
+
     def setUp(self):
         self.api_client_mock = Mock(spec=APIClient)
         self.api_client_mock.default_audio_quality = APIClient.HIGH_AUDIO_QUALITY
 
     def test_is_song(self):
-        result = SearchResultItem.from_json(self.api_client_mock, self.SONG_JSON_DATA)
+        result = pm.SearchResultItem.from_json(
+            self.api_client_mock, self.SONG_JSON_DATA)
         assert result.is_song
         assert not result.is_artist
         assert not result.is_composer
         assert not result.is_genre_station
 
     def test_is_artist(self):
-        result = SearchResultItem.from_json(self.api_client_mock, self.ARTIST_JSON_DATA)
+        result = pm.SearchResultItem.from_json(
+            self.api_client_mock, self.ARTIST_JSON_DATA)
         assert not result.is_song
         assert result.is_artist
         assert not result.is_composer
         assert not result.is_genre_station
 
     def test_is_composer(self):
-        result = SearchResultItem.from_json(self.api_client_mock, self.COMPOSER_JSON_DATA)
+        result = pm.SearchResultItem.from_json(
+            self.api_client_mock, self.COMPOSER_JSON_DATA)
         assert not result.is_song
         assert not result.is_artist
         assert result.is_composer
         assert not result.is_genre_station
 
     def test_is_genre_station(self):
-        result = SearchResultItem.from_json(self.api_client_mock, self.GENRE_JSON_DATA)
+        result = pm.SearchResultItem.from_json(
+            self.api_client_mock, self.GENRE_JSON_DATA)
         assert not result.is_song
         assert not result.is_artist
         assert not result.is_composer
         assert result.is_genre_station
+
+    def test_fails_if_unknown(self):
+        with self.assertRaises(NotImplementedError):
+            pm.SearchResultItem.from_json(
+                self.api_client_mock, self.UNKNOWN_JSON_DATA)
 
 
 class TestArtistSearchResultItem(TestCase):
@@ -361,16 +415,19 @@ class TestArtistSearchResultItem(TestCase):
         self.api_client_mock.default_audio_quality = APIClient.HIGH_AUDIO_QUALITY
 
     def test_repr(self):
-        result = SearchResultItem.from_json(self.api_client_mock, self.ARTIST_JSON_DATA)
+        result = pm.SearchResultItem.from_json(
+            self.api_client_mock, self.ARTIST_JSON_DATA)
         expected = ("ArtistSearchResultItem(artist='artist_name_mock', likely_match=False, score=100, token='R0000000')")
         self.assertEqual(expected, repr(result))
 
-        result = SearchResultItem.from_json(self.api_client_mock, self.COMPOSER_JSON_DATA)
+        result = pm.SearchResultItem.from_json(
+            self.api_client_mock, self.COMPOSER_JSON_DATA)
         expected = ("ArtistSearchResultItem(artist='composer_name_mock', likely_match=False, score=100, token='C0000000')")
         self.assertEqual(expected, repr(result))
 
     def test_create_station(self):
-        result = SearchResultItem.from_json(self.api_client_mock, self.ARTIST_JSON_DATA)
+        result = pm.SearchResultItem.from_json(
+            self.api_client_mock, self.ARTIST_JSON_DATA)
         result._api_client.create_station = Mock()
 
         result.create_station()
@@ -391,12 +448,14 @@ class TestSongSearchResultItem(TestCase):
         self.api_client_mock.default_audio_quality = APIClient.HIGH_AUDIO_QUALITY
 
     def test_repr(self):
-        result = SearchResultItem.from_json(self.api_client_mock, self.SONG_JSON_DATA)
+        result = pm.SearchResultItem.from_json(
+            self.api_client_mock, self.SONG_JSON_DATA)
         expected = ("SongSearchResultItem(artist='artist_name_mock', score=100, song_name='song_name_mock', token='S0000000')")
         self.assertEqual(expected, repr(result))
 
     def test_create_station(self):
-        result = SearchResultItem.from_json(self.api_client_mock, self.SONG_JSON_DATA)
+        result = pm.SearchResultItem.from_json(
+            self.api_client_mock, self.SONG_JSON_DATA)
         result._api_client.create_station = Mock()
 
         result.create_station()
@@ -416,12 +475,14 @@ class TestGenreStationSearchResultItem(TestCase):
         self.api_client_mock.default_audio_quality = APIClient.HIGH_AUDIO_QUALITY
 
     def test_repr(self):
-        result = SearchResultItem.from_json(self.api_client_mock, self.GENRE_JSON_DATA)
+        result = pm.SearchResultItem.from_json(
+            self.api_client_mock, self.GENRE_JSON_DATA)
         expected = ("GenreStationSearchResultItem(score=100, station_name='station_name_mock', token='G0000000')")
         self.assertEqual(expected, repr(result))
 
     def test_create_station(self):
-        result = SearchResultItem.from_json(self.api_client_mock, self.GENRE_JSON_DATA)
+        result = pm.SearchResultItem.from_json(
+            self.api_client_mock, self.GENRE_JSON_DATA)
         result._api_client.create_station = Mock()
 
         result.create_station()
@@ -455,7 +516,7 @@ class TestSearchResult(TestCase):
     def setUp(self):
         api_client_mock = Mock(spec=APIClient)
         api_client_mock.default_audio_quality = APIClient.HIGH_AUDIO_QUALITY
-        self.result = SearchResult.from_json(api_client_mock, self.JSON_DATA)
+        self.result = pm.SearchResult.from_json(api_client_mock, self.JSON_DATA)
 
     def test_repr(self):
         expected = ("SearchResult(artists=[ArtistSearchResultItem(artist='artist_mock', likely_match=False, score=80, "
@@ -464,3 +525,59 @@ class TestSearchResult(TestCase):
                     "songs=[SongSearchResultItem(artist='song_artist_mock', score=100, song_name='song_name_mock', "
                     "token='S0000000')])")
         self.assertEqual(expected, repr(self.result))
+
+
+class TestGenreStationList(TestCase):
+
+    TEST_DATA = {
+        "checksum": "bar",
+        "categories": [
+            { "categoryName": "foo", "stations": [] },
+        ]
+    }
+
+    def test_has_changed(self):
+        api_client = Mock()
+        api_client.get_station_list_checksum.return_value = "foo"
+
+        stations = pm.GenreStationList.from_json(api_client, self.TEST_DATA)
+        self.assertTrue(stations.has_changed())
+
+
+class TestStationList(TestCase):
+
+    TEST_DATA = {
+        "checksum": "bar",
+        "stations": [],
+    }
+
+    def test_has_changed(self):
+        api_client = Mock()
+        api_client.get_station_list_checksum.return_value = "foo"
+
+        stations = pm.StationList.from_json(api_client, self.TEST_DATA)
+        self.assertTrue(stations.has_changed())
+
+
+class TestBookmark(TestCase):
+
+    SONG_BOOKMARK = { "songName": "foo", "bookmarkToken": "token" }
+    ARTIST_BOOKMARK = { "artistName": "foo", "bookmarkToken": "token" }
+
+    def setUp(self):
+        self.client = Mock()
+
+    def test_is_song_bookmark(self):
+        s = pm.Bookmark.from_json(self.client, self.SONG_BOOKMARK)
+        a = pm.Bookmark.from_json(self.client, self.ARTIST_BOOKMARK)
+
+        self.assertTrue(s.is_song_bookmark)
+        self.assertFalse(a.is_song_bookmark)
+
+    def test_delete_song_bookmark(self):
+        pm.Bookmark.from_json(self.client, self.SONG_BOOKMARK).delete()
+        self.client.delete_song_bookmark.assert_called_with("token")
+
+    def test_delete_artist_bookmark(self):
+        pm.Bookmark.from_json(self.client, self.ARTIST_BOOKMARK).delete()
+        self.client.delete_artist_bookmark.assert_called_with("token")

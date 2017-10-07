@@ -164,6 +164,10 @@ class TestFileBasedBuilder(TestCase):
         client = self.StubBuilder(__file__, False).build()
         self.assertFalse(client.login.called)
 
+    def test_abstract_class_does_not_parse_config(self):
+        with self.assertRaises(NotImplementedError):
+            cb.FileBasedClientBuilder().parse_config()
+
 
 class TestPydoraConfigFileBuilder(TestCase):
 
