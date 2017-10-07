@@ -43,14 +43,14 @@ class BaseAPIClient(object):
     @classmethod
     @deprecated("1.3", "2.0",
                 "Replaced by clientbuilder.SettingsDictBuilder")
-    def from_settings_dict(cls, settings):
+    def from_settings_dict(cls, settings):  # pragma: no cover
         from .clientbuilder import SettingsDictBuilder
         return SettingsDictBuilder(settings).build()
 
     @classmethod
     @deprecated("1.3", "2.0",
                 "Replaced by clientbuilder.PydoraConfigFileBuilder")
-    def from_config_file(cls, path, authenticate=True):
+    def from_config_file(cls, path, authenticate=True):  # pragma: no cover
         from .clientbuilder import PydoraConfigFileBuilder
         return PydoraConfigFileBuilder(path, authenticate).build()
 
@@ -117,14 +117,14 @@ class APIClient(BaseAPIClient):
     This is what clients should actually use.
     """
 
-    def get_station_list(self):
+    def get_station_list(self):  # pragma: no cover
         from .models.pandora import StationList
 
         return StationList.from_json(self,
                                      self("user.getStationList",
                                           includeStationArtUrl=True))
 
-    def get_station_list_checksum(self):
+    def get_station_list_checksum(self):  # pragma: no cover
         return self("user.getStationListChecksum")["checksum"]
 
     def get_playlist(self, station_token):
@@ -144,13 +144,13 @@ class APIClient(BaseAPIClient):
 
         return playlist
 
-    def get_bookmarks(self):
+    def get_bookmarks(self):  # pragma: no cover
         from .models.pandora import BookmarkList
 
         return BookmarkList.from_json(self,
                                       self("user.getBookmarks"))
 
-    def get_station(self, station_token):
+    def get_station(self, station_token):  # pragma: no cover
         from .models.pandora import Station
 
         return Station.from_json(self,
@@ -158,25 +158,25 @@ class APIClient(BaseAPIClient):
                                       stationToken=station_token,
                                       includeExtendedAttributes=True))
 
-    def add_artist_bookmark(self, track_token):
+    def add_artist_bookmark(self, track_token):  # pragma: no cover
         return self("bookmark.addArtistBookmark",
                     trackToken=track_token)
 
-    def add_song_bookmark(self, track_token):
+    def add_song_bookmark(self, track_token):  # pragma: no cover
         return self("bookmark.addSongBookmark",
                     trackToken=track_token)
 
-    def delete_song_bookmark(self, bookmark_token):
+    def delete_song_bookmark(self, bookmark_token):  # pragma: no cover
         return self("bookmark.deleteSongBookmark",
                     bookmarkToken=bookmark_token)
 
-    def delete_artist_bookmark(self, bookmark_token):
+    def delete_artist_bookmark(self, bookmark_token):  # pragma: no cover
         return self("bookmark.deleteArtistBookmark",
                     bookmarkToken=bookmark_token)
 
     def search(self, search_text,
                include_near_matches=False,
-               include_genre_stations=False):
+               include_genre_stations=False):  # pragma: no cover
         from .models.pandora import SearchResult
 
         return SearchResult.from_json(
@@ -187,12 +187,12 @@ class APIClient(BaseAPIClient):
                  includeGenreStations=include_genre_stations)
         )
 
-    def add_feedback(self, track_token, positive):
+    def add_feedback(self, track_token, positive):  # pragma: no cover
         return self("station.addFeedback",
                     trackToken=track_token,
                     isPositive=positive)
 
-    def add_music(self, music_token, station_token):
+    def add_music(self, music_token, station_token):  # pragma: no cover
         return self("station.addMusic",
                     musicToken=music_token,
                     stationToken=station_token)
@@ -212,58 +212,58 @@ class APIClient(BaseAPIClient):
 
         return self("station.createStation", **kwargs)
 
-    def delete_feedback(self, feedback_id):
+    def delete_feedback(self, feedback_id):  # pragma: no cover
         return self("station.deleteFeedback",
                     feedbackId=feedback_id)
 
-    def delete_music(self, seed_id):
+    def delete_music(self, seed_id):  # pragma: no cover
         return self("station.deleteMusic",
                     seedId=seed_id)
 
-    def delete_station(self, station_token):
+    def delete_station(self, station_token):  # pragma: no cover
         return self("station.deleteStation",
                     stationToken=station_token)
 
     def get_genre_stations(self):
         from .models.pandora import GenreStationList
 
-        genres = self("station.getGenreStations")
-
-        genre_stations = GenreStationList.from_json(self, genres)
+        genre_stations = GenreStationList.from_json(
+            self, self("station.getGenreStations"))
         genre_stations.checksum = self.get_genre_stations_checksum()
+
         return genre_stations
 
-    def get_genre_stations_checksum(self):
+    def get_genre_stations_checksum(self):  # pragma: no cover
         return self("station.getGenreStationsChecksum")["checksum"]
 
-    def rename_station(self, station_token, name):
+    def rename_station(self, station_token, name):  # pragma: no cover
         return self("station.renameStation",
                     stationToken=station_token,
                     stationName=name)
 
-    def explain_track(self, track_token):
+    def explain_track(self, track_token):  # pragma: no cover
         return self("track.explainTrack",
                     trackToken=track_token)
 
-    def set_quick_mix(self, *args):
+    def set_quick_mix(self, *args):  # pragma: no cover
         return self("user.setQuickMix",
                     quickMixStationIds=args)
 
-    def sleep_song(self, track_token):
+    def sleep_song(self, track_token):  # pragma: no cover
         return self("user.sleepSong",
                     trackToken=track_token)
 
-    def share_station(self, station_id, station_token, *emails):
+    def share_station(self, station_id, station_token, *emails):  # pragma: nc
         return self("station.shareStation",
                     stationId=station_id,
                     stationToken=station_token,
                     emails=emails)
 
-    def transform_shared_station(self, station_token):
+    def transform_shared_station(self, station_token):  # pragma: no cover
         return self("station.transformSharedStation",
                     stationToken=station_token)
 
-    def share_music(self, music_token, *emails):
+    def share_music(self, music_token, *emails):  # pragma: no cover
         return self("music.shareMusic",
                     musicToken=music_token,
                     email=emails[0])
@@ -281,13 +281,13 @@ class APIClient(BaseAPIClient):
         ad_item.ad_token = ad_token
         return ad_item
 
-    def get_ad_metadata(self, ad_token):
+    def get_ad_metadata(self, ad_token):  # pragma: no cover
         return self("ad.getAdMetadata",
                     adToken=ad_token,
                     returnAdTrackingTokens=True,
                     supportAudioAds=True)
 
-    def register_ad(self, station_id, tokens):
+    def register_ad(self, station_id, tokens):  # pragma: no cover
         return self("ad.registerAd",
                     stationId=station_id,
                     adTrackingTokens=tokens)

@@ -33,7 +33,7 @@ class GenreStation(PandoraModel):
     token = Field("stationToken")
     category = Field("categoryName")
 
-    def get_playlist(self):
+    def get_playlist(self):  # pragma: no cover
         raise NotImplementedError("Genre stations do not have playlists. "
                                   "Create a real station using the token.")
 
@@ -170,19 +170,19 @@ class PlaylistModel(PandoraModel):
         """
         return self
 
-    def thumbs_up(self):
+    def thumbs_up(self):  # pragma: no cover
         raise NotImplementedError
 
-    def thumbs_down(self):
+    def thumbs_down(self):  # pragma: no cover
         raise NotImplementedError
 
-    def bookmark_song(self):
+    def bookmark_song(self):  # pragma: no cover
         raise NotImplementedError
 
-    def bookmark_artist(self):
+    def bookmark_artist(self):  # pragma: no cover
         raise NotImplementedError
 
-    def sleep(self):
+    def sleep(self):  # pragma: no cover
         raise NotImplementedError
 
 
@@ -224,19 +224,19 @@ class PlaylistItem(PlaylistModel):
     def is_ad(self):
         return self.ad_token is not None
 
-    def thumbs_up(self):
+    def thumbs_up(self):  # pragma: no cover
         return self._api_client.add_feedback(self.track_token, True)
 
-    def thumbs_down(self):
+    def thumbs_down(self):  # pragma: no cover
         return self._api_client.add_feedback(self.track_token, False)
 
-    def bookmark_song(self):
+    def bookmark_song(self):  # pragma: no cover
         return self._api_client.add_song_bookmark(self.track_token)
 
-    def bookmark_artist(self):
+    def bookmark_artist(self):  # pragma: no cover
         return self._api_client.add_artist_bookmark(self.track_token)
 
-    def sleep(self):
+    def sleep(self):  # pragma: no cover
         return self._api_client.sleep_song(self.track_token)
 
 
@@ -333,17 +333,15 @@ class SearchResultItem(PandoraModel):
     def is_genre_station(self):
         return isinstance(self, GenreStationSearchResultItem)
 
-    def create_station(self):
+    def create_station(self):  # pragma: no cover
         raise NotImplementedError
 
     @classmethod
     def from_json(cls, api_client, data):
         if data["musicToken"].startswith("S"):
             return SongSearchResultItem.from_json(api_client, data)
-
         elif data["musicToken"].startswith(("R", "C")):
             return ArtistSearchResultItem.from_json(api_client, data)
-
         elif data["musicToken"].startswith("G"):
             return GenreStationSearchResultItem.from_json(api_client, data)
         else:
