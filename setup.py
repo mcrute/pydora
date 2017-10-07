@@ -24,8 +24,7 @@ class TestsWithCoverage(test, object):
 
         from coverage import coverage
 
-        cov = coverage(data_file=".coverage", branch=True,
-                       source=self.distribution.packages)
+        cov = coverage(source=self.distribution.packages)
         cov.start()
 
         # Unittest calls exit prior to python 3. How naughty
@@ -35,7 +34,7 @@ class TestsWithCoverage(test, object):
             pass
 
         cov.stop()
-        cov.xml_report(outfile="coverage.xml")
+        cov.xml_report()
         cov.html_report()
 
 
