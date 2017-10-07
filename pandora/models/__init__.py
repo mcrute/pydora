@@ -12,6 +12,22 @@ class Field(namedtuple("Field", ["field", "default", "formatter"])):
         return super(Field, cls).__new__(cls, field, default, formatter)
 
 
+class SyntheticField(namedtuple("SyntheticField", ["field"])):
+    """Field That Requires Synthesis
+
+    Synthetic fields may exist in the data but generally do not and require
+    additional synthesis to arrive ate a sane value. Subclasses must define
+    a formatter method that receives an API client, field name, and full data
+    payload.
+    """
+
+    default = None
+
+    @staticmethod
+    def formatter(api_client, field, data):  # pragma: no cover
+        raise NotImplementedError
+
+
 class ModelMetaClass(type):
 
     def __new__(cls, name, parents, dct):
@@ -22,7 +38,7 @@ class ModelMetaClass(type):
             if key.startswith("__"):
                 continue
 
-            if isinstance(val, Field):
+            if isinstance(val, Field) or isinstance(val, SyntheticField):
                 fields[key] = val
                 del new_dct[key]
 
@@ -56,6 +72,11 @@ class PandoraModel(with_metaclass(ModelMetaClass, object)):
     def populate_fields(api_client, instance, data):
         for key, value in instance.__class__._fields.items():
             newval = data.get(value.field, value.default)
+
+            if isinstance(value, SyntheticField):
+                newval = value.formatter(api_client, value.field, data, newval)
+                setattr(instance, key, newval)
+                continue
 
             if newval and value.formatter:
                 newval = value.formatter(api_client, newval)

@@ -1,5 +1,6 @@
 from ..client import BaseAPIClient
 from ..errors import ParameterMissing
+from . import SyntheticField
 from . import Field, PandoraModel, PandoraListModel, PandoraDictListModel
 
 
@@ -51,42 +52,15 @@ class StationList(PandoraListModel):
         return checksum != self.checksum
 
 
-class PlaylistModel(PandoraModel):
+class AudioField(SyntheticField):
 
-    @classmethod
-    def from_json(cls, api_client, data):
-        self = cls(api_client)
-
-        for key, value in cls._fields.items():
-            newval = data.get(value.field, value.default)
-
-            if value.field == "audioUrl" and newval is None:
-                newval = cls.get_audio_url(
-                    data, api_client.default_audio_quality)
-
-            if value.field == "bitrate" and newval is None:
-                newval = cls.get_audio_bitrate(
-                    data, api_client.default_audio_quality)
-
-            if value.field == "encoding" and newval is None:
-                newval = cls.get_audio_encoding(
-                    data, api_client.default_audio_quality)
-
-            if newval and value.formatter:
-                newval = value.formatter(newval)
-
-            setattr(self, key, newval)
-
-        return self
-
-    @classmethod
-    def get_audio_field(cls, data, field, preferred_quality):
+    @staticmethod
+    def formatter(api_client, field, data, value):
         """Get audio-related fields
 
         Try to find fields for the audio url for specified preferred quality
         level, or next-lowest available quality url otherwise.
         """
-        audio_url = None
         url_map = data.get("audioUrlMap")
         audio_url = data.get("audioUrl")
 
@@ -103,8 +77,7 @@ class PlaylistModel(PandoraModel):
                     "encoding": "aacplus",
                 }
             }
-        # No audio url available (e.g. ad tokens)
-        elif not url_map:
+        elif not url_map:  # No audio url available (e.g. ad tokens)
             return None
 
         valid_audio_formats = [BaseAPIClient.HIGH_AUDIO_QUALITY,
@@ -115,6 +88,7 @@ class PlaylistModel(PandoraModel):
         # from the beginning of the list if nothing is found. Ensures that the
         # bitrate used will always be the same or lower quality than was
         # specified to prevent audio from skipping for slow connections.
+        preferred_quality = api_client.default_audio_quality
         if preferred_quality in valid_audio_formats:
             i = valid_audio_formats.index(preferred_quality)
             valid_audio_formats = valid_audio_formats[i:]
@@ -127,35 +101,8 @@ class PlaylistModel(PandoraModel):
 
         return audio_url[field] if audio_url else None
 
-    @classmethod
-    def get_audio_url(cls, data,
-                      preferred_quality=BaseAPIClient.MED_AUDIO_QUALITY):
-        """Get audio url
 
-        Try to find audio url for specified preferred quality level, or
-        next-lowest available quality url otherwise.
-        """
-        return cls.get_audio_field(data, "audioUrl", preferred_quality)
-
-    @classmethod
-    def get_audio_bitrate(cls, data,
-                          preferred_quality=BaseAPIClient.MED_AUDIO_QUALITY):
-        """Get audio bitrate
-
-        Try to find bitrate of audio url for specified preferred quality level,
-        or next-lowest available quality url otherwise.
-        """
-        return cls.get_audio_field(data, "bitrate", preferred_quality)
-
-    @classmethod
-    def get_audio_encoding(cls, data,
-                           preferred_quality=BaseAPIClient.MED_AUDIO_QUALITY):
-        """Get audio encoding
-
-        Try to find encoding of audio url for specified preferred quality
-        level, or next-lowest available quality url otherwise.
-        """
-        return cls.get_audio_field(data, "encoding", preferred_quality)
+class PlaylistModel(PandoraModel):
 
     def get_is_playable(self):
         if not self.audio_url:
@@ -195,9 +142,9 @@ class PlaylistItem(PlaylistModel):
     track_gain = Field("trackGain")
     track_length = Field("trackLength")
     track_token = Field("trackToken")
-    audio_url = Field("audioUrl")
-    bitrate = Field("bitrate")
-    encoding = Field("encoding")
+    audio_url = AudioField("audioUrl")
+    bitrate = AudioField("bitrate")
+    encoding = AudioField("encoding")
     album_art_url = Field("albumArtUrl")
     allow_feedback = Field("allowFeedback")
     station_id = Field("stationId")
@@ -245,7 +192,7 @@ class AdItem(PlaylistModel):
     title = Field("title")
     company_name = Field("companyName")
     tracking_tokens = Field("adTrackingTokens")
-    audio_url = Field("audioUrl")
+    audio_url = AudioField("audioUrl")
     image_url = Field("imageUrl")
     click_through_url = Field("clickThroughUrl")
     station_id = None
