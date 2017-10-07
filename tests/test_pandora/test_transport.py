@@ -271,7 +271,7 @@ class TestPurePythonBlowfishCryptor(TestCase, CommonCryptorTestCases):
 
     def setUp(self):
         # Ugh... blowfish can't even be *imported* in python2
-        if sys.version_info.major == 2:
+        if not t.blowfish:
             t.blowfish = Mock()
 
         self.cipher = Mock()

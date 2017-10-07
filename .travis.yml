@@ -9,6 +9,6 @@ before_script:
     # Travis versions of these are really outdated
     - pip install -U mock nose pytest
     # Only used in production for python3.4- but required for tests
-    - pip install cryptograpy
+    - pip install cryptography
 script:
     - python setup.py validate
