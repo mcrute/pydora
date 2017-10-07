@@ -20,10 +20,54 @@ Keys or passwords for Pandora are **not** provided in this repo, you'll have to
 for yourself. Make something awesome with this library, don't abuse Pandora,
 that's not cool.
 
-The easy entry-point for programmatic use is
-``pandora.clientbuilder.PydoraConfigFileBuilder``. All programmatic APIs are in
-the ``pandora`` package. The remainder of this README is targeted at users of
-the ``pydora`` command-line player.
+As of 1.11.0 users of Python 3.4+ no longer require a native dependency and can
+use this package in its pure Python form. Users of older versions of Python
+will require `cryptography <https://pypi.python.org/pypi/cryptography>`_. This
+is configured automatically when pydora is installed.
+
+Programatic Use
+===============
+The pydora distribution contains two python packages. The ``pandora`` package
+is the API for interacting with the Pandora service. The ``pydora`` package is
+a very small reference implementation of using the API to drive a command line
+player. If you're interested in the command line skip this section and read
+Installing below to get started.
+
+**NOTE:** This package uses semantic versioning. The API is stable within a
+major version release. Please constrain your dependencies to major versions.
+For example, to depend on version 1.x use this line in your setup.py
+``install_requires``::
+
+    pydora>=1,<2
+
+The easiest way to get started is by using the ``pandora.clientbuilder``
+package. This package contains a set of factories that can be used to build a
+Pandora client with some configuration.  The classes in the package that end in
+``Builder`` are the factories and the rest of the classes are implementation
+details. All of the builders will return an instance of
+``pandora.client.APIClient`` that is completely configured and ready for use in
+your program.
+
+If you have an existing program and would like to connect to Pandora the
+easiest way is to use the ``SettingsDictBuilder`` class like so::
+
+    client = SettingsDictBuilder({
+        "DECRYPTION_KEY": "see_link_above",
+        "ENCRYPTION_KEY": "see_link_above",
+        "PARTNER_USER": "see_link_above",
+        "PARTNER_PASSWORD": "see_link_above",
+        "DEVICE": "see_link_above",
+    }).build()
+
+    client.login("username", "password")
+
+At this point the client is ready for use, see ``pandora.client.APIClient`` for
+a list of methods that can be called. All responses from the API will return
+Python objects from the ``pandora.models.pandora`` package or raise exceptions
+from ``pandora.errors``
+
+For a more functional example look at the file ``pydora/player.py`` which shows
+how to use the API in a simple command line application.
 
 Installing
 ==========
