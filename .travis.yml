@@ -10,5 +10,9 @@ before_script:
     - pip install -U mock nose pytest
     # Only used in production for python3.4- but required for tests
     - pip install cryptography
+    # Enable sending Coverage data
+    - pip install codecov
 script:
     - python setup.py validate
+after_success:
+    - codecov
