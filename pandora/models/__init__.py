@@ -3,7 +3,7 @@ from collections import namedtuple
 from ..py2compat import with_metaclass
 
 
-class Field(namedtuple("Field", ["field", "default", "formatter"])):
+class Field(namedtuple("Field", ["field", "default", "formatter", "model"])):
     """Model Field
 
     Model fields represent JSON key/value pairs. When added to a PandoraModel
@@ -26,8 +26,8 @@ class Field(namedtuple("Field", ["field", "default", "formatter"])):
         model based on the type of data in the JSON
     """
 
-    def __new__(cls, field, default=None, formatter=None):
-        return super(Field, cls).__new__(cls, field, default, formatter)
+    def __new__(cls, field, default=None, formatter=None, model=None):
+        return super(Field, cls).__new__(cls, field, default, formatter, model)
 
 
 class SyntheticField(namedtuple("SyntheticField", ["field"])):
@@ -38,8 +38,6 @@ class SyntheticField(namedtuple("SyntheticField", ["field"])):
     a formatter method that receives an API client, field name, and full data
     payload.
     """
-
-    default = None
 
     @staticmethod
     def formatter(api_client, field, data):  # pragma: no cover
@@ -100,7 +98,7 @@ class PandoraModel(with_metaclass(ModelMetaClass, object)):
         safe_types = (type(None), str, bytes, int, bool)
 
         for key, value in self._fields.items():
-            default = value.default
+            default = getattr(value, "default", None)
 
             if not isinstance(default, safe_types):
                 default = type(default)()
@@ -117,12 +115,20 @@ class PandoraModel(with_metaclass(ModelMetaClass, object)):
         this function runs even if they are missing from the incoming JSON.
         """
         for key, value in instance.__class__._fields.items():
-            newval = data.get(value.field, value.default)
+            default = getattr(value, "default", None)
+            newval = data.get(value.field, default)
 
             if isinstance(value, SyntheticField):
                 newval = value.formatter(api_client, value.field, data, newval)
                 setattr(instance, key, newval)
                 continue
+
+            model_class = getattr(value, "model", None)
+            if newval and model_class:
+                if isinstance(newval, list):
+                    newval = model_class.from_json_list(api_client, newval)
+                else:
+                    newval = model_class.from_json(api_client, newval)
 
             if newval and value.formatter:
                 newval = value.formatter(api_client, newval)

@@ -253,8 +253,8 @@ class Bookmark(PandoraModel):
 
 class BookmarkList(PandoraModel):
 
-    songs = Field("songs", formatter=Bookmark.from_json_list)
-    artists = Field("artists", formatter=Bookmark.from_json_list)
+    songs = Field("songs", model=Bookmark)
+    artists = Field("artists", model=Bookmark)
 
 
 class SearchResultItem(PandoraModel):
@@ -344,11 +344,9 @@ class SearchResult(PandoraModel):
 
     nearest_matches_available = Field("nearMatchesAvailable")
     explanation = Field("explanation")
-    songs = Field("songs", formatter=SongSearchResultItem.from_json_list)
-    artists = Field("artists", formatter=ArtistSearchResultItem.from_json_list)
-    genre_stations = Field(
-        "genreStations",
-        formatter=GenreStationSearchResultItem.from_json_list)
+    songs = Field("songs", model=SongSearchResultItem)
+    artists = Field("artists", model=ArtistSearchResultItem)
+    genre_stations = Field("genreStations", model=GenreStationSearchResultItem)
 
 
 class GenreStationList(PandoraDictListModel):

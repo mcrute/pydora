@@ -37,15 +37,26 @@ class TestModelMetaClass(TestCase):
 
 class TestPandoraModel(TestCase):
 
-    JSON_DATA = {"field2": ["test2"], "field3": 41}
+    JSON_DATA = {
+        "field2": ["test2"],
+        "field3": 41,
+        "field4": {"field1": "foo"},
+        "field5": [{"field1": "foo"}, {"field1": "bar"}],
+    }
 
     class TestModel(m.PandoraModel):
+
+        class SubModel(m.PandoraModel):
+
+            field1 = m.Field("field1")
 
         THE_LIST = []
 
         field1 = m.Field("field1", default="a string")
         field2 = m.Field("field2", default=THE_LIST)
         field3 = m.Field("field3", formatter=lambda c, x: x + 1)
+        field4 = m.Field("field4", model=SubModel)
+        field5 = m.Field("field5", model=SubModel)
 
     class NoFieldsModel(m.PandoraModel):
         pass
@@ -76,6 +87,14 @@ class TestPandoraModel(TestCase):
         self.assertEqual("a string", result.field1)
         self.assertEqual(["test2"], result.field2)
 
+    def test_it_creates_sub_models(self):
+        result = self.TestModel.from_json(None, self.JSON_DATA)
+        self.assertIsInstance(result.field4, self.TestModel.SubModel)
+        self.assertEqual("foo", result.field4.field1)
+        self.assertEqual(2, len(result.field5))
+        self.assertEqual("foo", result.field5[0].field1)
+        self.assertEqual("bar", result.field5[1].field1)
+
     def test_populate_fields_calls_formatter(self):
         result = self.TestModel.from_json(None, self.JSON_DATA)
         self.assertEqual(42, result.field3)
@@ -87,7 +106,9 @@ class TestPandoraModel(TestCase):
         self.assertEqual("a string", result[1].field1)
 
     def test_repr(self):
-        expected = "TestModel(field1='a string', field2=['test2'], field3=42)"
+        expected = ("TestModel(field1='a string', field2=['test2'], field3=42,"
+                    " field4=SubModel(field1='foo'), "
+                    "field5=[SubModel(field1='foo'), SubModel(field1='bar')])")
         result = self.TestModel.from_json(None, self.JSON_DATA)
         self.assertEqual(expected, repr(result))
 
