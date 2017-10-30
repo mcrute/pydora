@@ -7,13 +7,34 @@ def with_metaclass(meta, *bases):
 
 
 class Field(namedtuple("Field", ["field", "default", "formatter"])):
+    """Model Field
+
+    Model fields represent JSON key/value pairs. When added to a PandoraModel
+    the describe the unpacking logic for the API JSON and will be replaced at
+    runtime with the values from the parsed JSON or their defaults.
+
+    field
+        name of the field from the incoming JSON
+    default
+        default value if key does not exist in the incoming JSON, None if not
+        provided
+    formatter
+        formatter function accepting an API client and the value of the field
+        as arguments, will be called on the value of the data for the field key
+        in the incoming JSON. The return value of this function is used as the
+        value of the field on the model object.
+    model
+        the model class that the value of this field should be constructed into
+        the model construction logic will handle building a list or single
+        model based on the type of data in the JSON
+    """
 
     def __new__(cls, field, default=None, formatter=None):
         return super(Field, cls).__new__(cls, field, default, formatter)
 
 
 class SyntheticField(namedtuple("SyntheticField", ["field"])):
-    """Field That Requires Synthesis
+    """Field Requiring Synthesis
 
     Synthetic fields may exist in the data but generally do not and require
     additional synthesis to arrive ate a sane value. Subclasses must define
@@ -25,6 +46,17 @@ class SyntheticField(namedtuple("SyntheticField", ["field"])):
 
     @staticmethod
     def formatter(api_client, field, data):  # pragma: no cover
+        """Format Value for Model
+
+        The return value of this method is used as a value for the field in the
+        model of which this field is a member
+
+        api_client
+            instance of a Pandora API client
+        data
+            complete JSON data blob for the parent model of which this field is
+            a member
+        """
         raise NotImplementedError
 
 
@@ -46,6 +78,14 @@ class ModelMetaClass(type):
 
 
 class PandoraModel(with_metaclass(ModelMetaClass, object)):
+    """Pandora API Model
+
+    A single object representing a Pandora data object. Subclasses are
+    specified declaratively and contain Field objects as well as optionally
+    other methods. The end result object after loading from JSON will be a
+    normal python object with all fields declared in the schema populated and
+    consumers of these instances can ignore all of the details of this class.
+    """
 
     @staticmethod
     def json_to_date(api_client, data):
@@ -53,6 +93,8 @@ class PandoraModel(with_metaclass(ModelMetaClass, object)):
 
     @classmethod
     def from_json_list(cls, api_client, data):
+        """Convert a list of JSON values to a list of models
+        """
         return [cls.from_json(api_client, item) for item in data]
 
     def __init__(self, api_client):
@@ -70,6 +112,13 @@ class PandoraModel(with_metaclass(ModelMetaClass, object)):
 
     @staticmethod
     def populate_fields(api_client, instance, data):
+        """Populate all fields of a model with data
+
+        Given a model with a PandoraModel superclass will enumerate all
+        declared fields on that model and populate the values of their Field
+        and SyntheticField classes. All declared fields will have a value after
+        this function runs even if they are missing from the incoming JSON.
+        """
         for key, value in instance.__class__._fields.items():
             newval = data.get(value.field, value.default)
 
@@ -85,11 +134,15 @@ class PandoraModel(with_metaclass(ModelMetaClass, object)):
 
     @classmethod
     def from_json(cls, api_client, data):
+        """Convert one JSON value to a model object
+        """
         self = cls(api_client)
         PandoraModel.populate_fields(api_client, self, data)
         return self
 
     def _base_repr(self, and_also=None):
+        """Common repr logic for subclasses to hook
+        """
         items = [
             "=".join((key, repr(getattr(self, key))))
             for key in sorted(self._fields.keys())]
@@ -110,6 +163,31 @@ class PandoraModel(with_metaclass(ModelMetaClass, object)):
 
 
 class PandoraListModel(PandoraModel, list):
+    """Dict-like List of Pandora Models
+
+    Processes a JSON map, expecting a key that contains a list of maps. Will
+    process each item in the list, creating models for each one and a secondary
+    index based on the value in each item. This object behaves like a list and
+    like a dict.
+
+    Example JSON:
+
+        {
+            "__list_key__": [
+                { "__index_key__": "key", "other": "fields" },
+                { "__index_key__": "key", "other": "fields" }
+            ],
+            "other": "fields"
+        }
+
+    __list_key__
+        they key within the parent map containing a list
+    __list_model__
+        model class to use when constructing models for list contents
+    __index_key__
+        key from each object in the model list that will be used as an index
+        within this object
+    """
 
     __list_key__ = None
     __list_model__ = None
@@ -159,6 +237,39 @@ class PandoraListModel(PandoraModel, list):
 
 
 class PandoraDictListModel(PandoraModel, dict):
+    """Dict of Models
+
+    Processes a JSON map, expecting a key that contains a list of maps, each of
+    which contain a key and a list of values which are the final models. Will
+    process each item in the list, creating models for each one and storing the
+    constructed models in a map indexed by the dict key. Duplicated sub-maps
+    will be merged into one key for this model.
+
+    Example JSON:
+
+        {
+            "__dict_list_key__": [
+                {
+                    "__dict_key__": "key for this model",
+                    "__list_key__": [
+                        { "model": "fields" },
+                        { "model": "fields" }
+                    ]
+                }
+            ],
+            "other": "fields"
+        }
+
+    __dict_list_key__
+        the key within the parent map that contains the maps that contain
+        lists of models
+    __dict_key__
+        the key within the nested map that contains the key for this object
+    __list_key__
+        they key within the nested map that contains the list of models
+    __list_model__
+        model class to use when constructing models for list contents
+    """
 
     __dict_list_key__ = None
     __dict_key__ = None
