@@ -1,9 +1,6 @@
 from datetime import datetime
 from collections import namedtuple
-
-
-def with_metaclass(meta, *bases):
-    return meta("NewBase", bases, {})
+from ..py2compat import with_metaclass
 
 
 class Field(namedtuple("Field", ["field", "default", "formatter"])):

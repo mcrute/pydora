@@ -7,6 +7,11 @@ patch Python 2 code to support those changes. When Python 2 support is
 dropped this module can be removed and imports can be updated.
 """
 
+
+def with_metaclass(meta, *bases):
+    return meta("NewBase", bases, {})
+
+
 try:
     from configparser import ConfigParser
 except ImportError:
