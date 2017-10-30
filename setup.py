@@ -58,6 +58,7 @@ if sys.version_info.major == 3 and sys.version_info.minor >= 4:
     requires["install_requires"].append("blowfish>=0.6.1,<1.0")
 else:
     requires["install_requires"].append("cryptography>=2,<3")
+    requires["install_requires"].append("enum34")
 
 
 setup(
