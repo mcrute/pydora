@@ -130,7 +130,7 @@ class Configurator(object):
     def get_partner_config(self):
         try:
             return PandoraKeysConfigParser().load()["android"]
-        except:
+        except Exception:
             self.fail("Error loading config file. Unable to continue.")
 
     def get_value(self, section, key, prompt):
