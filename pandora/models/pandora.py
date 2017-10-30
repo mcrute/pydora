@@ -1,7 +1,7 @@
 from ..client import BaseAPIClient
 from ..errors import ParameterMissing
-from . import SyntheticField
-from . import Field, PandoraModel, PandoraListModel, PandoraDictListModel
+from . import Field, DateField, SyntheticField
+from . import PandoraModel, PandoraListModel, PandoraDictListModel
 
 
 class Station(PandoraModel):
@@ -13,7 +13,7 @@ class Station(PandoraModel):
     is_quickmix = Field("isQuickMix")
 
     art_url = Field("artUrl")
-    date_created = Field("dateCreated", formatter=PandoraModel.json_to_date)
+    date_created = DateField("dateCreated")
     detail_url = Field("stationDetailUrl")
     id = Field("stationId")
     name = Field("stationName")
@@ -231,7 +231,7 @@ class Bookmark(PandoraModel):
     artist_name = Field("artistName")
     art_url = Field("artUrl")
     bookmark_token = Field("bookmarkToken")
-    date_created = Field("dateCreated", formatter=PandoraModel.json_to_date)
+    date_created = DateField("dateCreated")
 
     # song only
     sample_url = Field("sampleUrl")

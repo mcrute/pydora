@@ -57,6 +57,20 @@ class SyntheticField(namedtuple("SyntheticField", ["field"])):
         raise NotImplementedError
 
 
+class DateField(SyntheticField):
+    """Date Field
+
+    Handles a JSON map that contains a time field which is the timestamp with
+    nanosecond precision.
+    """
+
+    def formatter(self, api_client, data, value):
+        if not value:
+            return None
+
+        return datetime.utcfromtimestamp(value["time"] / 1000)
+
+
 class ModelMetaClass(type):
 
     def __new__(cls, name, parents, dct):
@@ -83,10 +97,6 @@ class PandoraModel(with_metaclass(ModelMetaClass, object)):
     normal python object with all fields declared in the schema populated and
     consumers of these instances can ignore all of the details of this class.
     """
-
-    @staticmethod
-    def json_to_date(api_client, data):
-        return datetime.utcfromtimestamp(data["time"] / 1000)
 
     @classmethod
     def from_json_list(cls, api_client, data):

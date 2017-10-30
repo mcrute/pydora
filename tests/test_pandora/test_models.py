@@ -35,6 +35,23 @@ class TestModelMetaClass(TestCase):
         self.assertFalse("__field__" in self.TestModel._fields)
 
 
+class TestDateField(TestCase):
+
+    class SampleModel(m.PandoraModel):
+
+        date_field = m.DateField("foo")
+
+    def test_json_to_date(self):
+        expected = datetime(2015, 7, 18, 3, 8, 17)
+        data = {"foo": {"time": 1437188897616}}
+
+        model = self.SampleModel.from_json(None, data)
+
+        # Python2.7 doesn't restore microseconds and we don't care about
+        # it anyhow so just remove it for this test
+        self.assertEqual(expected, model.date_field.replace(microsecond=0))
+
+
 class TestPandoraModel(TestCase):
 
     JSON_DATA = {
@@ -65,13 +82,6 @@ class TestPandoraModel(TestCase):
 
         def __repr__(self):
             return self._base_repr("Foo")
-
-    def test_json_to_date(self):
-        expected = datetime(2015, 7, 18, 3, 8, 17)
-        result = m.PandoraModel.json_to_date(None, {"time": 1437188897616})
-        # Python2.7 doesn't restore microseconds and we don't care about
-        # it anyhow so just remove it for this test
-        self.assertEqual(expected, result.replace(microsecond=0))
 
     def test_init_sets_defaults(self):
         model = self.TestModel(None)
