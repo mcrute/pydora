@@ -54,8 +54,7 @@ class StationList(PandoraListModel):
 
 class AudioField(SyntheticField):
 
-    @staticmethod
-    def formatter(api_client, field, data, value):
+    def formatter(self, api_client, data, value):
         """Get audio-related fields
 
         Try to find fields for the audio url for specified preferred quality
@@ -97,9 +96,9 @@ class AudioField(SyntheticField):
             audio_url = url_map.get(quality)
 
             if audio_url:
-                return audio_url[field]
+                return audio_url[self.field]
 
-        return audio_url[field] if audio_url else None
+        return audio_url[self.field] if audio_url else None
 
 
 class PlaylistModel(PandoraModel):

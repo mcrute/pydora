@@ -39,8 +39,7 @@ class SyntheticField(namedtuple("SyntheticField", ["field"])):
     payload.
     """
 
-    @staticmethod
-    def formatter(api_client, field, data):  # pragma: no cover
+    def formatter(self, api_client, data, newval):  # pragma: no cover
         """Format Value for Model
 
         The return value of this method is used as a value for the field in the
@@ -51,6 +50,9 @@ class SyntheticField(namedtuple("SyntheticField", ["field"])):
         data
             complete JSON data blob for the parent model of which this field is
             a member
+        newval
+            the value of this field as retrieved from the JSON data after
+            having resolved default value logic
         """
         raise NotImplementedError
 
@@ -119,7 +121,7 @@ class PandoraModel(with_metaclass(ModelMetaClass, object)):
             newval = data.get(value.field, default)
 
             if isinstance(value, SyntheticField):
-                newval = value.formatter(api_client, value.field, data, newval)
+                newval = value.formatter(api_client, data, newval)
                 setattr(instance, key, newval)
                 continue
 
