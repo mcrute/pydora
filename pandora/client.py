@@ -199,6 +199,8 @@ class APIClient(BaseAPIClient):
 
     def create_station(self, search_token=None, artist_token=None,
                        track_token=None):
+        from .models.pandora import Station
+
         kwargs = {}
 
         if search_token:
@@ -210,7 +212,8 @@ class APIClient(BaseAPIClient):
         else:
             raise KeyError("Must pass a type of token")
 
-        return self("station.createStation", **kwargs)
+        return Station.from_json(self,
+                                 self("station.createStation", **kwargs))
 
     def delete_feedback(self, feedback_id):  # pragma: no cover
         return self("station.deleteFeedback",

@@ -147,19 +147,19 @@ class TestGettingAds(TestCase):
 class TestCreatingStation(TestCase):
 
     def test_using_search_token(self):
-        client = APIClient(Mock(), None, None, None, None)
+        client = APIClient(Mock(return_value={}), None, None, None, None)
         client.create_station(search_token="foo")
         client.transport.assert_called_with(
             "station.createStation", musicToken="foo")
 
     def test_using_artist_token(self):
-        client = APIClient(Mock(), None, None, None, None)
+        client = APIClient(Mock(return_value={}), None, None, None, None)
         client.create_station(artist_token="foo")
         client.transport.assert_called_with(
             "station.createStation", trackToken="foo", musicType="artist")
 
     def test_using_track_token(self):
-        client = APIClient(Mock(), None, None, None, None)
+        client = APIClient(Mock(return_value={}), None, None, None, None)
         client.create_station(track_token="foo")
         client.transport.assert_called_with(
             "station.createStation", trackToken="foo", musicType="song")
