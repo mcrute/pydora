@@ -642,3 +642,18 @@ class TestBookmark(TestCase):
     def test_delete_artist_bookmark(self):
         pm.Bookmark.from_json(self.client, self.ARTIST_BOOKMARK).delete()
         self.client.delete_artist_bookmark.assert_called_with("token")
+
+
+class TestPandoraType(TestCase):
+
+    def test_it_can_be_built_from_a_model(self):
+        pt = pm.PandoraType.from_model(None, "TR")
+        self.assertIs(pm.PandoraType.TRACK, pt)
+
+    def test_it_can_be_built_from_string(self):
+        pt = pm.PandoraType.from_string("TR")
+        self.assertIs(pm.PandoraType.TRACK, pt)
+
+    def test_it_returns_genre_for_unknown_string(self):
+        pt = pm.PandoraType.from_string("FOO")
+        self.assertIs(pm.PandoraType.GENRE, pt)
