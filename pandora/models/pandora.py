@@ -17,6 +17,7 @@ class AdditionalAudioUrl(Enum):
     HTTP_128_MP3 = 'HTTP_128_MP3'
     HTTP_32_WMA = 'HTTP_32_WMA'
 
+
 class PandoraType(Enum):
 
     TRACK = "TR"

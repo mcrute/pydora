@@ -87,6 +87,7 @@ class TestCallingAPIClient(TestCase):
             client.get_playlist('token_mock')
 
             playlist_mock.assert_has_calls([call("station.getPlaylist",
+                                                 additionalAudioUrl='',
                                                  audioAdPodCapable=True,
                                                  includeTrackLength=True,
                                                  stationToken='token_mock',
