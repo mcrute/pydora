@@ -6,6 +6,17 @@ from . import Field, DateField, SyntheticField
 from . import PandoraModel, PandoraListModel, PandoraDictListModel
 
 
+class AdditionalAudioUrl(Enum):
+    HTTP_40_AAC_MONO = 'HTTP_40_AAC_MONO'
+    HTTP_64_AAC = 'HTTP_64_AAC'
+    HTTP_32_AACPLUS = 'HTTP_32_AACPLUS'
+    HTTP_64_AACPLUS = 'HTTP_64_AACPLUS'
+    HTTP_24_AACPLUS_ADTS = 'HTTP_24_AACPLUS_ADTS'
+    HTTP_32_AACPLUS_ADTS = 'HTTP_32_AACPLUS_ADTS'
+    HTTP_64_AACPLUS_ADTS = 'HTTP_64_AACPLUS_ADTS'
+    HTTP_128_MP3 = 'HTTP_128_MP3'
+    HTTP_32_WMA = 'HTTP_32_WMA'
+
 class PandoraType(Enum):
 
     TRACK = "TR"
@@ -100,8 +111,9 @@ class Station(PandoraModel):
     seeds = Field("music", model=StationSeeds)
     feedback = Field("feedback", model=StationFeedback)
 
-    def get_playlist(self):
-        return iter(self._api_client.get_playlist(self.token))
+    def get_playlist(self, additional_urls=[]):
+        return iter(self._api_client.get_playlist(self.token,
+                                                  additional_urls))
 
 
 class GenreStation(PandoraModel):
@@ -242,6 +254,8 @@ class PlaylistItem(PlaylistModel):
 
     song_detail_url = Field("songDetailUrl")
     song_explore_url = Field("songExplorerUrl")
+
+    additional_audio_urls = Field("additionalAudioUrl")
 
     @property
     def is_ad(self):

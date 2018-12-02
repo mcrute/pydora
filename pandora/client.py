@@ -127,20 +127,39 @@ class APIClient(BaseAPIClient):
     def get_station_list_checksum(self):  # pragma: no cover
         return self("user.getStationListChecksum")["checksum"]
 
-    def get_playlist(self, station_token):
+    def get_playlist(self, station_token, additional_urls=[]):
         from .models.pandora import Playlist
+
+        if not isinstance(additional_urls, list):
+            additional_urls = [additional_urls]
+
+        urls = [url if isinstance(url, str) else url.value
+                for url in additional_urls]
 
         playlist = Playlist.from_json(self,
                                       self("station.getPlaylist",
                                            stationToken=station_token,
                                            includeTrackLength=True,
                                            xplatformAdCapable=True,
-                                           audioAdPodCapable=True))
+                                           audioAdPodCapable=True,
+                                           additionalAudioUrl=','.join(urls)))
 
         for i, track in enumerate(playlist):
             if track.is_ad:
                 track = self.get_ad_item(station_token, track.ad_token)
                 playlist[i] = track
+
+        for track in playlist:
+            if hasattr(track, 'additional_audio_urls') and \
+                    track.additional_audio_urls:
+                urls = {}
+                if isinstance(track.additional_audio_urls, str):
+                    urls[additional_urls[0]] = track.additional_audio_urls
+                else:
+                    for value, url in zip(additional_urls,
+                                          track.additional_audio_urls):
+                        urls[value] = url
+                track.additional_audio_urls = urls
 
         return playlist
 
