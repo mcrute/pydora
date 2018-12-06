@@ -112,7 +112,7 @@ class Station(PandoraModel):
     seeds = Field("music", model=StationSeeds)
     feedback = Field("feedback", model=StationFeedback)
 
-    def get_playlist(self, additional_urls=[]):
+    def get_playlist(self, additional_urls=None):
         return iter(self._api_client.get_playlist(self.token,
                                                   additional_urls))
 

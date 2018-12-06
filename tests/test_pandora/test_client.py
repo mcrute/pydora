@@ -1,7 +1,7 @@
 from unittest import TestCase
 
 from pandora import errors
-from pandora.models.pandora import AdItem
+from pandora.models.pandora import AdItem, AdditionalAudioUrl
 from pandora.client import APIClient, BaseAPIClient
 from pandora.py2compat import Mock, call, patch
 from tests.test_pandora.test_models import TestAdItem
@@ -187,3 +187,68 @@ class TestCreatingGenreStation(TestCase):
             client = APIClient(Mock(), None, None, None, None)
             station = client.get_genre_stations()
             self.assertEqual(station.checksum, "foo")
+
+
+class TestAdditionalUrls(TestCase):
+
+    def test_non_iterable_string(self):
+        with self.assertRaises(TypeError):
+            transport = Mock(side_effect=[errors.InvalidAuthToken(), None])
+
+            client = APIClient(transport, None, None, None, None)
+            client._authenticate = Mock()
+
+            client.get_playlist('token_mock', additional_urls='')
+
+    def test_non_iterable_other(self):
+        with self.assertRaises(TypeError):
+            transport = Mock(side_effect=[errors.InvalidAuthToken(), None])
+
+            client = APIClient(transport, None, None, None, None)
+            client._authenticate = Mock()
+
+            client.get_playlist('token_mock',
+                                additional_urls=AdditionalAudioUrl.HTTP_32_WMA)
+
+    def test_without_enum(self):
+        with patch.object(APIClient, '__call__') as playlist_mock:
+            transport = Mock(side_effect=[errors.InvalidAuthToken(), None])
+
+            client = APIClient(transport, None, None, None, None)
+            client._authenticate = Mock()
+
+            urls = ['HTTP_128_MP3',
+                    'HTTP_24_AACPLUS_ADTS']
+
+            desired = 'HTTP_128_MP3,HTTP_24_AACPLUS_ADTS'
+
+            client.get_playlist('token_mock', additional_urls=urls)
+
+            playlist_mock.assert_has_calls([call("station.getPlaylist",
+                                                 additionalAudioUrl=desired,
+                                                 audioAdPodCapable=True,
+                                                 includeTrackLength=True,
+                                                 stationToken='token_mock',
+                                                 xplatformAdCapable=True)])
+
+
+    def test_with_enum(self):
+        with patch.object(APIClient, '__call__') as playlist_mock:
+            transport = Mock(side_effect=[errors.InvalidAuthToken(), None])
+
+            client = APIClient(transport, None, None, None, None)
+            client._authenticate = Mock()
+
+            urls = [AdditionalAudioUrl.HTTP_128_MP3,
+                    AdditionalAudioUrl.HTTP_24_AACPLUS_ADTS]
+
+            desired = 'HTTP_128_MP3,HTTP_24_AACPLUS_ADTS'
+
+            client.get_playlist('token_mock', additional_urls=urls)
+
+            playlist_mock.assert_has_calls([call("station.getPlaylist",
+                                                 additionalAudioUrl=desired,
+                                                 audioAdPodCapable=True,
+                                                 includeTrackLength=True,
+                                                 stationToken='token_mock',
+                                                 xplatformAdCapable=True)])

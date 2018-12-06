@@ -127,14 +127,16 @@ class APIClient(BaseAPIClient):
     def get_station_list_checksum(self):  # pragma: no cover
         return self("user.getStationListChecksum")["checksum"]
 
-    def get_playlist(self, station_token, additional_urls=[]):
+    def get_playlist(self, station_token, additional_urls=None):
         from .models.pandora import Playlist
 
-        if not isinstance(additional_urls, list):
-            additional_urls = [additional_urls]
+        if additional_urls is None:
+            additional_urls = []
 
-        urls = [url if isinstance(url, str) else url.value
-                for url in additional_urls]
+        if isinstance(additional_urls, str):
+            raise TypeError('Additional urls should be a list')
+
+        urls = [getattr(url, "value", url) for url in additional_urls]
 
         playlist = Playlist.from_json(self,
                                       self("station.getPlaylist",
