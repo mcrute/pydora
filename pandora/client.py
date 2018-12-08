@@ -138,30 +138,22 @@ class APIClient(BaseAPIClient):
 
         urls = [getattr(url, "value", url) for url in additional_urls]
 
-        playlist = Playlist.from_json(self,
-                                      self("station.getPlaylist",
-                                           stationToken=station_token,
-                                           includeTrackLength=True,
-                                           xplatformAdCapable=True,
-                                           audioAdPodCapable=True,
-                                           additionalAudioUrl=','.join(urls)))
+        resp = self("station.getPlaylist",
+                    stationToken=station_token,
+                    includeTrackLength=True,
+                    xplatformAdCapable=True,
+                    audioAdPodCapable=True,
+                    additionalAudioUrl=','.join(urls))
+
+        for item in resp['items']:
+            item['_paramAdditionalUrls'] = additional_urls
+
+        playlist = Playlist.from_json(self, resp)
 
         for i, track in enumerate(playlist):
             if track.is_ad:
                 track = self.get_ad_item(station_token, track.ad_token)
                 playlist[i] = track
-
-        for track in playlist:
-            if hasattr(track, 'additional_audio_urls') and \
-                    track.additional_audio_urls:
-                urls = {}
-                if isinstance(track.additional_audio_urls, str):
-                    urls[additional_urls[0]] = track.additional_audio_urls
-                else:
-                    for value, url in zip(additional_urls,
-                                          track.additional_audio_urls):
-                        urls[value] = url
-                track.additional_audio_urls = urls
 
         return playlist
 

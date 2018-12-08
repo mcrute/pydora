@@ -191,6 +191,27 @@ class AudioField(SyntheticField):
         return audio_url[self.field] if audio_url else None
 
 
+class AdditionalUrlField(SyntheticField):
+
+    def formatter(self, api_client, data, value):
+        """Parse additional url fields and map them to inputs
+
+        Attempt to create a dictionary with keys being user input, and
+        response being the returned URL
+        """
+        if value is None:
+            return None
+
+        user_param = data['_paramAdditionalUrls']
+        urls = {}
+        if isinstance(value, str):
+            urls[user_param[0]] = value
+        else:
+            for key, url in zip(user_param, value):
+                urls[key] = url
+        return urls
+
+
 class PlaylistModel(PandoraModel):
 
     def get_is_playable(self):
@@ -256,7 +277,7 @@ class PlaylistItem(PlaylistModel):
     song_detail_url = Field("songDetailUrl")
     song_explore_url = Field("songExplorerUrl")
 
-    additional_audio_urls = Field("additionalAudioUrl")
+    additional_audio_urls = AdditionalUrlField("additionalAudioUrl")
 
     @property
     def is_ad(self):
