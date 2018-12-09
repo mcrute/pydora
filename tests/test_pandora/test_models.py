@@ -52,6 +52,39 @@ class TestDateField(TestCase):
         self.assertEqual(expected, model.date_field.replace(microsecond=0))
 
 
+class TestAdditionalUrlField(TestCase):
+
+    def test_single_url(self):
+        dummy_data = {
+                '_paramAdditionalUrls': ['foo']
+                }
+
+        field = pm.AdditionalUrlField("additionalAudioUrl")
+
+        ret = field.formatter(None, dummy_data, 'test')
+
+        self.assertEqual(ret, {'foo': 'test'})
+
+    def test_multiple_urls(self):
+        dummy_data = {
+                '_paramAdditionalUrls': [
+                    'abc',
+                    'def',
+                    ]
+                }
+
+        field = pm.AdditionalUrlField("additionalAudioUrl")
+
+        ret = field.formatter(None, dummy_data, ['foo', 'bar'])
+
+        expected = {
+                'abc': 'foo',
+                'def': 'bar',
+                }
+
+        self.assertEqual(ret, expected)
+
+
 class TestPandoraModel(TestCase):
 
     JSON_DATA = {
