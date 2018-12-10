@@ -6,6 +6,18 @@ from . import Field, DateField, SyntheticField
 from . import PandoraModel, PandoraListModel, PandoraDictListModel
 
 
+class AdditionalAudioUrl(Enum):
+    HTTP_40_AAC_MONO = 'HTTP_40_AAC_MONO'
+    HTTP_64_AAC = 'HTTP_64_AAC'
+    HTTP_32_AACPLUS = 'HTTP_32_AACPLUS'
+    HTTP_64_AACPLUS = 'HTTP_64_AACPLUS'
+    HTTP_24_AACPLUS_ADTS = 'HTTP_24_AACPLUS_ADTS'
+    HTTP_32_AACPLUS_ADTS = 'HTTP_32_AACPLUS_ADTS'
+    HTTP_64_AACPLUS_ADTS = 'HTTP_64_AACPLUS_ADTS'
+    HTTP_128_MP3 = 'HTTP_128_MP3'
+    HTTP_32_WMA = 'HTTP_32_WMA'
+
+
 class PandoraType(Enum):
 
     TRACK = "TR"
@@ -100,8 +112,9 @@ class Station(PandoraModel):
     seeds = Field("music", model=StationSeeds)
     feedback = Field("feedback", model=StationFeedback)
 
-    def get_playlist(self):
-        return iter(self._api_client.get_playlist(self.token))
+    def get_playlist(self, additional_urls=None):
+        return iter(self._api_client.get_playlist(self.token,
+                                                  additional_urls))
 
 
 class GenreStation(PandoraModel):
@@ -178,6 +191,27 @@ class AudioField(SyntheticField):
         return audio_url[self.field] if audio_url else None
 
 
+class AdditionalUrlField(SyntheticField):
+
+    def formatter(self, api_client, data, value):
+        """Parse additional url fields and map them to inputs
+
+        Attempt to create a dictionary with keys being user input, and
+        response being the returned URL
+        """
+        if value is None:
+            return None
+
+        user_param = data['_paramAdditionalUrls']
+        urls = {}
+        if isinstance(value, str):
+            urls[user_param[0]] = value
+        else:
+            for key, url in zip(user_param, value):
+                urls[key] = url
+        return urls
+
+
 class PlaylistModel(PandoraModel):
 
     def get_is_playable(self):
@@ -242,6 +276,8 @@ class PlaylistItem(PlaylistModel):
 
     song_detail_url = Field("songDetailUrl")
     song_explore_url = Field("songExplorerUrl")
+
+    additional_audio_urls = AdditionalUrlField("additionalAudioUrl")
 
     @property
     def is_ad(self):
