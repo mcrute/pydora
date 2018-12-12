@@ -63,7 +63,7 @@ else:
 
 setup(
     name="pydora",
-    version="1.12.0",
+    version="1.13.0",
     description="Python wrapper for Pandora API",
     long_description=open("README.rst", "r").read(),
     author="Mike Crute",
