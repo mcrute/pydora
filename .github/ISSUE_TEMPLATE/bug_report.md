@@ -1,3 +1,10 @@
+---
+name: Bug Report
+about: Report a bug encountered while using Pydora
+labels: bug
+
+---
+
 **What happened**:
 
 **What you expected to happen**:
