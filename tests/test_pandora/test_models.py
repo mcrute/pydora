@@ -5,7 +5,7 @@ from unittest.mock import Mock, patch
 from pandora.client import APIClient
 from pandora.errors import ParameterMissing
 
-import pandora.models as m
+import pandora.models._base as m
 import pandora.models.pandora as pm
 
 

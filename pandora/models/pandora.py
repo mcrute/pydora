@@ -2,8 +2,8 @@ from enum import Enum
 
 from ..client import BaseAPIClient
 from ..errors import ParameterMissing
-from . import Field, DateField, SyntheticField
-from . import PandoraModel, PandoraListModel, PandoraDictListModel
+from ._base import Field, DateField, SyntheticField
+from ._base import PandoraModel, PandoraListModel, PandoraDictListModel
 
 
 class AdditionalAudioUrl(Enum):
