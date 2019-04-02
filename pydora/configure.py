@@ -2,9 +2,9 @@ import os
 import re
 import sys
 import requests
+from configparser import ConfigParser
 
 from pandora.client import APIClient
-from pandora.py2compat import ConfigParser
 from pandora.clientbuilder import PydoraConfigFileBuilder
 
 from .utils import Screen, Colors

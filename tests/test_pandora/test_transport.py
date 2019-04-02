@@ -4,7 +4,7 @@ import json
 import random
 import requests
 from unittest import TestCase
-from pandora.py2compat import Mock, call, patch
+from unittest.mock import Mock, call, patch
 
 from pandora.errors import InvalidAuthToken, PandoraException
 from tests.test_pandora.test_clientbuilder import TestSettingsDictBuilder

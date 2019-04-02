@@ -1,9 +1,9 @@
 from unittest import TestCase
+from unittest.mock import Mock, patch
 
 from pandora.client import APIClient
 from pandora.errors import InvalidAuthToken, ParameterMissing
 from pandora.models.pandora import Station, AdItem, PlaylistItem
-from pandora.py2compat import Mock, patch
 from pydora.utils import iterate_forever
 
 

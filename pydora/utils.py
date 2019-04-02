@@ -4,7 +4,6 @@ import os
 import sys
 import getpass
 import subprocess
-from pandora.py2compat import input
 
 
 class TerminalPlatformUnsupported(Exception):

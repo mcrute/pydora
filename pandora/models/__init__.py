@@ -1,6 +1,5 @@
 from datetime import datetime
 from collections import namedtuple
-from ..py2compat import with_metaclass
 
 
 class Field(namedtuple("Field", ["field", "default", "formatter", "model"])):
@@ -88,7 +87,7 @@ class ModelMetaClass(type):
         return super(ModelMetaClass, cls).__new__(cls, name, parents, new_dct)
 
 
-class PandoraModel(with_metaclass(ModelMetaClass, object)):
+class PandoraModel(object, metaclass=ModelMetaClass):
     """Pandora API Model
 
     A single object representing a Pandora data object. Subclasses are

@@ -4,8 +4,8 @@ import fcntl
 import select
 import socket
 import logging
+from shutil import which
 
-from pandora.py2compat import which
 from .utils import iterate_forever, SilentPopen
 
 

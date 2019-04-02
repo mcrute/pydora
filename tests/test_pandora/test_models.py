@@ -1,6 +1,6 @@
 from unittest import TestCase
 from datetime import datetime
-from pandora.py2compat import Mock, patch
+from unittest.mock import Mock, patch
 
 from pandora.client import APIClient
 from pandora.errors import ParameterMissing
@@ -21,7 +21,7 @@ class TestField(TestCase):
 
 class TestModelMetaClass(TestCase):
 
-    class TestModel(m.with_metaclass(m.ModelMetaClass, object)):
+    class TestModel(object, metaclass=m.ModelMetaClass):
 
         foo = "bar"
         a_field = m.Field("testing")

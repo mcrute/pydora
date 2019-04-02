@@ -6,7 +6,7 @@ configuration formats into a fully built APIClient.
 """
 import os.path
 
-from .py2compat import ConfigParser
+from configparser import ConfigParser
 from .client import APIClient
 from .transport import Encryptor, APITransport, DEFAULT_API_HOST
 

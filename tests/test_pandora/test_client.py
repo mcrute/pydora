@@ -1,9 +1,9 @@
 from unittest import TestCase
+from unittest.mock import Mock, call, patch
 
 from pandora import errors
 from pandora.models.pandora import AdItem, AdditionalAudioUrl
 from pandora.client import APIClient, BaseAPIClient
-from pandora.py2compat import Mock, call, patch
 from tests.test_pandora.test_models import TestAdItem
 
 

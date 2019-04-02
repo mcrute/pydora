@@ -1,6 +1,6 @@
 import warnings
 from unittest import TestCase
-from pandora.py2compat import patch
+from unittest.mock import patch
 
 from pandora import util
 
