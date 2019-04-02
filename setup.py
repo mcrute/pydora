@@ -1,6 +1,5 @@
 #!/usr/bin/env python
 
-import sys
 import itertools
 from setuptools.command.test import test
 from setuptools import setup, find_packages
@@ -63,11 +62,11 @@ else:
 
 setup(
     name="pydora",
-    version="1.13.0",
+    version="2.0.0",
     description="Python wrapper for Pandora API",
     long_description=open("README.rst", "r").read(),
     author="Mike Crute",
-    author_email="mcrute@gmail.com",
+    author_email="mike@crute.us",
     url="https://github.com/mcrute/pydora",
     test_suite="tests.discover_suite",
     packages=find_packages(exclude=["tests", "tests.*"]),
@@ -87,8 +86,6 @@ setup(
         "Intended Audience :: End Users/Desktop",
         "License :: OSI Approved :: MIT License",
         "Operating System :: OS Independent",
-        "Programming Language :: Python :: 2.7",
-        "Programming Language :: Python :: 3.4",
         "Programming Language :: Python :: 3.5",
         "Programming Language :: Python :: 3.6",
         "Programming Language :: Python :: 3.7",
