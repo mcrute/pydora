@@ -1,14 +1,7 @@
 *.pyc
 .coverage/
 .eggs/
-.env/
-.pip/
-.pip2/
-.pip27/
-.pip3/
-.pip32/
-.pip34/
-.pip35/
+.py3/
 .sandbox_name
 build/
 coverage.xml
