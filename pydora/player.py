@@ -12,7 +12,9 @@ import os
 import sys
 import logging
 import argparse
-from pandora import clientbuilder
+from pandora.clientbuilder import PydoraConfigFileBuilder
+from pandora.clientbuilder import PianobarConfigFileBuilder
+from pandora.ratelimit import BlockingTokenBucket, TokenBucketCallbacks
 
 from .utils import Colors, Screen
 from .audio_backend import RemoteVLC
@@ -48,6 +50,19 @@ class PlayerCallbacks(object):
         pass
 
 
+class PlayerTokenBucketCallbacks(TokenBucketCallbacks):
+
+    def __init__(self, screen):
+        self.screen = screen
+
+    def near_depletion(self, tokens_left):
+        self.screen.print_error("Near Pandora API call rate limit. Slow down!")
+
+    def depleted(self, tokens_wanted, tokens_left):
+        self.screen.print_error("Pandora API call rate exceeded. Please wait!")
+        return True
+
+
 class PlayerApp(object):
 
     CMD_MAP = {
@@ -77,10 +92,10 @@ class PlayerApp(object):
             try:
                 host, port = vlc_net.split(":")
                 player = RemoteVLC(host, port, self, sys.stdin)
-                Screen.print_success("Using Remote VLC")
+                self.screen.print_success("Using Remote VLC")
                 return player
             except PlayerUnusable:
-                Screen.print_error("Unable to connect to vlc")
+                self.screen.print_error("Unable to connect to vlc")
                 raise
 
         try:
@@ -101,12 +116,15 @@ class PlayerApp(object):
         sys.exit(1)
 
     def get_client(self):
+        tb_maker = BlockingTokenBucket.creator(
+            PlayerTokenBucketCallbacks(self.screen))
+
         cfg_file = os.environ.get("PYDORA_CFG", "")
-        builder = clientbuilder.PydoraConfigFileBuilder(cfg_file)
+        builder = PydoraConfigFileBuilder(cfg_file, rate_limiter=tb_maker)
         if builder.file_exists:
             return builder.build()
 
-        builder = clientbuilder.PianobarConfigFileBuilder()
+        builder = PianobarConfigFileBuilder(rate_limiter=tb_maker)
         if builder.file_exists:
             return builder.build()
 

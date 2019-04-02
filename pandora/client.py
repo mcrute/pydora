@@ -14,6 +14,7 @@ For simplicity use a client builder from pandora.clientbuilder to create an
 instance of a client.
 """
 from . import errors
+from .ratelimit import WarningTokenBucket
 
 
 class BaseAPIClient(object):
@@ -30,7 +31,27 @@ class BaseAPIClient(object):
     ALL_QUALITIES = [LOW_AUDIO_QUALITY, MED_AUDIO_QUALITY, HIGH_AUDIO_QUALITY]
 
     def __init__(self, transport, partner_user, partner_password, device,
-                 default_audio_quality=MED_AUDIO_QUALITY):
+                 default_audio_quality=MED_AUDIO_QUALITY,
+                 rate_limiter=WarningTokenBucket):
+        """Initialize an API Client
+
+        transport
+            instance of a Pandora transport
+        partner_user
+            partner username
+        partner_password
+            partner password
+        device
+            device type identifier
+        default_audio_quality
+            audio quality level, one of the *_AUDIO_QUALITY constants in the
+            BaseAPIClient class
+        rate_limiter
+            class (not instance) implementing the pandora.ratelimit.TokenBucket
+            interface. Used by various client components to handle rate
+            limits with the Pandora API. The default rate limited warns when
+            the rate limit has been exceeded but does not enforce the limit.
+        """
         self.transport = transport
         self.partner_user = partner_user
         self.partner_password = partner_password
@@ -38,6 +59,17 @@ class BaseAPIClient(object):
         self.default_audio_quality = default_audio_quality
         self.username = None
         self.password = None
+
+        # Global rate limiter for all methods, allows a call rate of 2 calls
+        # per second. This limit is based on nothing but seems sane to prevent
+        # runaway code from hitting Pandora too hard.
+        self._api_limiter = rate_limiter(120, 1, 1)
+
+        # Rate limiter for the get_playlist API which has a much lower
+        # server-side limit than other APIs. This was determined
+        # experimentally. This is applied before and in addition to the global
+        # API rate limit.
+        self._playlist_limiter = rate_limiter(5, 1, 1)
 
     def _partner_login(self):
         partner = self.transport("auth.partnerLogin",
@@ -88,6 +120,8 @@ class BaseAPIClient(object):
                 return []
 
     def __call__(self, method, **kwargs):
+        self._api_limiter.consume(1)
+
         try:
             return self.transport(method, **kwargs)
         except errors.InvalidAuthToken:
@@ -114,6 +148,8 @@ class APIClient(BaseAPIClient):
 
     def get_playlist(self, station_token, additional_urls=None):
         from .models.playlist import Playlist
+
+        self._playlist_limiter.consume(1)
 
         if additional_urls is None:
             additional_urls = []
