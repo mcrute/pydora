@@ -8,6 +8,7 @@ import os.path
 
 from configparser import ConfigParser
 from .client import APIClient
+from .ratelimit import WarningTokenBucket
 from .transport import Encryptor, APITransport, DEFAULT_API_HOST
 
 
@@ -94,8 +95,9 @@ class APIClientBuilder:
 
     DEFAULT_CLIENT_CLASS = APIClient
 
-    def __init__(self, client_class=None):
+    def __init__(self, client_class=None, rate_limiter=WarningTokenBucket):
         self.client_class = client_class or self.DEFAULT_CLIENT_CLASS
+        self.rate_limiter = rate_limiter
 
     def build_from_settings_dict(self, settings):
         enc = Encryptor(settings["DECRYPTION_KEY"], settings["ENCRYPTION_KEY"])
@@ -116,6 +118,7 @@ class APIClientBuilder:
             settings["PARTNER_PASSWORD"],
             settings["DEVICE"],
             quality,
+            self.rate_limiter,
         )
 
 
