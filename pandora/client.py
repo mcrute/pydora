@@ -14,7 +14,6 @@ For simplicity use a client builder from pandora.clientbuilder to create an
 instance of a client.
 """
 from . import errors
-from .util import deprecated
 
 
 class BaseAPIClient(object):
@@ -39,20 +38,6 @@ class BaseAPIClient(object):
         self.default_audio_quality = default_audio_quality
         self.username = None
         self.password = None
-
-    @classmethod
-    @deprecated("1.3", "2.0",
-                "Replaced by clientbuilder.SettingsDictBuilder")
-    def from_settings_dict(cls, settings):  # pragma: no cover
-        from .clientbuilder import SettingsDictBuilder
-        return SettingsDictBuilder(settings).build()
-
-    @classmethod
-    @deprecated("1.3", "2.0",
-                "Replaced by clientbuilder.PydoraConfigFileBuilder")
-    def from_config_file(cls, path, authenticate=True):  # pragma: no cover
-        from .clientbuilder import PydoraConfigFileBuilder
-        return PydoraConfigFileBuilder(path, authenticate).build()
 
     def _partner_login(self):
         partner = self.transport("auth.partnerLogin",
