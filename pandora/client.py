@@ -103,7 +103,7 @@ class APIClient(BaseAPIClient):
     """
 
     def get_station_list(self):  # pragma: no cover
-        from .models.pandora import StationList
+        from .models.station import StationList
 
         return StationList.from_json(self,
                                      self("user.getStationList",
@@ -113,7 +113,7 @@ class APIClient(BaseAPIClient):
         return self("user.getStationListChecksum")["checksum"]
 
     def get_playlist(self, station_token, additional_urls=None):
-        from .models.pandora import Playlist
+        from .models.playlist import Playlist
 
         if additional_urls is None:
             additional_urls = []
@@ -143,13 +143,13 @@ class APIClient(BaseAPIClient):
         return playlist
 
     def get_bookmarks(self):  # pragma: no cover
-        from .models.pandora import BookmarkList
+        from .models.bookmark import BookmarkList
 
         return BookmarkList.from_json(self,
                                       self("user.getBookmarks"))
 
     def get_station(self, station_token):  # pragma: no cover
-        from .models.pandora import Station
+        from .models.station import Station
 
         return Station.from_json(self,
                                  self("station.getStation",
@@ -175,7 +175,7 @@ class APIClient(BaseAPIClient):
     def search(self, search_text,
                include_near_matches=False,
                include_genre_stations=False):  # pragma: no cover
-        from .models.pandora import SearchResult
+        from .models.search import SearchResult
 
         return SearchResult.from_json(
             self,
@@ -197,7 +197,7 @@ class APIClient(BaseAPIClient):
 
     def create_station(self, search_token=None, artist_token=None,
                        track_token=None):
-        from .models.pandora import Station
+        from .models.station import Station
 
         kwargs = {}
 
@@ -226,7 +226,7 @@ class APIClient(BaseAPIClient):
                     stationToken=station_token)
 
     def get_genre_stations(self):
-        from .models.pandora import GenreStationList
+        from .models.station import GenreStationList
 
         genre_stations = GenreStationList.from_json(
             self, self("station.getGenreStations"))
@@ -270,7 +270,7 @@ class APIClient(BaseAPIClient):
                     email=emails[0])
 
     def get_ad_item(self, station_id, ad_token):
-        from .models.pandora import AdItem
+        from .models.ad import AdItem
 
         if not station_id:
             raise errors.ParameterMissing("The 'station_id' param must be "
