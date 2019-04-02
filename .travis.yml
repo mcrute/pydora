@@ -2,7 +2,6 @@ language: python
 python:
   - "3.5"
   - "3.6"
-  - "3.7"
 before_script:
     # Travis versions of these are really outdated
     - pip install -U mock nose pytest
