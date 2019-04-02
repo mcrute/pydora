@@ -63,11 +63,11 @@ class DateField(SyntheticField):
     nanosecond precision.
     """
 
-    def formatter(self, api_client, data, value):
-        if not value:
+    def formatter(self, api_client, data, newval):
+        if not newval:
             return None
 
-        return datetime.utcfromtimestamp(value["time"] / 1000)
+        return datetime.utcfromtimestamp(newval["time"] / 1000)
 
 
 class ModelMetaClass(type):

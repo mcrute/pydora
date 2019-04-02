@@ -232,6 +232,12 @@ class MPG123Player(BasePlayer):
     def _player_stopped(self, value):
         return value.startswith(b"@P") and value.decode("utf-8")[3] == "0"
 
+    def raise_volume(self):
+        return
+
+    def lower_volume(self):
+        return
+
 
 class VLCPlayer(BasePlayer):
 

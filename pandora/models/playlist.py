@@ -36,7 +36,7 @@ class PandoraType(Enum):
 
 class AudioField(SyntheticField):
 
-    def formatter(self, api_client, data, value):
+    def formatter(self, api_client, data, newval):
         """Get audio-related fields
 
         Try to find fields for the audio url for specified preferred quality
@@ -85,21 +85,21 @@ class AudioField(SyntheticField):
 
 class AdditionalUrlField(SyntheticField):
 
-    def formatter(self, api_client, data, value):
+    def formatter(self, api_client, data, newval):
         """Parse additional url fields and map them to inputs
 
         Attempt to create a dictionary with keys being user input, and
         response being the returned URL
         """
-        if value is None:
+        if newval is None:
             return None
 
         user_param = data['_paramAdditionalUrls']
         urls = {}
-        if isinstance(value, str):
-            urls[user_param[0]] = value
+        if isinstance(newval, str):
+            urls[user_param[0]] = newval
         else:
-            for key, url in zip(user_param, value):
+            for key, url in zip(user_param, newval):
                 urls[key] = url
         return urls
 

@@ -34,3 +34,18 @@ class AdItem(PlaylistModel):
             if self.tracking_tokens:
                 raise exc
         return super(AdItem, self).prepare_playback()
+
+    def thumbs_up(self):  # pragma: no cover
+        return
+
+    def thumbs_down(self):  # pragma: no cover
+        return
+
+    def bookmark_song(self):  # pragma: no cover
+        return
+
+    def bookmark_artist(self):  # pragma: no cover
+        return
+
+    def sleep(self):  # pragma: no cover
+        return
