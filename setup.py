@@ -63,7 +63,6 @@ setup(
     tests_require=[
         "mock>=2,<3",
         "coverage>=4.1,<5",
-        "cryptography>=2,<3",
     ],
     install_requires=[
         "requests>=2,<3",
