@@ -281,26 +281,6 @@ class TestPurePythonBlowfishCryptor(TestCase, CommonCryptorTestCases):
         self.cryptor.cipher = self.cipher
 
 
-class TestCryptographyBlowfish(TestCase, CommonCryptorTestCases):
-
-    class FakeCipher(object):
-
-        def update_into(self, val, buf):
-            for i, v in enumerate(val):
-                buf[i] = v
-            return len(val)
-
-        def finalize(self):
-            return b""
-
-    def setUp(self):
-        self.cipher = Mock()
-        self.cipher.encryptor.return_value = self.FakeCipher()
-        self.cipher.decryptor.return_value = self.FakeCipher()
-        self.cryptor = t.CryptographyBlowfish("keys")
-        self.cryptor.cipher = self.cipher
-
-
 class TestEncryptor(TestCase):
 
     ENCODED_JSON = "7b22666f6f223a22626172227d"
@@ -335,14 +315,3 @@ class TestEncryptor(TestCase):
         self.assertEqual(
             self.EXPECTED_TIME,
             self.cryptor.decrypt_sync_time(self.ENCODED_TIME))
-
-
-class TestDefaultStrategy(TestCase):
-
-    def test_blowfish_not_available(self):
-        del sys.modules["pandora.transport"]
-        sys.modules["blowfish"] = None
-
-        import pandora.transport as t
-        self.assertIsNone(t.blowfish)
-        self.assertIs(t._default_crypto, t.CryptographyBlowfish)

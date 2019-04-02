@@ -13,15 +13,11 @@ import random
 import time
 import json
 import base64
+import blowfish
 import requests
 from requests.adapters import HTTPAdapter
 
 from .errors import PandoraException
-
-try:
-    import blowfish
-except ImportError:
-    blowfish = None
 
 
 DEFAULT_API_HOST = "tuner.pandora.com/services/json/"
@@ -272,40 +268,6 @@ class BlowfishCryptor(object):
         return data[:-pad_size]
 
 
-class CryptographyBlowfish(BlowfishCryptor):
-    """Cryptography Blowfish Cryptor
-
-    Uses the python cryptography library which wraps OpenSSL. Compatible with
-    both Python 2 and 3 but requires a native dependency.
-    """
-
-    def __init__(self, key):
-        from cryptography.hazmat.backends import default_backend
-        from cryptography.hazmat.primitives.ciphers import Cipher
-        from cryptography.hazmat.primitives.ciphers.modes import ECB
-        from cryptography.hazmat.primitives.ciphers.algorithms import Blowfish
-
-        self.cipher = Cipher(
-            Blowfish(key.encode("ascii")), ECB(), backend=default_backend())
-
-    def _make_bytearray(self, data):
-        return bytearray(len(data) + (self.block_size - 1))
-
-    def decrypt(self, data, strip_padding=True):
-        buf = self._make_bytearray(data)
-        dec = self.cipher.decryptor()
-        len_dec = dec.update_into(data, buf)
-        data = bytes(buf[:len_dec]) + dec.finalize()
-        return self._strip_padding(data) if strip_padding else data
-
-    def encrypt(self, data):
-        data = self._add_padding(data)
-        enc = self.cipher.encryptor()
-        buf = self._make_bytearray(data)
-        len_enc = enc.update_into(data, buf)
-        return bytes(buf[:len_enc]) + enc.finalize()
-
-
 class PurePythonBlowfish(BlowfishCryptor):
     """Pure Python 3 Blowfish Cryptor
 
@@ -323,10 +285,6 @@ class PurePythonBlowfish(BlowfishCryptor):
         return b"".join(self.cipher.encrypt_ecb(self._add_padding(data)))
 
 
-# Python 3 users can use pure-python mode, if possible prefer that as default
-_default_crypto = PurePythonBlowfish if blowfish else CryptographyBlowfish
-
-
 class Encryptor(object):
     """Pandora Blowfish Encryptor
 
@@ -334,7 +292,7 @@ class Encryptor(object):
     API request and response. It handles the formats that the API expects.
     """
 
-    def __init__(self, in_key, out_key, crypto_class=_default_crypto):
+    def __init__(self, in_key, out_key, crypto_class=PurePythonBlowfish):
         self.bf_out = crypto_class(out_key)
         self.bf_in = crypto_class(in_key)
 

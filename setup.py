@@ -37,29 +37,6 @@ class TestsWithCoverage(test, object):
         cov.html_report()
 
 
-requires = {
-    "setup_requires": [
-        "wheel",
-        "flake8>=3.3",
-    ],
-    "tests_require": [
-        "mock>=2,<3",
-        "coverage>=4.1,<5",
-        "cryptography>=2,<3",
-    ],
-    "install_requires": [
-        "requests>=2,<3",
-    ],
-}
-
-
-if sys.version_info.major == 3 and sys.version_info.minor >= 4:
-    requires["install_requires"].append("blowfish>=0.6.1,<1.0")
-else:
-    requires["install_requires"].append("cryptography>=2,<3")
-    requires["install_requires"].append("enum34")
-
-
 setup(
     name="pydora",
     version="2.0.0",
@@ -79,6 +56,19 @@ setup(
             "pydora-configure = pydora.configure:main",
         ],
     },
+    setup_requires=[
+        "wheel",
+        "flake8>=3.3",
+    ],
+    tests_require=[
+        "mock>=2,<3",
+        "coverage>=4.1,<5",
+        "cryptography>=2,<3",
+    ],
+    install_requires=[
+        "requests>=2,<3",
+        "blowfish>=0.6.1,<1.0",
+    ],
     classifiers=[
         "Development Status :: 5 - Production/Stable",
         "Environment :: Console",
@@ -91,6 +81,5 @@ setup(
         "Programming Language :: Python :: 3.7",
         "Topic :: Internet :: WWW/HTTP",
         "Topic :: Multimedia :: Sound/Audio :: Players",
-    ],
-    **requires
+    ]
 )
