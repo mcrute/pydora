@@ -22,53 +22,18 @@ Keys or passwords for Pandora are **not** provided in this repo, you'll have to
 for yourself. Make something awesome with this library, don't abuse Pandora,
 that's not cool.
 
+Compatability
+=============
 This is the ``2.x`` series which supports only Python 3.5+. For older versions
 of Python please use the |1.x|_ series. The |1.x|_ series is no longer
 maintained but pull requests to fix bugs are still welcomed.
 
-Programmatic Use
-================
-The pydora distribution contains two python packages. The ``pandora`` package
-is the API for interacting with the Pandora service. The ``pydora`` package is
-a very small reference implementation of using the API to drive a command line
-player. If you're interested in the command line skip this section and read
-Installing below to get started.
-
-**NOTE:** This package uses semantic versioning. The API is stable within a
-major version release. Please constrain your dependencies to major versions.
-For example, to depend on version ``2.x`` use this line in your setup.py
-``install_requires``::
+This package uses semantic versioning. The API is guaranteed to be stable
+within a major version release. Please constrain your dependencies to major
+versions. For example, to depend on version ``2.x`` use this line in your
+setup.py ``install_requires``::
 
     pydora>=2,<3
-
-The easiest way to get started is by using the |pandora.clientbuilder|_
-package. This package contains a set of factories that can be used to build a
-Pandora client with some configuration.  The classes in the package that end in
-``Builder`` are the factories and the rest of the classes are implementation
-details. All of the builders will return an instance of
-|pandora.client.APIClient|_ that is completely configured and ready for use in
-your program.
-
-If you have an existing program and would like to connect to Pandora the
-easiest way is to use the |SettingsDictBuilder|_ class like so::
-
-    client = SettingsDictBuilder({
-        "DECRYPTION_KEY": "see_link_above",
-        "ENCRYPTION_KEY": "see_link_above",
-        "PARTNER_USER": "see_link_above",
-        "PARTNER_PASSWORD": "see_link_above",
-        "DEVICE": "see_link_above",
-    }).build()
-
-    client.login("username", "password")
-
-At this point the client is ready for use, see |pandora.client.APIClient|_ for
-a list of methods that can be called. All responses from the API will return
-Python objects from the |pandora.models.pandora|_ package or raise exceptions
-from |pandora.errors|_
-
-For a more functional example look at the file |pydora/player.py|_ which shows
-how to use the API in a simple command line application.
 
 Installing
 ==========
@@ -153,10 +118,14 @@ When playing the following keys work (press enter afterwards):
 * ``vd`` - volume down
 * ``?``  - display help
 
-Note that volume control is currently only supported with the VLC back-end.
+**Note**: volume control is currently only supported with the VLC back-end.
 
 Sample Config File
 ==================
+The built-in ``pydora-configure`` script can be run to create a configuration
+file automatically if you don't already have one. This will download the keys
+from the link below and pick a suitable one when writing the config file. If
+you want to create the config file manually the format is:
 ::
 
     [api]
@@ -178,12 +147,48 @@ Sample Config File
   is not available for the device specified, then the next-highest bit-rate
   stream that Pandora supports for the chosen device will be used.
 
+Programmatic Use
+================
+The Pydora distribution contains two python packages. The |pandora package|_
+is the API for interacting with the Pandora service. The |pydora package|_ is
+a very small reference implementation of using the API to drive a command line
+player. If you're interested in the command line skip this section and read
+Installing below to get started.
+
+The easiest way to get started is by using the |pandora.clientbuilder|_
+package. This package contains a set of factories that can be used to build a
+Pandora client with some configuration. The classes in the package that end in
+``Builder`` are the factories and the rest of the classes are implementation
+details. All of the builders will return an instance of
+|pandora.client.APIClient|_ that is completely configured and ready for use in
+your program.
+
+If you have an existing program and would like to connect to Pandora the
+easiest way is to use the |SettingsDictBuilder|_ class like so::
+
+    client = SettingsDictBuilder({
+        "DECRYPTION_KEY": "see_link_above",
+        "ENCRYPTION_KEY": "see_link_above",
+        "PARTNER_USER": "see_link_above",
+        "PARTNER_PASSWORD": "see_link_above",
+        "DEVICE": "see_link_above",
+    }).build()
+
+    client.login("username", "password")
+
+At this point the client is ready for use, see |pandora.client.APIClient|_ for
+a list of methods that can be called. All responses from the API will return
+Python objects from the |pandora.models.pandora|_ package or raise exceptions
+from |pandora.errors|_
+
+For a more functional example look at the file |pydora/player.py|_ which shows
+how to use the API in a simple command line application.
+
 Pandora API Spec and Partner Keys
 =================================
-The built-in ``pydora-configure`` script can be run to create a configuration
-file if you don't already have one. This will download the keys from the link
-below and pick a suitable one. If you're interested in the underlying API or
-need to download the keys yourself you can find them at the link below.
+If you're interested in the underlying API or need to download the keys
+yourself you can find more details at the links below. This documentation is
+community maintained and not official.
 
 * `API Spec <http://6xq.net/playground/pandora-apidoc/>`_
 * `Partner Keys <http://6xq.net/playground/pandora-apidoc/json/partners/#partners>`_
@@ -194,6 +199,9 @@ See `CONTRIBUTING <https://github.com/mcrute/pydora/blob/master/CONTRIBUTING.rst
 
 Contributors
 ============
+Thanks to the contributors who make Pydora possible by adding features and
+fixing bugs. List is organized by date of first contribution.
+
 * Mike Crute (`@mcrute <https://github.com/mcrute>`_)
 * John Cass (`@jcass77 <https://github.com/jcass77>`_)
 * Thomas Weißschuh (`@t-8c <https://github.com/t-8ch>`_)
@@ -202,6 +210,12 @@ Contributors
 
 .. |1.x| replace:: ``1.x``
 .. _1.x: https://github.com/mcrute/pydora/tree/1.x
+
+.. |pandora package| replace:: ``pandora`` package
+.. _pandora package: https://github.com/mcrute/pydora/tree/master/pandora
+
+.. |pydora package| replace:: ``pydora`` package
+.. _pydora package: https://github.com/mcrute/pydora/tree/master/pydora
 
 .. |pandora.clientbuilder| replace:: ``pandora.clientbuilder``
 .. _pandora.clientbuilder: https://github.com/mcrute/pydora/blob/master/pandora/clientbuilder.py
