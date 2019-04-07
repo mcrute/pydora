@@ -10,7 +10,7 @@ from tests.test_pandora.test_models import TestAdItem
 
 class TestAPIClientLogin(TestCase):
 
-    class StubTransport(object):
+    class StubTransport:
 
         API_VERSION = None
 

@@ -30,7 +30,7 @@ class PlayerUnusable(PlayerException):
     pass
 
 
-class BasePlayer(object):
+class BasePlayer:
     """Audio Backend Process Manager
 
     Starts and owns a handle to an audio backend process then feeds commands to
@@ -208,7 +208,7 @@ class MPG123Player(BasePlayer):
     """
 
     def __init__(self, callbacks, control_channel):
-        super(MPG123Player, self).__init__(callbacks, control_channel)
+        super().__init__(callbacks, control_channel)
         self._cmd.extend(["-q", "-R", "--ignore-mime", "."])
 
     def _find_path(self):
@@ -246,7 +246,7 @@ class VLCPlayer(BasePlayer):
     VOL_STEPS = 5
 
     def __init__(self, callbacks, control_channel):
-        super(VLCPlayer, self).__init__(callbacks, control_channel)
+        super().__init__(callbacks, control_channel)
         self._cmd.extend(["-I", "rc", "--advanced", "--rc-fake-tty", "-q"])
         self._last_poll = 0
 
@@ -300,7 +300,7 @@ class RemoteVLC(VLCPlayer):
     def __init__(self, host, port, callbacks, control_channel):
         self._connect_to = (host, int(port))
         self._control_sock = None
-        super(RemoteVLC, self).__init__(callbacks, control_channel)
+        super().__init__(callbacks, control_channel)
 
     def _get_select_readers(self):
         return [self._control_channel, self._control_sock]

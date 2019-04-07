@@ -30,7 +30,7 @@ class TranslatingDict(dict):
     VALUE_TRANSLATIONS = None
 
     def __init__(self, initial=None):
-        super(TranslatingDict, self).__init__()
+        super().__init__()
 
         assert self.KEY_TRANSLATIONS is not None
         assert self.VALUE_TRANSLATIONS is not None
@@ -70,11 +70,11 @@ class TranslatingDict(dict):
 
     def __setitem__(self, key, value):
         key = self.translate_key(key)
-        super(TranslatingDict, self).__setitem__(
+        super().__setitem__(
             key, self.translate_value(key, value))
 
 
-class APIClientBuilder(object):
+class APIClientBuilder:
     """Abstract API Client Builder
 
     Provides the basic functions for building an API client. Expects a
@@ -141,7 +141,7 @@ class SettingsDictBuilder(APIClientBuilder):
 
     def __init__(self, settings, **kwargs):
         self.settings = settings
-        super(SettingsDictBuilder, self).__init__(**kwargs)
+        super().__init__(**kwargs)
 
     def build(self):
         settings = SettingsDict(self.settings)
@@ -160,7 +160,7 @@ class FileBasedClientBuilder(APIClientBuilder):
     def __init__(self, path=None, authenticate=True, **kwargs):
         self.path = path or self.DEFAULT_CONFIG_FILE
         self.authenticate = authenticate
-        super(FileBasedClientBuilder, self).__init__(**kwargs)
+        super().__init__(**kwargs)
 
     @property
     def file_exists(self):

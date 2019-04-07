@@ -16,7 +16,7 @@ instance of a client.
 from . import errors
 
 
-class BaseAPIClient(object):
+class BaseAPIClient:
     """Base Pandora API Client
 
     The base API client has lower level methods that are composed together to

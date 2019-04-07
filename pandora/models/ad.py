@@ -33,7 +33,7 @@ class AdItem(PlaylistModel):
         except ParameterMissing as exc:
             if self.tracking_tokens:
                 raise exc
-        return super(AdItem, self).prepare_playback()
+        return super().prepare_playback()
 
     def thumbs_up(self):  # pragma: no cover
         return

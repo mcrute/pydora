@@ -56,7 +56,7 @@ class PandoraException(Exception):
 
     def __init__(self, extended_message=""):
         self.extended_message = extended_message
-        super(PandoraException, self).__init__(self.message)
+        super().__init__(self.message)
 
     @classmethod
     def from_code(cls, code, extended_message):

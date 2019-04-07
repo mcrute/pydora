@@ -6,7 +6,7 @@ from setuptools import setup, find_packages
 
 
 # Python 2 setuptools test class is not an object
-class TestsWithCoverage(test, object):
+class TestsWithCoverage(test):
 
     description = "run unit tests with coverage"
 
@@ -28,7 +28,7 @@ class TestsWithCoverage(test, object):
 
         # Unittest calls exit prior to python 3. How naughty
         try:
-            super(TestsWithCoverage, self).run()
+            super().run()
         except SystemExit:
             pass
 
