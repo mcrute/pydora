@@ -8,7 +8,8 @@ Pandora API Client
 .. image:: https://img.shields.io/travis/mcrute/pydora.svg
     :target: https://travis-ci.org/mcrute/pydora
 
-This code is licensed under the MIT license.
+This code is licensed under the MIT license. The code is maintained on `GitHub
+<https://github.com/mcrute/pydora>`_.
 
 This is a reasonably complete implementation of the Pandora API in pure Python
 that supports Python 3.5+. It contains a complete implementation of the core
@@ -22,7 +23,7 @@ for yourself. Make something awesome with this library, don't abuse Pandora,
 that's not cool.
 
 This is the ``2.x`` series which supports only Python 3.5+. For older versions
-of Python please use the ``1.x`` series. The ``1.x`` series is no longer
+of Python please use the |1.x|_ series. The |1.x|_ series is no longer
 maintained but pull requests to fix bugs are still welcomed.
 
 Programmatic Use
@@ -40,16 +41,16 @@ For example, to depend on version ``2.x`` use this line in your setup.py
 
     pydora>=2,<3
 
-The easiest way to get started is by using the ``pandora.clientbuilder``
+The easiest way to get started is by using the |pandora.clientbuilder|_
 package. This package contains a set of factories that can be used to build a
 Pandora client with some configuration.  The classes in the package that end in
 ``Builder`` are the factories and the rest of the classes are implementation
 details. All of the builders will return an instance of
-``pandora.client.APIClient`` that is completely configured and ready for use in
+|pandora.client.APIClient|_ that is completely configured and ready for use in
 your program.
 
 If you have an existing program and would like to connect to Pandora the
-easiest way is to use the ``SettingsDictBuilder`` class like so::
+easiest way is to use the |SettingsDictBuilder|_ class like so::
 
     client = SettingsDictBuilder({
         "DECRYPTION_KEY": "see_link_above",
@@ -61,12 +62,12 @@ easiest way is to use the ``SettingsDictBuilder`` class like so::
 
     client.login("username", "password")
 
-At this point the client is ready for use, see ``pandora.client.APIClient`` for
+At this point the client is ready for use, see |pandora.client.APIClient|_ for
 a list of methods that can be called. All responses from the API will return
-Python objects from the ``pandora.models.pandora`` package or raise exceptions
-from ``pandora.errors``
+Python objects from the |pandora.models.pandora|_ package or raise exceptions
+from |pandora.errors|_
 
-For a more functional example look at the file ``pydora/player.py`` which shows
+For a more functional example look at the file |pydora/player.py|_ which shows
 how to use the API in a simple command line application.
 
 Installing
@@ -198,3 +199,24 @@ Contributors
 * Thomas Weißschuh (`@t-8c <https://github.com/t-8ch>`_)
 * Skybound1 (`@Skybound1 <https://github.com/Skybound1>`_)
 * Hugo (`@hugovk <https://github.com/hugovk>`_)
+
+.. |1.x| replace:: ``1.x``
+.. _1.x: https://github.com/mcrute/pydora/tree/1.x
+
+.. |pandora.clientbuilder| replace:: ``pandora.clientbuilder``
+.. _pandora.clientbuilder: https://github.com/mcrute/pydora/blob/master/pandora/clientbuilder.py
+
+.. |pandora.client.APIClient| replace:: ``pandora.client.APIClient``
+.. _pandora.client.APIClient: https://github.com/mcrute/pydora/blob/master/pandora/client.py#L98
+
+.. |SettingsDictBuilder| replace:: ``SettingsDictBuilder``
+.. _SettingsDictBuilder: https://github.com/mcrute/pydora/blob/master/pandora/clientbuilder.py#L136
+
+.. |pandora.models.pandora| replace:: ``pandora.models.pandora``
+.. _pandora.models.pandora: https://github.com/mcrute/pydora/tree/master/pandora/models
+
+.. |pandora.errors| replace:: ``pandora.errors``
+.. _pandora.errors: https://github.com/mcrute/pydora/blob/master/pandora/errors.py
+
+.. |pydora/player.py| replace:: ``pydora/player.py``
+.. _pydora/player.py: https://github.com/mcrute/pydora/blob/master/pydora/player.py
