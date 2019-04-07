@@ -11,7 +11,7 @@ your changes. To have the best experience contributing, please:
 * Update the readme/docstrings, if necessary
 * Follow the coding style of the current code-base
 * Ensure that your code is PEP8 compliant
-* Validate that your changes work with Python 2.7+ and 3.3+
+* Validate that your changes work with Python 3.5+
 
 All code is reviewed before acceptance and changes may be requested to better
 follow the conventions of the existing API.
