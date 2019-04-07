@@ -10,23 +10,23 @@ Pandora API Client
 
 This code is licensed under the MIT license.
 
-This is a reasonably complete implementation of the Pandora API that supports
-Python 2 and 3. It does not implement any of the undocumented features and does
-not implement most of the account management features as they are not terribly
-useful.
+This is a reasonably complete implementation of the Pandora API in pure Python
+that supports Python 3.5+. It contains a complete implementation of the core
+radio features but does not implement account management or Pandora Plus
+functionality; pull requests adding that functionality are welcomed from anyone
+needing those features.
 
 Keys or passwords for Pandora are **not** provided in this repo, you'll have to
 `go get those <http://6xq.net/playground/pandora-apidoc/json/partners/#partners>`_
 for yourself. Make something awesome with this library, don't abuse Pandora,
 that's not cool.
 
-As of 1.11.0 users of Python 3.4+ no longer require a native dependency and can
-use this package in its pure Python form. Users of older versions of Python
-will require `cryptography <https://pypi.python.org/pypi/cryptography>`_. This
-is configured automatically when pydora is installed.
+This is the ``2.x`` series which supports only Python 3.5+. For older versions
+of Python please use the ``1.x`` series. The ``1.x`` series is no longer
+maintained but pull requests to fix bugs are still welcomed.
 
-Programatic Use
-===============
+Programmatic Use
+================
 The pydora distribution contains two python packages. The ``pandora`` package
 is the API for interacting with the Pandora service. The ``pydora`` package is
 a very small reference implementation of using the API to drive a command line
@@ -35,10 +35,10 @@ Installing below to get started.
 
 **NOTE:** This package uses semantic versioning. The API is stable within a
 major version release. Please constrain your dependencies to major versions.
-For example, to depend on version 1.x use this line in your setup.py
+For example, to depend on version ``2.x`` use this line in your setup.py
 ``install_requires``::
 
-    pydora>=1,<2
+    pydora>=2,<3
 
 The easiest way to get started is by using the ``pandora.clientbuilder``
 package. This package contains a set of factories that can be used to build a
@@ -73,7 +73,7 @@ Installing
 ==========
 Installing is as simple as using pip and running the built-in configuration
 command to create a ``~/.pydora.cfg`` file. If you already have a `PianoBar
-<http://6xq.net/projects/pianobar/>`_ config file pydora will automatically use
+<http://6xq.net/projects/pianobar/>`_ config file Pydora will automatically use
 that. ::
 
     $ pip install pydora
@@ -85,22 +85,22 @@ On Ubuntu install `vlc` or `vlc`::
 
 To install VLC on Mac OS X visit the `VLC site
 <https://www.videolan.org/vlc/>`_ to download ``VLC.app``, then drag-and-drop
-the bundle into your ``/Applications`` folder. pydora will auto-detect this.
+the bundle into your ``/Applications`` folder. Pydora will auto-detect this.
 
-Audio Output Backend
-====================
+Audio Output Back-end
+=====================
 The ``pydora`` player does not directly support audio output but instead relies
-upon external audio output backends. The two supported backends are VLC and
-mpg123. The main difference between the two backends is the supported file
+upon external audio output back-ends. The two supported back-ends are VLC and
+mpg123. The main difference between the two back-ends is the supported file
 formats. VLC supports a vast array of codecs, including MP3 and AAC, the two
 formats that Pandora uses. mpg123 on the other hand supports only MP3. As of
 2017 Pandora has started to prefer AAC files over MP3 which necessitates VLC.
 The ``pydora`` player will try to auto-detect whatever player exists on your
-system, prefering VLC, and will use that audio output backend. If you notice a
-lot of skipping in a playlist consider installing VLC.
+system, preferring VLC, and will use that audio output back-end. If you notice
+a lot of skipping in a playlist consider installing VLC.
 
-Remote VLC Backend
-------------------
+Remote VLC Back-end
+-------------------
 It is also possible to remotely control a copy of VLC running on another
 machine if you're unable or unwilling to install Pydora on your playback
 machine. To do this start VLC on the remote machine with the ``rc-host`` option
@@ -115,7 +115,7 @@ remote host and port that VLC is listening on. For example::
 
 Pydora will now send all audio playback requests to the remote VLC. It does
 this using a text control protocol; all audio data is streamed directly from
-the internet to VLC and is not passed over the pydora control channel. Because
+the internet to VLC and is not passed over the Pydora control channel. Because
 of this it is possible for the control channel to run over a very low bandwidth
 connection.
 
@@ -132,25 +132,25 @@ a settings file (example below) located in ``~/.pydora.cfg``. Alternatively an
 environment variable ``PYDORA_CFG`` can point to the path of the config file.
 
 The player only supports basic functionality for now. It will display a station
-list, allow listening to any station, basic feeback and bookmarking are also
+list, allow listening to any station, basic feedback and bookmarking are also
 supported. The player starts an mpg123 or VLC process in remote control mode
 and feeds commands to it. It does not download any music but rather streams
 them directly from Pandora.
 
 When playing the following keys work (press enter afterwards):
 
-* n  - next song
-* p  - pause or resume song
-* s  - station list (stops song)
-* d  - thumbs down track
-* u  - thumbs up track
-* b  - bookmark song
-* a  - bookmark artist
-* S  - sleep song
-* Q  - quit program
-* vu - volume up
-* vd - volume down
-* ?  - display help
+* ``n``  - next song
+* ``p``  - pause or resume song
+* ``s``  - station list (stops song)
+* ``d``  - thumbs down track
+* ``u``  - thumbs up track
+* ``b``  - bookmark song
+* ``a``  - bookmark artist
+* ``S``  - sleep song
+* ``Q``  - quit program
+* ``vu`` - volume up
+* ``vd`` - volume down
+* ``?``  - display help
 
 Note that volume control is currently only supported with the VLC back-end.
 
@@ -174,7 +174,7 @@ Sample Config File
 **default_audio_quality**
   Default audio quality to request from the API; can be one of `lowQuality`,
   `mediumQuality` (default), or `highQuality`. If the preferred audio quality
-  is not available for the device specified, then the next-highest bitrate
+  is not available for the device specified, then the next-highest bit-rate
   stream that Pandora supports for the chosen device will be used.
 
 Pandora API Spec and Partner Keys
