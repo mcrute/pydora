@@ -68,6 +68,7 @@ setup(
         "requests>=2,<3",
         "blowfish>=0.6.1,<1.0",
     ],
+    python_requires=">=3.5",
     classifiers=[
         "Development Status :: 5 - Production/Stable",
         "Environment :: Console",
