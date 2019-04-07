@@ -18,7 +18,7 @@ from .audio_backend import MPG123Player, VLCPlayer
 from .audio_backend import UnsupportedEncoding, PlayerUnusable
 
 
-class PlayerCallbacks(object):
+class PlayerCallbacks:
     """Interface for Player Callbacks
 
     This class simply exists to document the interface for callback
@@ -46,7 +46,7 @@ class PlayerCallbacks(object):
         pass
 
 
-class PlayerApp(object):
+class PlayerApp:
 
     CMD_MAP = {
         "n": ("play next song", "skip_song"),
@@ -122,7 +122,7 @@ class PlayerApp(object):
 
         for i, station in enumerate(self.stations):
             i = "{:>3}".format(i)
-            print(u"{}: {}".format(Colors.yellow(i), station.name))
+            print("{}: {}".format(Colors.yellow(i), station.name))
 
         return self.stations[self.screen.get_integer("Station: ")]
 
@@ -130,10 +130,10 @@ class PlayerApp(object):
         """Play callback
         """
         if song.is_ad:
-            print(u"{} ".format(Colors.cyan("Advertisement")))
+            print("{} ".format(Colors.cyan("Advertisement")))
         else:
-            print(u"{} by {}".format(Colors.cyan(song.song_name),
-                                     Colors.yellow(song.artist_name)))
+            print("{} by {}".format(Colors.cyan(song.song_name),
+                                    Colors.yellow(song.artist_name)))
 
     def skip_song(self, song):
         if song.is_ad:

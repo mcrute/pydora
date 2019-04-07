@@ -10,7 +10,7 @@ from pandora.clientbuilder import PydoraConfigFileBuilder
 from .utils import Screen, Colors
 
 
-class Umask(object):
+class Umask:
     """Set/Restore Umask Context Manager
     """
 
@@ -25,7 +25,7 @@ class Umask(object):
         os.umask(self.old_umask)
 
 
-class PandoraKeysConfigParser(object):
+class PandoraKeysConfigParser:
     """Parser for Pandora Keys Source Page
 
     This is an extremely naive restructured text parser designed only to parse
@@ -97,7 +97,7 @@ class PandoraKeysConfigParser(object):
         return partners
 
 
-class Configurator(object):
+class Configurator:
     """Interactive Configuration Builder
 
     Allows a user to configure pydora interactively. Ultimately writes the

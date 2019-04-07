@@ -26,7 +26,7 @@ class Field(namedtuple("Field", ["field", "default", "formatter", "model"])):
     """
 
     def __new__(cls, field, default=None, formatter=None, model=None):
-        return super(Field, cls).__new__(cls, field, default, formatter, model)
+        return super().__new__(cls, field, default, formatter, model)
 
 
 class SyntheticField(namedtuple("SyntheticField", ["field"])):
@@ -84,10 +84,10 @@ class ModelMetaClass(type):
                 fields[key] = val
                 del new_dct[key]
 
-        return super(ModelMetaClass, cls).__new__(cls, name, parents, new_dct)
+        return super().__new__(cls, name, parents, new_dct)
 
 
-class PandoraModel(object, metaclass=ModelMetaClass):
+class PandoraModel(metaclass=ModelMetaClass):
     """Pandora API Model
 
     A single object representing a Pandora data object. Subclasses are
@@ -208,7 +208,7 @@ class PandoraListModel(PandoraModel, list):
     __index_key__ = None
 
     def __init__(self, *args, **kwargs):
-        super(PandoraListModel, self).__init__(*args, **kwargs)
+        super().__init__(*args, **kwargs)
         self._index = {}
 
     @classmethod

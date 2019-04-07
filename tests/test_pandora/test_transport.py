@@ -247,7 +247,7 @@ class TestTransportRequestPrep(TestCase):
 
 
 # All Cryptor implementations must pass these test cases unmodified
-class CommonCryptorTestCases(object):
+class CommonCryptorTestCases:
 
     def test_decrypt_invalid_padding(self):
         with self.assertRaises(ValueError):
@@ -288,7 +288,7 @@ class TestEncryptor(TestCase):
     EXPECTED_TIME = 4111
     ENCODED_TIME = "31353037343131313539"
 
-    class NoopCrypto(object):
+    class NoopCrypto:
 
         def __init__(self, key):
             pass

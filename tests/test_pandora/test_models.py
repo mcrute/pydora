@@ -25,7 +25,7 @@ class TestField(TestCase):
 
 class TestModelMetaClass(TestCase):
 
-    class TestModel(object, metaclass=m.ModelMetaClass):
+    class TestModel(metaclass=m.ModelMetaClass):
 
         foo = "bar"
         a_field = m.Field("testing")

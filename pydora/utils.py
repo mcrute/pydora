@@ -13,15 +13,15 @@ class TerminalPlatformUnsupported(Exception):
     pass
 
 
-class Colors(object):
+class Colors:
 
     def __wrap_with(raw_code):
         @staticmethod
         def inner(text, bold=False):
             code = raw_code
             if bold:
-                code = u"1;{}".format(code)
-            return u"\033[{}m{}\033[0m".format(code, text)
+                code = "1;{}".format(code)
+            return "\033[{}m{}\033[0m".format(code, text)
         return inner
 
     red = __wrap_with("31")
@@ -33,7 +33,7 @@ class Colors(object):
     white = __wrap_with("37")
 
 
-class PosixEchoControl(object):
+class PosixEchoControl:
     """Posix Console Echo Control Driver
 
     Uses termios on POSIX compliant platforms to control console echo. Is not
@@ -63,7 +63,7 @@ class PosixEchoControl(object):
         self.termios.tcsetattr(handle, self.termios.TCSANOW, attrs)
 
 
-class Win32EchoControl(object):
+class Win32EchoControl:
     """Windows Console Echo Control Driver
 
     This uses the console API from WinCon.h and ctypes to control console echo
@@ -109,7 +109,7 @@ class Win32EchoControl(object):
             self._SetConsoleMode(stdin, mode & self.DISABLE_ECHO_INPUT)
 
 
-class Screen(object):
+class Screen:
 
     def __init__(self):
         try:
@@ -201,8 +201,8 @@ class SilentPopen(subprocess.Popen):
         kwargs["stdin"] = subprocess.PIPE
         kwargs["stdout"] = subprocess.PIPE
         kwargs["stderr"] = self._dev_null
-        super(SilentPopen, self).__init__(*args, **kwargs)
+        super().__init__(*args, **kwargs)
 
     def __del__(self):
         self._dev_null.close()
-        super(SilentPopen, self).__del__()
+        super().__del__()

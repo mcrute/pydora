@@ -94,12 +94,12 @@ class RetryingSession(requests.Session):
     """
 
     def __init__(self):
-        super(RetryingSession, self).__init__()
+        super().__init__()
         self.mount('https://', HTTPAdapter(max_retries=3))
         self.mount('http://', HTTPAdapter(max_retries=3))
 
 
-class APITransport(object):
+class APITransport:
     """Pandora API Transport
 
     The transport is responsible for speaking the low-level protocol required
@@ -161,7 +161,7 @@ class APITransport(object):
         return int(self.server_sync_time + (time.time() - self.start_time))
 
     def remove_empty_values(self, data):
-        return dict((k, v) for k, v in data.items() if v is not None)
+        return {k: v for k, v in data.items() if v is not None}
 
     @sync_time.setter
     def sync_time(self, sync_time):
@@ -198,7 +198,7 @@ class APITransport(object):
         }
 
     def _build_url(self, method):
-        return "{0}://{1}".format(
+        return "{}://{}".format(
             "https" if method in self.REQUIRE_TLS else "http",
             self.api_host)
 
@@ -236,7 +236,7 @@ class APITransport(object):
         return self._parse_response(result)
 
 
-class BlowfishCryptor(object):
+class BlowfishCryptor:
     """Low-Level Blowfish Cryptography
 
     Handles symmetric Blowfish cryptography of raw byte messages with or
@@ -285,7 +285,7 @@ class PurePythonBlowfish(BlowfishCryptor):
         return b"".join(self.cipher.encrypt_ecb(self._add_padding(data)))
 
 
-class Encryptor(object):
+class Encryptor:
     """Pandora Blowfish Encryptor
 
     The blowfish encryptor can encrypt and decrypt the relevant parts of the
