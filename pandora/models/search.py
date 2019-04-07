@@ -24,7 +24,7 @@ class SearchResultItem(PandoraModel):
     def is_genre_station(self):
         return isinstance(self, GenreStationSearchResultItem)
 
-    def create_station(self):  # pragma: no cover
+    def create_station(self):
         raise NotImplementedError
 
     @classmethod

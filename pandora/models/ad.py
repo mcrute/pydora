@@ -35,17 +35,17 @@ class AdItem(PlaylistModel):
                 raise exc
         return super().prepare_playback()
 
-    def thumbs_up(self):  # pragma: no cover
+    def thumbs_up(self):
         return
 
-    def thumbs_down(self):  # pragma: no cover
+    def thumbs_down(self):
         return
 
-    def bookmark_song(self):  # pragma: no cover
+    def bookmark_song(self):
         return
 
-    def bookmark_artist(self):  # pragma: no cover
+    def bookmark_artist(self):
         return
 
-    def sleep(self):  # pragma: no cover
+    def sleep(self):
         return

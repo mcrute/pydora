@@ -119,19 +119,19 @@ class PlaylistModel(PandoraModel):
         """
         return self
 
-    def thumbs_up(self):  # pragma: no cover
+    def thumbs_up(self):
         raise NotImplementedError
 
-    def thumbs_down(self):  # pragma: no cover
+    def thumbs_down(self):
         raise NotImplementedError
 
-    def bookmark_song(self):  # pragma: no cover
+    def bookmark_song(self):
         raise NotImplementedError
 
-    def bookmark_artist(self):  # pragma: no cover
+    def bookmark_artist(self):
         raise NotImplementedError
 
-    def sleep(self):  # pragma: no cover
+    def sleep(self):
         raise NotImplementedError
 
 
@@ -175,19 +175,19 @@ class PlaylistItem(PlaylistModel):
     def is_ad(self):
         return self.ad_token is not None
 
-    def thumbs_up(self):  # pragma: no cover
+    def thumbs_up(self):
         return self._api_client.add_feedback(self.track_token, True)
 
-    def thumbs_down(self):  # pragma: no cover
+    def thumbs_down(self):
         return self._api_client.add_feedback(self.track_token, False)
 
-    def bookmark_song(self):  # pragma: no cover
+    def bookmark_song(self):
         return self._api_client.add_song_bookmark(self.track_token)
 
-    def bookmark_artist(self):  # pragma: no cover
+    def bookmark_artist(self):
         return self._api_client.add_artist_bookmark(self.track_token)
 
-    def sleep(self):  # pragma: no cover
+    def sleep(self):
         return self._api_client.sleep_song(self.track_token)
 
 

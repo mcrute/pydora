@@ -3,6 +3,10 @@ from unittest.mock import Mock, call, patch
 
 from pandora import errors
 from pandora.models.ad import AdItem
+from pandora.models.station import Station
+from pandora.models.station import StationList
+from pandora.models.search import SearchResult
+from pandora.models.bookmark import BookmarkList
 from pandora.models.playlist import AdditionalAudioUrl
 from pandora.client import APIClient, BaseAPIClient
 from tests.test_pandora.test_models import TestAdItem
@@ -253,3 +257,133 @@ class TestAdditionalUrls(TestCase):
                                                  includeTrackLength=True,
                                                  stationToken='token_mock',
                                                  xplatformAdCapable=True)])
+
+
+# On the surface this test class seems dumb because it's mostly just exercising
+# pass-throughs to the transport but it exists to ensure no subtle errors get
+# introduced to API client methods that will only be spotted at runtime (import
+# errors, etc...)
+class TestAPIClientExhaustive(TestCase):
+
+    def setUp(self):
+        self.transport = Mock()
+        self.api = APIClient(self.transport, "puser", "ppass", "device")
+
+    def test_register_ad(self):
+        self.api.register_ad("sid", "tokens")
+        self.transport.assert_called_with(
+            "ad.registerAd", stationId="sid", adTrackingTokens="tokens")
+
+    def test_share_music(self):
+        self.api.share_music("token", "foo@example.com")
+        self.transport.assert_called_with(
+            "music.shareMusic", musicToken="token", email="foo@example.com")
+
+    def test_transform_shared_station(self):
+        self.api.transform_shared_station("token")
+        self.transport.assert_called_with(
+            "station.transformSharedStation", stationToken="token")
+
+    def test_share_station(self):
+        self.api.share_station("sid", "token", "foo@example.com")
+        self.transport.assert_called_with(
+            "station.shareStation", stationId="sid", stationToken="token",
+            emails=("foo@example.com",))
+
+    def test_sleep_song(self):
+        self.api.sleep_song("token")
+        self.transport.assert_called_with("user.sleepSong", trackToken="token")
+
+    def test_set_quick_mix(self):
+        self.api.set_quick_mix("id")
+        self.transport.assert_called_with(
+            "user.setQuickMix", quickMixStationIds=("id",))
+
+    def test_explain_track(self):
+        self.api.explain_track("token")
+        self.transport.assert_called_with(
+            "track.explainTrack", trackToken="token")
+
+    def test_rename_station(self):
+        self.api.rename_station("token", "name")
+        self.transport.assert_called_with(
+            "station.renameStation", stationToken="token", stationName="name")
+
+    def test_delete_station(self):
+        self.api.delete_station("token")
+        self.transport.assert_called_with(
+            "station.deleteStation", stationToken="token")
+
+    def test_delete_music(self):
+        self.api.delete_music("seed")
+        self.transport.assert_called_with("station.deleteMusic", seedId="seed")
+
+    def test_delete_feedback(self):
+        self.api.delete_feedback("id")
+        self.transport.assert_called_with(
+            "station.deleteFeedback", feedbackId="id")
+
+    def test_add_music(self):
+        self.api.add_music("mt", "st")
+        self.transport.assert_called_with(
+            "station.addMusic", musicToken="mt", stationToken="st")
+
+    def test_add_feedback(self):
+        self.api.add_feedback("token", False)
+        self.transport.assert_called_with(
+            "station.addFeedback", trackToken="token", isPositive=False)
+
+    def test_add_artist_bookmark(self):
+        self.api.add_artist_bookmark("tt")
+        self.transport.assert_called_with(
+            "bookmark.addArtistBookmark", trackToken="tt")
+
+    def test_add_song_bookmark(self):
+        self.api.add_song_bookmark("tt")
+        self.transport.assert_called_with(
+            "bookmark.addSongBookmark", trackToken="tt")
+
+    def test_delete_song_bookmark(self):
+        self.api.delete_song_bookmark("bt")
+        self.transport.assert_called_with(
+            "bookmark.deleteSongBookmark", bookmarkToken="bt")
+
+    def test_delete_artist_bookmark(self):
+        self.api.delete_artist_bookmark("bt")
+        self.transport.assert_called_with(
+            "bookmark.deleteArtistBookmark", bookmarkToken="bt")
+
+    def test_get_station_list_checksum(self):
+        self.transport.return_value = {"checksum": "foo"}
+        self.assertEqual("foo", self.api.get_station_list_checksum())
+        self.transport.assert_called_with("user.getStationListChecksum")
+
+    # The following methods use the bare minimum JSON required to construct the
+    # models for more detailed model tests look at test_models instead
+
+    def test_get_station_list(self):
+        self.transport.return_value = {"stations": []}
+        self.assertIsInstance(self.api.get_station_list(), StationList)
+        self.transport.assert_called_with(
+            "user.getStationList", includeStationArtUrl=True)
+
+    def test_get_bookmarks(self):
+        self.transport.return_value = {}
+        self.assertIsInstance(self.api.get_bookmarks(), BookmarkList)
+        self.transport.assert_called_with("user.getBookmarks")
+
+    def test_get_station(self):
+        self.transport.return_value = {}
+        self.assertIsInstance(self.api.get_station("st"), Station)
+        self.transport.assert_called_with(
+            "station.getStation", stationToken="st",
+            includeExtendedAttributes=True)
+
+    def test_search(self):
+        self.transport.return_value = {}
+        self.assertIsInstance(self.api.search(
+            "text", include_near_matches=True, include_genre_stations=True),
+            SearchResult)
+        self.transport.assert_called_with(
+            "music.search", searchText="text", includeNearMatches=True,
+            includeGenreStations=True)

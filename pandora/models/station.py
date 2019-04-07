@@ -104,7 +104,7 @@ class GenreStation(PandoraModel):
     token = Field("stationToken")
     category = Field("categoryName")
 
-    def get_playlist(self):  # pragma: no cover
+    def get_playlist(self):
         raise NotImplementedError("Genre stations do not have playlists. "
                                   "Create a real station using the token.")
 

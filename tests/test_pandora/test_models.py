@@ -277,6 +277,11 @@ class TestPlaylistItemModel(TestCase):
     AUDIO_URL_NO_MAP = {"audioUrl": "foo"}
     WEIRD_FORMAT = {"audioUrlMap": {"highQuality": {}}}
 
+    def setUp(self):
+        self.client = Mock()
+        self.playlist = plm.PlaylistItem(self.client)
+        self.playlist.track_token = "token"
+
     def test_audio_url_without_map(self):
         item = plm.PlaylistItem.from_json(Mock(), self.AUDIO_URL_NO_MAP)
         self.assertEqual(item.bitrate, 64)
@@ -293,20 +298,57 @@ class TestPlaylistItemModel(TestCase):
         self.assertIsNone(item.encoding)
         self.assertIsNone(item.audio_url)
 
+    def test_thumbs_up(self):
+        self.playlist.thumbs_up()
+        self.client.add_feedback.assert_called_with("token", True)
+
+    def test_thumbs_down(self):
+        self.playlist.thumbs_down()
+        self.client.add_feedback.assert_called_with("token", False)
+
+    def test_bookmark_song(self):
+        self.playlist.bookmark_song()
+        self.client.add_song_bookmark.assert_called_with("token")
+
+    def test_bookmark_artist(self):
+        self.playlist.bookmark_artist()
+        self.client.add_artist_bookmark.assert_called_with("token")
+
+    def test_sleep_song(self):
+        self.playlist.sleep()
+        self.client.sleep_song.assert_called_with("token")
+
 
 class TestPlaylistModel(TestCase):
 
+    def setUp(self):
+        self.client = Mock()
+        self.playlist = plm.PlaylistModel(self.client)
+
     def test_unplayable_get_is_playable(self):
-        playlist = plm.PlaylistModel(Mock())
-        playlist.audio_url = ""
-        self.assertFalse(playlist.get_is_playable())
+        self.playlist.audio_url = ""
+        self.assertFalse(self.playlist.get_is_playable())
 
     def test_playable_get_is_playable(self):
-        client = Mock()
-        playlist = plm.PlaylistModel(client)
-        playlist.audio_url = "foo"
-        playlist.get_is_playable()
-        client.transport.test_url.assert_called_with("foo")
+        self.playlist.audio_url = "foo"
+        self.playlist.get_is_playable()
+        self.client.transport.test_url.assert_called_with("foo")
+
+    def test_not_implemented_interface_methods(self):
+        with self.assertRaises(NotImplementedError):
+            self.playlist.thumbs_up()
+
+        with self.assertRaises(NotImplementedError):
+            self.playlist.thumbs_down()
+
+        with self.assertRaises(NotImplementedError):
+            self.playlist.bookmark_song()
+
+        with self.assertRaises(NotImplementedError):
+            self.playlist.bookmark_artist()
+
+        with self.assertRaises(NotImplementedError):
+            self.playlist.sleep()
 
 
 class TestAdItem(TestCase):
@@ -393,6 +435,13 @@ class TestAdItem(TestCase):
             assert self.result.register_ad.called
             assert super_mock.called
 
+    def test_noop_methods(self):
+        self.assertIsNone(self.result.thumbs_up())
+        self.assertIsNone(self.result.thumbs_down())
+        self.assertIsNone(self.result.bookmark_song())
+        self.assertIsNone(self.result.bookmark_artist())
+        self.assertIsNone(self.result.sleep())
+
 
 class TestSearchResultItem(TestCase):
 
@@ -470,6 +519,12 @@ class TestSearchResultItem(TestCase):
         with self.assertRaises(NotImplementedError):
             sm.SearchResultItem.from_json(
                 self.api_client_mock, self.UNKNOWN_JSON_DATA)
+
+    def test_interface(self):
+        result = sm.SearchResultItem(self.api_client_mock)
+
+        with self.assertRaises(NotImplementedError):
+            result.create_station()
 
 
 class TestArtistSearchResultItem(TestCase):
@@ -642,6 +697,19 @@ class TestGenreStationList(TestCase):
         self.assertTrue(stations.has_changed())
 
 
+class TestGenreStation(TestCase):
+
+    TEST_DATA = {"categoryName": "foo", "stations": []}
+
+    def test_get_playlist_throws_exception(self):
+        api_client = Mock()
+        genre_station = stm.GenreStation.from_json(api_client, self.TEST_DATA)
+
+        with self.assertRaisesRegex(
+                NotImplementedError, "Genre stations do not have playlists.*"):
+            genre_station.get_playlist()
+
+
 class TestStationList(TestCase):
 
     TEST_DATA = {
@@ -694,3 +762,12 @@ class TestPandoraType(TestCase):
     def test_it_returns_genre_for_unknown_string(self):
         pt = plm.PandoraType.from_string("FOO")
         self.assertIs(plm.PandoraType.GENRE, pt)
+
+
+class TestSyntheticField(TestCase):
+
+    def test_interface(self):
+        sf = m.SyntheticField(field="foo")
+
+        with self.assertRaises(NotImplementedError):
+            sf.formatter(None, None, None)

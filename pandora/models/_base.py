@@ -38,7 +38,7 @@ class SyntheticField(namedtuple("SyntheticField", ["field"])):
     payload.
     """
 
-    def formatter(self, api_client, data, newval):  # pragma: no cover
+    def formatter(self, api_client, data, newval):
         """Format Value for Model
 
         The return value of this method is used as a value for the field in the

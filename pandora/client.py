@@ -102,14 +102,14 @@ class APIClient(BaseAPIClient):
     This is what clients should actually use.
     """
 
-    def get_station_list(self):  # pragma: no cover
+    def get_station_list(self):
         from .models.station import StationList
 
         return StationList.from_json(self,
                                      self("user.getStationList",
                                           includeStationArtUrl=True))
 
-    def get_station_list_checksum(self):  # pragma: no cover
+    def get_station_list_checksum(self):
         return self("user.getStationListChecksum")["checksum"]
 
     def get_playlist(self, station_token, additional_urls=None):
@@ -142,13 +142,13 @@ class APIClient(BaseAPIClient):
 
         return playlist
 
-    def get_bookmarks(self):  # pragma: no cover
+    def get_bookmarks(self):
         from .models.bookmark import BookmarkList
 
         return BookmarkList.from_json(self,
                                       self("user.getBookmarks"))
 
-    def get_station(self, station_token):  # pragma: no cover
+    def get_station(self, station_token):
         from .models.station import Station
 
         return Station.from_json(self,
@@ -156,25 +156,25 @@ class APIClient(BaseAPIClient):
                                       stationToken=station_token,
                                       includeExtendedAttributes=True))
 
-    def add_artist_bookmark(self, track_token):  # pragma: no cover
+    def add_artist_bookmark(self, track_token):
         return self("bookmark.addArtistBookmark",
                     trackToken=track_token)
 
-    def add_song_bookmark(self, track_token):  # pragma: no cover
+    def add_song_bookmark(self, track_token):
         return self("bookmark.addSongBookmark",
                     trackToken=track_token)
 
-    def delete_song_bookmark(self, bookmark_token):  # pragma: no cover
+    def delete_song_bookmark(self, bookmark_token):
         return self("bookmark.deleteSongBookmark",
                     bookmarkToken=bookmark_token)
 
-    def delete_artist_bookmark(self, bookmark_token):  # pragma: no cover
+    def delete_artist_bookmark(self, bookmark_token):
         return self("bookmark.deleteArtistBookmark",
                     bookmarkToken=bookmark_token)
 
     def search(self, search_text,
                include_near_matches=False,
-               include_genre_stations=False):  # pragma: no cover
+               include_genre_stations=False):
         from .models.search import SearchResult
 
         return SearchResult.from_json(
@@ -185,12 +185,12 @@ class APIClient(BaseAPIClient):
                  includeGenreStations=include_genre_stations)
         )
 
-    def add_feedback(self, track_token, positive):  # pragma: no cover
+    def add_feedback(self, track_token, positive):
         return self("station.addFeedback",
                     trackToken=track_token,
                     isPositive=positive)
 
-    def add_music(self, music_token, station_token):  # pragma: no cover
+    def add_music(self, music_token, station_token):
         return self("station.addMusic",
                     musicToken=music_token,
                     stationToken=station_token)
@@ -213,15 +213,15 @@ class APIClient(BaseAPIClient):
         return Station.from_json(self,
                                  self("station.createStation", **kwargs))
 
-    def delete_feedback(self, feedback_id):  # pragma: no cover
+    def delete_feedback(self, feedback_id):
         return self("station.deleteFeedback",
                     feedbackId=feedback_id)
 
-    def delete_music(self, seed_id):  # pragma: no cover
+    def delete_music(self, seed_id):
         return self("station.deleteMusic",
                     seedId=seed_id)
 
-    def delete_station(self, station_token):  # pragma: no cover
+    def delete_station(self, station_token):
         return self("station.deleteStation",
                     stationToken=station_token)
 
@@ -234,37 +234,37 @@ class APIClient(BaseAPIClient):
 
         return genre_stations
 
-    def get_genre_stations_checksum(self):  # pragma: no cover
+    def get_genre_stations_checksum(self):
         return self("station.getGenreStationsChecksum")["checksum"]
 
-    def rename_station(self, station_token, name):  # pragma: no cover
+    def rename_station(self, station_token, name):
         return self("station.renameStation",
                     stationToken=station_token,
                     stationName=name)
 
-    def explain_track(self, track_token):  # pragma: no cover
+    def explain_track(self, track_token):
         return self("track.explainTrack",
                     trackToken=track_token)
 
-    def set_quick_mix(self, *args):  # pragma: no cover
+    def set_quick_mix(self, *args):
         return self("user.setQuickMix",
                     quickMixStationIds=args)
 
-    def sleep_song(self, track_token):  # pragma: no cover
+    def sleep_song(self, track_token):
         return self("user.sleepSong",
                     trackToken=track_token)
 
-    def share_station(self, station_id, station_token, *emails):  # pragma: nc
+    def share_station(self, station_id, station_token, *emails):
         return self("station.shareStation",
                     stationId=station_id,
                     stationToken=station_token,
                     emails=emails)
 
-    def transform_shared_station(self, station_token):  # pragma: no cover
+    def transform_shared_station(self, station_token):
         return self("station.transformSharedStation",
                     stationToken=station_token)
 
-    def share_music(self, music_token, *emails):  # pragma: no cover
+    def share_music(self, music_token, *emails):
         return self("music.shareMusic",
                     musicToken=music_token,
                     email=emails[0])
@@ -282,13 +282,13 @@ class APIClient(BaseAPIClient):
         ad_item.ad_token = ad_token
         return ad_item
 
-    def get_ad_metadata(self, ad_token):  # pragma: no cover
+    def get_ad_metadata(self, ad_token):
         return self("ad.getAdMetadata",
                     adToken=ad_token,
                     returnAdTrackingTokens=True,
                     supportAudioAds=True)
 
-    def register_ad(self, station_id, tokens):  # pragma: no cover
+    def register_ad(self, station_id, tokens):
         return self("ad.registerAd",
                     stationId=station_id,
                     adTrackingTokens=tokens)
