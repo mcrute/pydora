@@ -256,10 +256,7 @@ class BlowfishCryptor:
 
     @staticmethod
     def _strip_padding(data):
-        try:
-            pad_size = int(data[-1])  # python3
-        except ValueError:  # pragma: no cover
-            pad_size = ord(data[-1])  # python2
+        pad_size = int(data[-1])
 
         computed = b"".join([chr(pad_size).encode("ascii")] * pad_size)
         if not data[-pad_size:] == computed:
