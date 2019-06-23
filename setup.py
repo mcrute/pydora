@@ -37,28 +37,46 @@ class PyPiReleaseCommand(Command):
     def finalize_options(self):
         pass
 
-    def pip_install(self, *pkgs):
-        subprocess.check_call((".release/py3/bin/pip", "install", "-U") + pkgs)
+    def venv_run(self, cmd, *args):
+        subprocess.check_call((os.path.join(".release/py3/bin", cmd),) + args)
 
-    def run(self):
+    def make_release_tree(self):
         if not os.path.exists(".release"):
             log.info("Creating temp release tree")
             os.mkdir(".release")
 
+    def configure_environment(self):
+        log.info("Configuring release environment")
         subprocess.check_call(["python3", "-m", "venv", ".release/py3"])
-        self.pip_install("pip", "setuptools", "virtualenv", "twine")
+        self.venv_run("pip", "install", "-U",
+                      "pip", "setuptools", "virtualenv", "twine")
 
+    def build_py3_artifact(self):
         log.info("Building Python 3 Artifact")
-        subprocess.check_call([
-            ".release/py3/bin/python",
-            "setup.py", "release", "bdist_wheel", "--python-tag", "py3"])
+        self.venv_run("python", "setup.py",
+                      "release", "bdist_wheel", "--python-tag", "py3")
 
+    def build_sdist_artifact(self):
         log.info("Building Source Dist Artifact")
-        subprocess.check_call([".release/py3/bin/python", "setup.py", "sdist"])
-        subprocess.check_call([".release/py3/bin/twine", "upload", "dist/*"])
+        self.venv_run("python", "setup.py", "sdist")
 
+    def upload_artifacts(self):
+        log.info("Uploading artifacts to PyPi")
+        self.venv_run("twine", "upload", "dist/*")
+
+    def cleanup(self):
         log.info("Cleaning up temp release tree")
         shutil.rmtree(".release")
+
+    def run(self):
+        try:
+            self.make_release_tree()
+            self.configure_environment()
+            self.build_py3_artifact()
+            self.build_sdist_artifact()
+            self.upload_artifacts()
+        finally:
+            self.cleanup()
 
 
 setup(
