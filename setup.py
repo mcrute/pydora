@@ -1,5 +1,10 @@
 #!/usr/bin/env python
 
+import os
+import shutil
+import subprocess
+from distutils import log
+from distutils.core import Command
 from setuptools.command.test import test
 from setuptools import setup, find_packages
 
@@ -21,6 +26,41 @@ class TestsWithCoverage(test):
         cov.html_report()
 
 
+class PyPiReleaseCommand(Command):
+
+    user_options = []
+    description = "build and release artifacts to pypi"
+
+    def initialize_options(self):
+        pass
+
+    def finalize_options(self):
+        pass
+
+    def pip_install(self, *pkgs):
+        subprocess.check_call((".release/py3/bin/pip", "install", "-U") + pkgs)
+
+    def run(self):
+        if not os.path.exists(".release"):
+            log.info("Creating temp release tree")
+            os.mkdir(".release")
+
+        subprocess.check_call(["python3", "-m", "venv", ".release/py3"])
+        self.pip_install("pip", "setuptools", "virtualenv", "twine")
+
+        log.info("Building Python 3 Artifact")
+        subprocess.check_call([
+            ".release/py3/bin/python",
+            "setup.py", "release", "bdist_wheel", "--python-tag", "py3"])
+
+        log.info("Building Source Dist Artifact")
+        subprocess.check_call([".release/py3/bin/python", "setup.py", "sdist"])
+        subprocess.check_call([".release/py3/bin/twine", "upload", "dist/*"])
+
+        log.info("Cleaning up temp release tree")
+        shutil.rmtree(".release")
+
+
 setup(
     name="pydora",
     version="2.0.0",
@@ -33,6 +73,7 @@ setup(
     packages=find_packages(exclude=["tests", "tests.*"]),
     cmdclass={
         "test": TestsWithCoverage,
+        "pypi_release": PyPiReleaseCommand,
     },
     entry_points={
         "console_scripts": [
