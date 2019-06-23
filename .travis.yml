@@ -11,6 +11,6 @@ before_script:
     # Enable sending Coverage data
     - pip install codecov
 script:
-    - python setup.py validate
+    - python setup.py release
 after_success:
     - codecov
