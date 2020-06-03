@@ -40,12 +40,12 @@ class TestIterateForever(TestCase):
             side_effect=ParameterMissing("ParameterMissing"))
 
         with plmock as get_playlist_mock:
-                with self.assertRaises(ParameterMissing):
-                    station = Station.from_json(
-                        self.client, {'stationToken': 'token_mock'})
-                    track_mock = PlaylistItem.from_json(
-                        self.client, {'token': 'token_mock'})
-                    get_playlist_mock.return_value = iter([track_mock])
+            with self.assertRaises(ParameterMissing):
+                station = Station.from_json(
+                    self.client, {'stationToken': 'token_mock'})
+                track_mock = PlaylistItem.from_json(
+                    self.client, {'token': 'token_mock'})
+                get_playlist_mock.return_value = iter([track_mock])
 
-                    station_iter = iterate_forever(station.get_playlist)
-                    next(station_iter)
+                station_iter = iterate_forever(station.get_playlist)
+                next(station_iter)

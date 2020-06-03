@@ -236,7 +236,6 @@ class TestAdditionalUrls(TestCase):
                                                  stationToken='token_mock',
                                                  xplatformAdCapable=True)])
 
-
     def test_with_enum(self):
         with patch.object(APIClient, '__call__') as playlist_mock:
             transport = Mock(side_effect=[errors.InvalidAuthToken(), None])
