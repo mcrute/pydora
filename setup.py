@@ -1,11 +1,13 @@
 #!/usr/bin/env python
 
 import os
+import math
 import shutil
 import subprocess
 from distutils import log
 from distutils.core import Command
 from setuptools.command.test import test
+from distutils.errors import DistutilsError
 from setuptools import setup, find_packages
 
 
@@ -13,17 +15,62 @@ class TestsWithCoverage(test):
 
     description = "run unit tests with coverage"
 
+    coverage_goal = 100
+    missed_branches_goal = 0
+    partial_branches_goal = 0
+
+    def initialize_options(self):
+        super().initialize_options()
+        self.missed_coverage_goals = False
+
+    def enforce_coverage_goals(self, rel_path, analysis):
+        # There is no coverage goal for the player package, just the API
+        if os.path.split(rel_path)[0] == "pydora":
+            return
+
+        coverage_percent = math.ceil(analysis.numbers.pc_covered)
+        if coverage_percent != self.coverage_goal:
+            self.missed_coverage_goals = True
+            self.announce(
+                "Coverage: {!r} coverage is {}%, goal  is {}%".format(
+                    rel_path, coverage_percent, self.coverage_goal), log.ERROR)
+
+        missed_branches = analysis.numbers.n_missing_branches
+        if missed_branches != self.missed_branches_goal:
+            self.missed_coverage_goals = True
+            self.announce(
+                "Coverage: {!r} missed branch count is {}, goal is {}".format(
+                    rel_path, missed_branches, self.missed_branches_goal),
+                log.ERROR)
+
+        partially_covered_branches = analysis.numbers.n_partial_branches
+        if partially_covered_branches != self.partial_branches_goal:
+            self.missed_coverage_goals = True
+            self.announce(
+                "Coverage: {!r} partial branch count is {}, goal is {}".format(
+                    rel_path, partially_covered_branches,
+                    self.partial_branches_goal), log.ERROR)
+
     def run(self):
         from coverage import Coverage
 
-        cov = Coverage(source=self.distribution.packages)
+        cov = Coverage(source=self.distribution.packages, branch=True)
+
         cov.start()
-
         super().run()
-
         cov.stop()
-        cov.xml_report()
+
+        # Save HTML report for debugging missed coverage
         cov.html_report()
+
+        # Print coverage report to console for CI log
+        cov.report()
+
+        for rep in cov._get_file_reporters():
+            self.enforce_coverage_goals(rep.relname, cov._analyze(rep))
+
+        if self.missed_coverage_goals:
+            raise DistutilsError("Project missed coverage goals")
 
 
 class PyPiReleaseCommand(Command):
