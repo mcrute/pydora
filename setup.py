@@ -11,6 +11,25 @@ from distutils.errors import DistutilsError
 from setuptools import setup, find_packages
 
 
+class Release(Command):
+
+    user_options = []
+    description = "build and test package with linting"
+
+    def initialize_options(self):
+        pass
+
+    def finalize_options(self):
+        pass
+
+    def run(self):
+        self.run_command("test")
+
+        # Flake8 should examine tests too
+        self.distribution.packages = find_packages()
+        self.run_command("flake8")
+
+
 class TestsWithCoverage(test):
 
     description = "run unit tests with coverage"
@@ -139,6 +158,7 @@ setup(
     cmdclass={
         "test": TestsWithCoverage,
         "pypi_release": PyPiReleaseCommand,
+        "release": Release,
     },
     entry_points={
         "console_scripts": [
