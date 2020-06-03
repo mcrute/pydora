@@ -5,8 +5,8 @@ Pandora API Client
 .. image:: https://img.shields.io/pypi/v/pydora.svg
     :target: https://pypi.python.org/pypi/pydora
 
-.. image:: https://github.com/mcrute/pydora-build-test/workflows/build/badge.svg
-    :target: https://github.com/mcrute/pydora-build-test/actions?query=workflow%3Abuild
+.. image:: https://github.com/mcrute/pydora/workflows/build/badge.svg
+    :target: https://github.com/mcrute/pydora/actions?query=workflow%3Abuild
 
 This code is licensed under the MIT license. The code is maintained on `GitHub
 <https://github.com/mcrute/pydora>`_.
