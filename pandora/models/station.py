@@ -80,8 +80,7 @@ class Station(PandoraModel):
     feedback = Field("feedback", model=StationFeedback)
 
     def get_playlist(self, additional_urls=None):
-        return iter(self._api_client.get_playlist(self.token,
-                                                  additional_urls))
+        return iter(self._api_client.get_playlist(self.token, additional_urls))
 
 
 class StationList(PandoraListModel):
@@ -105,8 +104,10 @@ class GenreStation(PandoraModel):
     category = Field("categoryName")
 
     def get_playlist(self):
-        raise NotImplementedError("Genre stations do not have playlists. "
-                                  "Create a real station using the token.")
+        raise NotImplementedError(
+            "Genre stations do not have playlists. "
+            "Create a real station using the token."
+        )
 
 
 class GenreStationList(PandoraDictListModel):

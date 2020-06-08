@@ -8,7 +8,6 @@ from pandora.transport import DEFAULT_API_HOST
 
 
 class TestTranslatingDict(TestCase):
-
     class TestDict(cb.TranslatingDict):
 
         KEY_TRANSLATIONS = {"FOO": "BAR"}
@@ -62,29 +61,32 @@ class TestTranslatingDict(TestCase):
 
 
 class TestSettingsDictBuilder(TestCase):
-
     @classmethod
     def _build_minimal(self):
-        return cb.SettingsDictBuilder({
-            "DECRYPTION_KEY": "blowfishkey",
-            "ENCRYPTION_KEY": "blowfishkey",
-            "PARTNER_USER": "user",
-            "PARTNER_PASSWORD": "pass",
-            "DEVICE": "dev",
-        }).build()
+        return cb.SettingsDictBuilder(
+            {
+                "DECRYPTION_KEY": "blowfishkey",
+                "ENCRYPTION_KEY": "blowfishkey",
+                "PARTNER_USER": "user",
+                "PARTNER_PASSWORD": "pass",
+                "DEVICE": "dev",
+            }
+        ).build()
 
     @classmethod
     def _build_maximal(self):
-        return cb.SettingsDictBuilder({
-            "DECRYPTION_KEY": "blowfishkey",
-            "ENCRYPTION_KEY": "blowfishkey",
-            "PARTNER_USER": "user",
-            "PARTNER_PASSWORD": "pass",
-            "DEVICE": "dev",
-            "PROXY": "proxy.example.com",
-            "AUDIO_QUALITY": "high",
-            "API_HOST": "example.com",
-        }).build()
+        return cb.SettingsDictBuilder(
+            {
+                "DECRYPTION_KEY": "blowfishkey",
+                "ENCRYPTION_KEY": "blowfishkey",
+                "PARTNER_USER": "user",
+                "PARTNER_PASSWORD": "pass",
+                "DEVICE": "dev",
+                "PROXY": "proxy.example.com",
+                "AUDIO_QUALITY": "high",
+                "API_HOST": "example.com",
+            }
+        ).build()
 
     def test_building(self):
         client = TestSettingsDictBuilder._build_minimal()
@@ -97,14 +99,15 @@ class TestSettingsDictBuilder(TestCase):
         self.assertEqual({}, client.transport._http.proxies)
         self.assertEqual(DEFAULT_API_HOST, client.transport.api_host)
         self.assertEqual(
-            APIClient.MED_AUDIO_QUALITY, client.default_audio_quality)
+            APIClient.MED_AUDIO_QUALITY, client.default_audio_quality
+        )
 
     def test_validate_client(self):
         client = TestSettingsDictBuilder._build_maximal()
         expected_proxies = {
-                "http": "proxy.example.com",
-                "https": "proxy.example.com"
-                }
+            "http": "proxy.example.com",
+            "https": "proxy.example.com",
+        }
 
         self.assertIsNotNone(client.transport.cryptor.bf_in)
         self.assertIsNotNone(client.transport.cryptor.bf_out)
@@ -119,7 +122,6 @@ class TestSettingsDictBuilder(TestCase):
 
 
 class TestFileBasedBuilder(TestCase):
-
     class StubBuilder(cb.FileBasedClientBuilder):
 
         DEFAULT_CONFIG_FILE = "foo"
@@ -170,7 +172,6 @@ class TestFileBasedBuilder(TestCase):
 
 
 class TestPydoraConfigFileBuilder(TestCase):
-
     def test_cfg_to_dict(self):
         cfg = Mock()
         cfg.items = Mock(return_value=[("a", "b"), ("c", "d")])
@@ -184,38 +185,43 @@ class TestPydoraConfigFileBuilder(TestCase):
         path = os.path.join(os.path.dirname(__file__), "pydora.cfg")
         cfg = cb.PydoraConfigFileBuilder(path).parse_config()
 
-        self.assertDictEqual(cfg, {
-            "AUDIO_QUALITY": "test_quality",
-            "DECRYPTION_KEY": "test_decryption_key",
-            "DEVICE": "test_device",
-            "ENCRYPTION_KEY": "test_encryption_key",
-            "PARTNER_PASSWORD": "test_partner_password",
-            "PARTNER_USER": "test_partner_username",
-            "API_HOST": "test_host",
-            "USER": {
-                "USERNAME": "test_username",
-                "PASSWORD": "test_password",
-                }
-            })
+        self.assertDictEqual(
+            cfg,
+            {
+                "AUDIO_QUALITY": "test_quality",
+                "DECRYPTION_KEY": "test_decryption_key",
+                "DEVICE": "test_device",
+                "ENCRYPTION_KEY": "test_encryption_key",
+                "PARTNER_PASSWORD": "test_partner_password",
+                "PARTNER_USER": "test_partner_username",
+                "API_HOST": "test_host",
+                "USER": {
+                    "USERNAME": "test_username",
+                    "PASSWORD": "test_password",
+                },
+            },
+        )
 
 
 class TestPianobarConfigFileBuilder(TestCase):
-
     def test_integration(self):
         path = os.path.join(os.path.dirname(__file__), "pianobar.cfg")
         cfg = cb.PianobarConfigFileBuilder(path).parse_config()
 
-        self.assertDictEqual(cfg, {
-            "AUDIO_QUALITY": "test_qualityQuality",
-            "DECRYPTION_KEY": "test_decryption_key",
-            "DEVICE": "test_device",
-            "ENCRYPTION_KEY": "test_encryption_key",
-            "PARTNER_PASSWORD": "test_partner_password",
-            "PARTNER_USER": "test_partner_username",
-            "API_HOST": "test_host/services/json/",
-            "PROXY": "test_proxy",
-            "USER": {
-                "USERNAME": "test_username",
-                "PASSWORD": "test_password",
-                }
-            })
+        self.assertDictEqual(
+            cfg,
+            {
+                "AUDIO_QUALITY": "test_qualityQuality",
+                "DECRYPTION_KEY": "test_decryption_key",
+                "DEVICE": "test_device",
+                "ENCRYPTION_KEY": "test_encryption_key",
+                "PARTNER_PASSWORD": "test_partner_password",
+                "PARTNER_USER": "test_partner_username",
+                "API_HOST": "test_host/services/json/",
+                "PROXY": "test_proxy",
+                "USER": {
+                    "USERNAME": "test_username",
+                    "PASSWORD": "test_password",
+                },
+            },
+        )

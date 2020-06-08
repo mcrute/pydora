@@ -5,15 +5,15 @@ from ._base import Field, SyntheticField, PandoraModel, PandoraListModel
 
 
 class AdditionalAudioUrl(Enum):
-    HTTP_40_AAC_MONO = 'HTTP_40_AAC_MONO'
-    HTTP_64_AAC = 'HTTP_64_AAC'
-    HTTP_32_AACPLUS = 'HTTP_32_AACPLUS'
-    HTTP_64_AACPLUS = 'HTTP_64_AACPLUS'
-    HTTP_24_AACPLUS_ADTS = 'HTTP_24_AACPLUS_ADTS'
-    HTTP_32_AACPLUS_ADTS = 'HTTP_32_AACPLUS_ADTS'
-    HTTP_64_AACPLUS_ADTS = 'HTTP_64_AACPLUS_ADTS'
-    HTTP_128_MP3 = 'HTTP_128_MP3'
-    HTTP_32_WMA = 'HTTP_32_WMA'
+    HTTP_40_AAC_MONO = "HTTP_40_AAC_MONO"
+    HTTP_64_AAC = "HTTP_64_AAC"
+    HTTP_32_AACPLUS = "HTTP_32_AACPLUS"
+    HTTP_64_AACPLUS = "HTTP_64_AACPLUS"
+    HTTP_24_AACPLUS_ADTS = "HTTP_24_AACPLUS_ADTS"
+    HTTP_32_AACPLUS_ADTS = "HTTP_32_AACPLUS_ADTS"
+    HTTP_64_AACPLUS_ADTS = "HTTP_64_AACPLUS_ADTS"
+    HTTP_128_MP3 = "HTTP_128_MP3"
+    HTTP_32_WMA = "HTTP_32_WMA"
 
 
 class PandoraType(Enum):
@@ -28,14 +28,14 @@ class PandoraType(Enum):
 
     @staticmethod
     def from_string(value):
-        return {
+        types = {
             "TR": PandoraType.TRACK,
             "AR": PandoraType.ARTIST,
-        }.get(value, PandoraType.GENRE)
+        }
+        return types.get(value, PandoraType.GENRE)
 
 
 class AudioField(SyntheticField):
-
     def formatter(self, api_client, data, newval):
         """Get audio-related fields
 
@@ -61,9 +61,11 @@ class AudioField(SyntheticField):
         elif not url_map:  # No audio url available (e.g. ad tokens)
             return None
 
-        valid_audio_formats = [BaseAPIClient.HIGH_AUDIO_QUALITY,
-                               BaseAPIClient.MED_AUDIO_QUALITY,
-                               BaseAPIClient.LOW_AUDIO_QUALITY]
+        valid_audio_formats = [
+            BaseAPIClient.HIGH_AUDIO_QUALITY,
+            BaseAPIClient.MED_AUDIO_QUALITY,
+            BaseAPIClient.LOW_AUDIO_QUALITY,
+        ]
 
         # Only iterate over sublist, starting at preferred audio quality, or
         # from the beginning of the list if nothing is found. Ensures that the
@@ -84,7 +86,6 @@ class AudioField(SyntheticField):
 
 
 class AdditionalUrlField(SyntheticField):
-
     def formatter(self, api_client, data, newval):
         """Parse additional url fields and map them to inputs
 
@@ -94,7 +95,7 @@ class AdditionalUrlField(SyntheticField):
         if newval is None:
             return None
 
-        user_param = data['_paramAdditionalUrls']
+        user_param = data["_paramAdditionalUrls"]
         urls = {}
         if isinstance(newval, str):
             urls[user_param[0]] = newval
@@ -105,7 +106,6 @@ class AdditionalUrlField(SyntheticField):
 
 
 class PlaylistModel(PandoraModel):
-
     def get_is_playable(self):
         if not self.audio_url:
             return False

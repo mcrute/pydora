@@ -10,11 +10,11 @@ class TerminalPlatformUnsupported(Exception):
     Raised by code that can not be used to interact with the terminal on this
     platform.
     """
+
     pass
 
 
 class Colors:
-
     def __wrap_with(raw_code):
         @staticmethod
         def inner(text, bold=False):
@@ -22,6 +22,7 @@ class Colors:
             if bold:
                 code = "1;{}".format(code)
             return "\033[{}m{}\033[0m".format(code, text)
+
         return inner
 
     red = __wrap_with("31")
@@ -44,6 +45,7 @@ class PosixEchoControl:
     def __init__(self):
         try:
             import termios
+
             self.termios = termios
         except ImportError:
             raise TerminalPlatformUnsupported("POSIX not supported")
@@ -110,7 +112,6 @@ class Win32EchoControl:
 
 
 class Screen:
-
     def __init__(self):
         try:
             self._echo_driver = PosixEchoControl()

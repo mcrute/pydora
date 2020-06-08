@@ -32,11 +32,13 @@ class PandoraKeysConfigParser:
     the pandora API docs keys source file.
     """
 
-    KEYS_URL = ("http://6xq.net/git/lars/pandora-apidoc.git/"
-                "plain/json/partners.rst")
+    KEYS_URL = (
+        "http://6xq.net/git/lars/pandora-apidoc.git/plain/json/partners.rst"
+    )
 
     FIELD_RE = re.compile(
-        ":(?P<key>[^:]+): (?:`{2})?(?P<value>[^`\n]+)(?:`{2})?$")
+        ":(?P<key>[^:]+): (?:`{2})?(?P<value>[^`\n]+)(?:`{2})?$"
+    )
 
     def _fixup_key(self, key):
         key = key.lower()
@@ -90,7 +92,7 @@ class PandoraKeysConfigParser:
                 key = self._clean_device_name(buffer.pop())
                 current_partner = partners[key] = {
                     "api_host": self._format_api_host(api_host)
-                    }
+                }
 
             buffer.append(line.strip().lower())
 
@@ -165,8 +167,9 @@ class Configurator:
         self.add_partner_config(self.get_partner_config())
         self.get_value("user", "username", "Pandora Username: ")
         self.get_password("user", "password", "Pandora Password: ")
-        self.set_static_value("api", "default_audio_quality",
-                              APIClient.HIGH_AUDIO_QUALITY)
+        self.set_static_value(
+            "api", "default_audio_quality", APIClient.HIGH_AUDIO_QUALITY
+        )
 
         self.write_config()
 

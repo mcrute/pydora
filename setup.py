@@ -52,23 +52,32 @@ class TestsWithCoverage(test):
             self.missed_coverage_goals = True
             self.announce(
                 "Coverage: {!r} coverage is {}%, goal  is {}%".format(
-                    rel_path, coverage_percent, self.coverage_goal), log.ERROR)
+                    rel_path, coverage_percent, self.coverage_goal
+                ),
+                log.ERROR,
+            )
 
         missed_branches = analysis.numbers.n_missing_branches
         if missed_branches != self.missed_branches_goal:
             self.missed_coverage_goals = True
             self.announce(
                 "Coverage: {!r} missed branch count is {}, goal is {}".format(
-                    rel_path, missed_branches, self.missed_branches_goal),
-                log.ERROR)
+                    rel_path, missed_branches, self.missed_branches_goal
+                ),
+                log.ERROR,
+            )
 
         partially_covered_branches = analysis.numbers.n_partial_branches
         if partially_covered_branches != self.partial_branches_goal:
             self.missed_coverage_goals = True
             self.announce(
                 "Coverage: {!r} partial branch count is {}, goal is {}".format(
-                    rel_path, partially_covered_branches,
-                    self.partial_branches_goal), log.ERROR)
+                    rel_path,
+                    partially_covered_branches,
+                    self.partial_branches_goal,
+                ),
+                log.ERROR,
+            )
 
     def run(self):
         from coverage import Coverage
@@ -114,13 +123,20 @@ class PyPiReleaseCommand(Command):
     def configure_environment(self):
         log.info("Configuring release environment")
         subprocess.check_call(["python3", "-m", "venv", ".release/py3"])
-        self.venv_run("pip", "install", "-U",
-                      "pip", "setuptools", "virtualenv", "twine")
+        self.venv_run(
+            "pip", "install", "-U", "pip", "setuptools", "virtualenv", "twine"
+        )
 
     def build_py3_artifact(self):
         log.info("Building Python 3 Artifact")
-        self.venv_run("python", "setup.py",
-                      "release", "bdist_wheel", "--python-tag", "py3")
+        self.venv_run(
+            "python",
+            "setup.py",
+            "release",
+            "bdist_wheel",
+            "--python-tag",
+            "py3",
+        )
 
     def build_sdist_artifact(self):
         log.info("Building Source Dist Artifact")
@@ -172,10 +188,7 @@ setup(
         "setuptools>=36.0.1",
         "coverage>=4.1,<5",
     ],
-    install_requires=[
-        "requests>=2,<3",
-        "blowfish>=0.6.1,<1.0",
-    ],
+    install_requires=["requests>=2,<3", "blowfish>=0.6.1,<1.0",],
     python_requires=">=3.5",
     classifiers=[
         "Development Status :: 5 - Production/Stable",
@@ -191,5 +204,5 @@ setup(
         "Programming Language :: Python :: 3 :: Only",
         "Topic :: Internet :: WWW/HTTP",
         "Topic :: Multimedia :: Sound/Audio :: Players",
-    ]
+    ],
 )

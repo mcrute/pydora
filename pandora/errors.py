@@ -86,10 +86,11 @@ class PandoraException(Exception):
         for code, api_message in __API_EXCEPTIONS__.items():
             name = PandoraException._format_name(api_message)
 
-            exception = type(name, (PandoraException,), {
-                "code": code,
-                "message": api_message,
-            })
+            exception = type(
+                name,
+                (PandoraException,),
+                {"code": code, "message": api_message,},
+            )
 
             export_to[name] = __API_EXCEPTIONS__[code] = exception
 

@@ -70,8 +70,7 @@ class TranslatingDict(dict):
 
     def __setitem__(self, key, value):
         key = self.translate_key(key)
-        super().__setitem__(
-            key, self.translate_value(key, value))
+        super().__setitem__(key, self.translate_value(key, value))
 
 
 class APIClientBuilder:
@@ -99,19 +98,25 @@ class APIClientBuilder:
         self.client_class = client_class or self.DEFAULT_CLIENT_CLASS
 
     def build_from_settings_dict(self, settings):
-        enc = Encryptor(settings["DECRYPTION_KEY"],
-                        settings["ENCRYPTION_KEY"])
+        enc = Encryptor(settings["DECRYPTION_KEY"], settings["ENCRYPTION_KEY"])
 
-        trans = APITransport(enc,
-                             settings.get("API_HOST", DEFAULT_API_HOST),
-                             settings.get("PROXY", None))
+        trans = APITransport(
+            enc,
+            settings.get("API_HOST", DEFAULT_API_HOST),
+            settings.get("PROXY", None),
+        )
 
-        quality = settings.get("AUDIO_QUALITY",
-                               self.client_class.MED_AUDIO_QUALITY)
+        quality = settings.get(
+            "AUDIO_QUALITY", self.client_class.MED_AUDIO_QUALITY
+        )
 
-        return self.client_class(trans, settings["PARTNER_USER"],
-                                 settings["PARTNER_PASSWORD"],
-                                 settings["DEVICE"], quality)
+        return self.client_class(
+            trans,
+            settings["PARTNER_USER"],
+            settings["PARTNER_PASSWORD"],
+            settings["DEVICE"],
+            quality,
+        )
 
 
 class SettingsDict(TranslatingDict):
@@ -185,8 +190,9 @@ class FileBasedClientBuilder(APIClientBuilder):
         client = self.build_from_settings_dict(config)
 
         if self.authenticate:
-            client.login(config["USER"]["USERNAME"],
-                         config["USER"]["PASSWORD"])
+            client.login(
+                config["USER"]["USERNAME"], config["USER"]["PASSWORD"]
+            )
 
         return client
 
@@ -201,8 +207,9 @@ class PydoraConfigFileBuilder(FileBasedClientBuilder):
 
     @staticmethod
     def cfg_to_dict(cfg, key, kind=SettingsDict):
-        return kind((k.strip().upper(), v.strip())
-                    for k, v in cfg.items(key, raw=True))
+        return kind(
+            (k.strip().upper(), v.strip()) for k, v in cfg.items(key, raw=True)
+        )
 
     def parse_config(self):
         cfg = ConfigParser()
@@ -212,7 +219,8 @@ class PydoraConfigFileBuilder(FileBasedClientBuilder):
 
         settings = PydoraConfigFileBuilder.cfg_to_dict(cfg, "api")
         settings["user"] = PydoraConfigFileBuilder.cfg_to_dict(
-            cfg, "user", dict)
+            cfg, "user", dict
+        )
 
         return settings
 

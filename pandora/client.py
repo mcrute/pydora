@@ -29,8 +29,14 @@ class BaseAPIClient:
 
     ALL_QUALITIES = [LOW_AUDIO_QUALITY, MED_AUDIO_QUALITY, HIGH_AUDIO_QUALITY]
 
-    def __init__(self, transport, partner_user, partner_password, device,
-                 default_audio_quality=MED_AUDIO_QUALITY):
+    def __init__(
+        self,
+        transport,
+        partner_user,
+        partner_password,
+        device,
+        default_audio_quality=MED_AUDIO_QUALITY,
+    ):
         self.transport = transport
         self.partner_user = partner_user
         self.partner_password = partner_password
@@ -40,11 +46,13 @@ class BaseAPIClient:
         self.password = None
 
     def _partner_login(self):
-        partner = self.transport("auth.partnerLogin",
-                                 username=self.partner_user,
-                                 password=self.partner_password,
-                                 deviceModel=self.device,
-                                 version=self.transport.API_VERSION)
+        partner = self.transport(
+            "auth.partnerLogin",
+            username=self.partner_user,
+            password=self.partner_password,
+            deviceModel=self.device,
+            version=self.transport.API_VERSION,
+        )
 
         self.transport.set_partner(partner)
 
@@ -59,16 +67,18 @@ class BaseAPIClient:
         self._partner_login()
 
         try:
-            user = self.transport("auth.userLogin",
-                                  loginType="user",
-                                  username=self.username,
-                                  password=self.password,
-                                  includePandoraOneInfo=True,
-                                  includeSubscriptionExpiration=True,
-                                  returnCapped=True,
-                                  includeAdAttributes=True,
-                                  includeAdvertiserAttributes=True,
-                                  xplatformAdCapable=True)
+            user = self.transport(
+                "auth.userLogin",
+                loginType="user",
+                username=self.username,
+                password=self.password,
+                includePandoraOneInfo=True,
+                includeSubscriptionExpiration=True,
+                returnCapped=True,
+                includeAdAttributes=True,
+                includeAdvertiserAttributes=True,
+                xplatformAdCapable=True,
+            )
         except errors.InvalidPartnerLogin:
             raise errors.InvalidUserLogin()
 
@@ -80,7 +90,7 @@ class BaseAPIClient:
     def get_qualities(cls, start_at, return_all_if_invalid=True):
         try:
             idx = cls.ALL_QUALITIES.index(start_at)
-            return cls.ALL_QUALITIES[:idx + 1]
+            return cls.ALL_QUALITIES[: idx + 1]
         except ValueError:
             if return_all_if_invalid:
                 return cls.ALL_QUALITIES[:]
@@ -105,9 +115,9 @@ class APIClient(BaseAPIClient):
     def get_station_list(self):
         from .models.station import StationList
 
-        return StationList.from_json(self,
-                                     self("user.getStationList",
-                                          includeStationArtUrl=True))
+        return StationList.from_json(
+            self, self("user.getStationList", includeStationArtUrl=True)
+        )
 
     def get_station_list_checksum(self):
         return self("user.getStationListChecksum")["checksum"]
@@ -119,19 +129,21 @@ class APIClient(BaseAPIClient):
             additional_urls = []
 
         if isinstance(additional_urls, str):
-            raise TypeError('Additional urls should be a list')
+            raise TypeError("Additional urls should be a list")
 
         urls = [getattr(url, "value", url) for url in additional_urls]
 
-        resp = self("station.getPlaylist",
-                    stationToken=station_token,
-                    includeTrackLength=True,
-                    xplatformAdCapable=True,
-                    audioAdPodCapable=True,
-                    additionalAudioUrl=','.join(urls))
+        resp = self(
+            "station.getPlaylist",
+            stationToken=station_token,
+            includeTrackLength=True,
+            xplatformAdCapable=True,
+            audioAdPodCapable=True,
+            additionalAudioUrl=",".join(urls),
+        )
 
-        for item in resp['items']:
-            item['_paramAdditionalUrls'] = additional_urls
+        for item in resp["items"]:
+            item["_paramAdditionalUrls"] = additional_urls
 
         playlist = Playlist.from_json(self, resp)
 
@@ -145,58 +157,69 @@ class APIClient(BaseAPIClient):
     def get_bookmarks(self):
         from .models.bookmark import BookmarkList
 
-        return BookmarkList.from_json(self,
-                                      self("user.getBookmarks"))
+        return BookmarkList.from_json(self, self("user.getBookmarks"))
 
     def get_station(self, station_token):
         from .models.station import Station
 
-        return Station.from_json(self,
-                                 self("station.getStation",
-                                      stationToken=station_token,
-                                      includeExtendedAttributes=True))
+        return Station.from_json(
+            self,
+            self(
+                "station.getStation",
+                stationToken=station_token,
+                includeExtendedAttributes=True,
+            ),
+        )
 
     def add_artist_bookmark(self, track_token):
-        return self("bookmark.addArtistBookmark",
-                    trackToken=track_token)
+        return self("bookmark.addArtistBookmark", trackToken=track_token)
 
     def add_song_bookmark(self, track_token):
-        return self("bookmark.addSongBookmark",
-                    trackToken=track_token)
+        return self("bookmark.addSongBookmark", trackToken=track_token)
 
     def delete_song_bookmark(self, bookmark_token):
-        return self("bookmark.deleteSongBookmark",
-                    bookmarkToken=bookmark_token)
+        return self(
+            "bookmark.deleteSongBookmark", bookmarkToken=bookmark_token
+        )
 
     def delete_artist_bookmark(self, bookmark_token):
-        return self("bookmark.deleteArtistBookmark",
-                    bookmarkToken=bookmark_token)
+        return self(
+            "bookmark.deleteArtistBookmark", bookmarkToken=bookmark_token
+        )
 
-    def search(self, search_text,
-               include_near_matches=False,
-               include_genre_stations=False):
+    def search(
+        self,
+        search_text,
+        include_near_matches=False,
+        include_genre_stations=False,
+    ):
         from .models.search import SearchResult
 
         return SearchResult.from_json(
             self,
-            self("music.search",
-                 searchText=search_text,
-                 includeNearMatches=include_near_matches,
-                 includeGenreStations=include_genre_stations)
+            self(
+                "music.search",
+                searchText=search_text,
+                includeNearMatches=include_near_matches,
+                includeGenreStations=include_genre_stations,
+            ),
         )
 
     def add_feedback(self, track_token, positive):
-        return self("station.addFeedback",
-                    trackToken=track_token,
-                    isPositive=positive)
+        return self(
+            "station.addFeedback", trackToken=track_token, isPositive=positive
+        )
 
     def add_music(self, music_token, station_token):
-        return self("station.addMusic",
-                    musicToken=music_token,
-                    stationToken=station_token)
+        return self(
+            "station.addMusic",
+            musicToken=music_token,
+            stationToken=station_token,
+        )
 
-    def create_station(self, search_token=None, artist_token=None,
-                       track_token=None):
+    def create_station(
+        self, search_token=None, artist_token=None, track_token=None
+    ):
         from .models.station import Station
 
         kwargs = {}
@@ -210,26 +233,23 @@ class APIClient(BaseAPIClient):
         else:
             raise KeyError("Must pass a type of token")
 
-        return Station.from_json(self,
-                                 self("station.createStation", **kwargs))
+        return Station.from_json(self, self("station.createStation", **kwargs))
 
     def delete_feedback(self, feedback_id):
-        return self("station.deleteFeedback",
-                    feedbackId=feedback_id)
+        return self("station.deleteFeedback", feedbackId=feedback_id)
 
     def delete_music(self, seed_id):
-        return self("station.deleteMusic",
-                    seedId=seed_id)
+        return self("station.deleteMusic", seedId=seed_id)
 
     def delete_station(self, station_token):
-        return self("station.deleteStation",
-                    stationToken=station_token)
+        return self("station.deleteStation", stationToken=station_token)
 
     def get_genre_stations(self):
         from .models.station import GenreStationList
 
         genre_stations = GenreStationList.from_json(
-            self, self("station.getGenreStations"))
+            self, self("station.getGenreStations")
+        )
         genre_stations.checksum = self.get_genre_stations_checksum()
 
         return genre_stations
@@ -238,44 +258,45 @@ class APIClient(BaseAPIClient):
         return self("station.getGenreStationsChecksum")["checksum"]
 
     def rename_station(self, station_token, name):
-        return self("station.renameStation",
-                    stationToken=station_token,
-                    stationName=name)
+        return self(
+            "station.renameStation",
+            stationToken=station_token,
+            stationName=name,
+        )
 
     def explain_track(self, track_token):
-        return self("track.explainTrack",
-                    trackToken=track_token)
+        return self("track.explainTrack", trackToken=track_token)
 
     def set_quick_mix(self, *args):
-        return self("user.setQuickMix",
-                    quickMixStationIds=args)
+        return self("user.setQuickMix", quickMixStationIds=args)
 
     def sleep_song(self, track_token):
-        return self("user.sleepSong",
-                    trackToken=track_token)
+        return self("user.sleepSong", trackToken=track_token)
 
     def share_station(self, station_id, station_token, *emails):
-        return self("station.shareStation",
-                    stationId=station_id,
-                    stationToken=station_token,
-                    emails=emails)
+        return self(
+            "station.shareStation",
+            stationId=station_id,
+            stationToken=station_token,
+            emails=emails,
+        )
 
     def transform_shared_station(self, station_token):
-        return self("station.transformSharedStation",
-                    stationToken=station_token)
+        return self(
+            "station.transformSharedStation", stationToken=station_token
+        )
 
     def share_music(self, music_token, *emails):
-        return self("music.shareMusic",
-                    musicToken=music_token,
-                    email=emails[0])
+        return self(
+            "music.shareMusic", musicToken=music_token, email=emails[0]
+        )
 
     def get_ad_item(self, station_id, ad_token):
         from .models.ad import AdItem
 
         if not station_id:
-            raise errors.ParameterMissing("The 'station_id' param must be "
-                                          "defined, got: '{}'"
-                                          .format(station_id))
+            msg = "The 'station_id' param must be defined, got: '{}'"
+            raise errors.ParameterMissing(msg.format(station_id))
 
         ad_item = AdItem.from_json(self, self.get_ad_metadata(ad_token))
         ad_item.station_id = station_id
@@ -283,12 +304,14 @@ class APIClient(BaseAPIClient):
         return ad_item
 
     def get_ad_metadata(self, ad_token):
-        return self("ad.getAdMetadata",
-                    adToken=ad_token,
-                    returnAdTrackingTokens=True,
-                    supportAudioAds=True)
+        return self(
+            "ad.getAdMetadata",
+            adToken=ad_token,
+            returnAdTrackingTokens=True,
+            supportAudioAds=True,
+        )
 
     def register_ad(self, station_id, tokens):
-        return self("ad.registerAd",
-                    stationId=station_id,
-                    adTrackingTokens=tokens)
+        return self(
+            "ad.registerAd", stationId=station_id, adTrackingTokens=tokens
+        )

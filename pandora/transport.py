@@ -40,6 +40,7 @@ def retries(max_tries, exceptions=(Exception,)):
     function will only be retried if it raises one of the specified
     exceptions.
     """
+
     def decorator(func):
         def function(*args, **kwargs):
 
@@ -55,8 +56,9 @@ def retries(max_tries, exceptions=(Exception,)):
                     if isinstance(exc, PandoraException):
                         raise
                     if retries_left > 0:
-                        time.sleep(delay_exponential(
-                            0.5, 2, max_tries - retries_left))
+                        time.sleep(
+                            delay_exponential(0.5, 2, max_tries - retries_left)
+                        )
                     else:
                         raise
 
@@ -76,11 +78,12 @@ def delay_exponential(base, growth_factor, attempts):
     Base must be greater than 0, otherwise a ValueError will be
     raised.
     """
-    if base == 'rand':
+    if base == "rand":
         base = random.random()
     elif base <= 0:
-        raise ValueError("The 'base' param must be greater than 0, "
-                         "got: {}".format(base))
+        raise ValueError(
+            "The 'base' param must be greater than 0, got: {}".format(base)
+        )
     time_to_sleep = base * (growth_factor ** (attempts - 1))
     return time_to_sleep
 
@@ -95,8 +98,8 @@ class RetryingSession(requests.Session):
 
     def __init__(self):
         super().__init__()
-        self.mount('https://', HTTPAdapter(max_retries=3))
-        self.mount('http://', HTTPAdapter(max_retries=3))
+        self.mount("https://", HTTPAdapter(max_retries=3))
+        self.mount("http://", HTTPAdapter(max_retries=3))
 
 
 class APITransport:
@@ -109,10 +112,14 @@ class APITransport:
 
     API_VERSION = "5"
 
-    REQUIRE_RESET = ("auth.partnerLogin", )
-    NO_ENCRYPT = ("auth.partnerLogin", )
-    REQUIRE_TLS = ("auth.partnerLogin", "auth.userLogin",
-                   "station.getPlaylist", "user.createUser")
+    REQUIRE_RESET = ("auth.partnerLogin",)
+    NO_ENCRYPT = ("auth.partnerLogin",)
+    REQUIRE_TLS = (
+        "auth.partnerLogin",
+        "auth.userLogin",
+        "station.getPlaylist",
+        "user.createUser",
+    )
 
     def __init__(self, cryptor, api_host=DEFAULT_API_HOST, proxy=None):
         self.cryptor = cryptor
@@ -199,8 +206,8 @@ class APITransport:
 
     def _build_url(self, method):
         return "{}://{}".format(
-            "https" if method in self.REQUIRE_TLS else "http",
-            self.api_host)
+            "https" if method in self.REQUIRE_TLS else "http", self.api_host
+        )
 
     def _build_data(self, method, data):
         data["userAuthToken"] = self.user_auth_token
@@ -260,7 +267,7 @@ class BlowfishCryptor:
 
         computed = b"".join([chr(pad_size).encode("ascii")] * pad_size)
         if not data[-pad_size:] == computed:
-            raise ValueError('Invalid padding')
+            raise ValueError("Invalid padding")
 
         return data[:-pad_size]
 

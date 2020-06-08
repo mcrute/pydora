@@ -13,7 +13,6 @@ from tests.test_pandora.test_models import TestAdItem
 
 
 class TestAPIClientLogin(TestCase):
-
     class StubTransport:
 
         API_VERSION = None
@@ -56,7 +55,6 @@ class TestAPIClientLogin(TestCase):
 
 
 class TestCallingAPIClient(TestCase):
-
     def test_call_should_retry_on_token_error(self):
         transport = Mock(side_effect=[errors.InvalidAuthToken(), None])
 
@@ -70,37 +68,44 @@ class TestCallingAPIClient(TestCase):
         transport.assert_has_calls([call("method"), call("method")])
 
     def test_playlist_fetches_ads(self):
-        fake_playlist = {"items": [
-            {"songName": "test"},
-            {"adToken": "foo"},
-            {"songName": "test"},
-        ]}
-        with patch.object(APIClient, '__call__', return_value=fake_playlist):
+        fake_playlist = {
+            "items": [
+                {"songName": "test"},
+                {"adToken": "foo"},
+                {"songName": "test"},
+            ]
+        }
+        with patch.object(APIClient, "__call__", return_value=fake_playlist):
             client = APIClient(Mock(), None, None, None, None)
             client._authenticate = Mock()
 
-            items = client.get_playlist('token_mock')
+            items = client.get_playlist("token_mock")
             self.assertIsInstance(items[1], AdItem)
 
     def test_ad_support_enabled_parameters(self):
-        with patch.object(APIClient, '__call__') as playlist_mock:
+        with patch.object(APIClient, "__call__") as playlist_mock:
             transport = Mock(side_effect=[errors.InvalidAuthToken(), None])
 
             client = APIClient(transport, None, None, None, None)
             client._authenticate = Mock()
 
-            client.get_playlist('token_mock')
+            client.get_playlist("token_mock")
 
-            playlist_mock.assert_has_calls([call("station.getPlaylist",
-                                                 additionalAudioUrl='',
-                                                 audioAdPodCapable=True,
-                                                 includeTrackLength=True,
-                                                 stationToken='token_mock',
-                                                 xplatformAdCapable=True)])
+            playlist_mock.assert_has_calls(
+                [
+                    call(
+                        "station.getPlaylist",
+                        additionalAudioUrl="",
+                        audioAdPodCapable=True,
+                        includeTrackLength=True,
+                        stationToken="token_mock",
+                        xplatformAdCapable=True,
+                    )
+                ]
+            )
 
 
 class TestGettingQualities(TestCase):
-
     def test_with_invalid_quality_returning_all(self):
         result = BaseAPIClient.get_qualities("foo", True)
         self.assertEqual(BaseAPIClient.ALL_QUALITIES, result)
@@ -111,20 +116,22 @@ class TestGettingQualities(TestCase):
 
     def test_with_valid_quality(self):
         result = BaseAPIClient.get_qualities(
-                BaseAPIClient.MED_AUDIO_QUALITY, False)
+            BaseAPIClient.MED_AUDIO_QUALITY, False
+        )
 
         expected = [
-                BaseAPIClient.LOW_AUDIO_QUALITY,
-                BaseAPIClient.MED_AUDIO_QUALITY]
+            BaseAPIClient.LOW_AUDIO_QUALITY,
+            BaseAPIClient.MED_AUDIO_QUALITY,
+        ]
 
         self.assertEqual(expected, result)
 
 
 class TestGettingAds(TestCase):
-
     def test_get_ad_item_(self):
         metamock = patch.object(
-            APIClient, '__call__', return_value=TestAdItem.JSON_DATA)
+            APIClient, "__call__", return_value=TestAdItem.JSON_DATA
+        )
 
         with metamock as ad_metadata_mock:
             transport = Mock(side_effect=[errors.InvalidAuthToken(), None])
@@ -132,13 +139,20 @@ class TestGettingAds(TestCase):
             client = APIClient(transport, None, None, None, None)
             client._authenticate = Mock()
 
-            ad_item = client.get_ad_item('id_mock', 'token_mock')
-            assert ad_item.station_id == 'id_mock'
-            assert ad_item.ad_token == 'token_mock'
+            ad_item = client.get_ad_item("id_mock", "token_mock")
+            assert ad_item.station_id == "id_mock"
+            assert ad_item.ad_token == "token_mock"
 
-            ad_metadata_mock.assert_has_calls([
-                call("ad.getAdMetadata", adToken='token_mock',
-                     returnAdTrackingTokens=True, supportAudioAds=True)])
+            ad_metadata_mock.assert_has_calls(
+                [
+                    call(
+                        "ad.getAdMetadata",
+                        adToken="token_mock",
+                        returnAdTrackingTokens=True,
+                        supportAudioAds=True,
+                    )
+                ]
+            )
 
     def test_get_ad_item_with_no_station_id_specified_raises_exception(self):
         transport = Mock(side_effect=[errors.InvalidAuthToken(), None])
@@ -147,28 +161,31 @@ class TestGettingAds(TestCase):
         client.get_ad_metadata = Mock()
 
         self.assertRaises(
-                errors.ParameterMissing, client.get_ad_item, '', 'token_mock')
+            errors.ParameterMissing, client.get_ad_item, "", "token_mock"
+        )
 
 
 class TestCreatingStation(TestCase):
-
     def test_using_search_token(self):
         client = APIClient(Mock(return_value={}), None, None, None, None)
         client.create_station(search_token="foo")
         client.transport.assert_called_with(
-            "station.createStation", musicToken="foo")
+            "station.createStation", musicToken="foo"
+        )
 
     def test_using_artist_token(self):
         client = APIClient(Mock(return_value={}), None, None, None, None)
         client.create_station(artist_token="foo")
         client.transport.assert_called_with(
-            "station.createStation", trackToken="foo", musicType="artist")
+            "station.createStation", trackToken="foo", musicType="artist"
+        )
 
     def test_using_track_token(self):
         client = APIClient(Mock(return_value={}), None, None, None, None)
         client.create_station(track_token="foo")
         client.transport.assert_called_with(
-            "station.createStation", trackToken="foo", musicType="song")
+            "station.createStation", trackToken="foo", musicType="song"
+        )
 
     def test_with_no_token(self):
         with self.assertRaises(KeyError):
@@ -177,25 +194,20 @@ class TestCreatingStation(TestCase):
 
 
 class TestCreatingGenreStation(TestCase):
-
     def test_has_initial_checksum(self):
         fake_data = {
-            "categories": [
-                {"categoryName": "foo", "stations": []},
-            ],
-
+            "categories": [{"categoryName": "foo", "stations": []},],
             # Not actually part of the genre station response but is needed to
             # fake out the mock for get_genre_stations_checksum
-            "checksum": "foo"
+            "checksum": "foo",
         }
-        with patch.object(APIClient, '__call__', return_value=fake_data):
+        with patch.object(APIClient, "__call__", return_value=fake_data):
             client = APIClient(Mock(), None, None, None, None)
             station = client.get_genre_stations()
             self.assertEqual(station.checksum, "foo")
 
 
 class TestAdditionalUrls(TestCase):
-
     def test_non_iterable_string(self):
         with self.assertRaises(TypeError):
             transport = Mock(side_effect=[errors.InvalidAuthToken(), None])
@@ -203,7 +215,7 @@ class TestAdditionalUrls(TestCase):
             client = APIClient(transport, None, None, None, None)
             client._authenticate = Mock()
 
-            client.get_playlist('token_mock', additional_urls='')
+            client.get_playlist("token_mock", additional_urls="")
 
     def test_non_iterable_other(self):
         with self.assertRaises(TypeError):
@@ -212,50 +224,64 @@ class TestAdditionalUrls(TestCase):
             client = APIClient(transport, None, None, None, None)
             client._authenticate = Mock()
 
-            client.get_playlist('token_mock',
-                                additional_urls=AdditionalAudioUrl.HTTP_32_WMA)
+            client.get_playlist(
+                "token_mock", additional_urls=AdditionalAudioUrl.HTTP_32_WMA
+            )
 
     def test_without_enum(self):
-        with patch.object(APIClient, '__call__') as playlist_mock:
+        with patch.object(APIClient, "__call__") as playlist_mock:
             transport = Mock(side_effect=[errors.InvalidAuthToken(), None])
 
             client = APIClient(transport, None, None, None, None)
             client._authenticate = Mock()
 
-            urls = ['HTTP_128_MP3',
-                    'HTTP_24_AACPLUS_ADTS']
+            urls = ["HTTP_128_MP3", "HTTP_24_AACPLUS_ADTS"]
 
-            desired = 'HTTP_128_MP3,HTTP_24_AACPLUS_ADTS'
+            desired = "HTTP_128_MP3,HTTP_24_AACPLUS_ADTS"
 
-            client.get_playlist('token_mock', additional_urls=urls)
+            client.get_playlist("token_mock", additional_urls=urls)
 
-            playlist_mock.assert_has_calls([call("station.getPlaylist",
-                                                 additionalAudioUrl=desired,
-                                                 audioAdPodCapable=True,
-                                                 includeTrackLength=True,
-                                                 stationToken='token_mock',
-                                                 xplatformAdCapable=True)])
+            playlist_mock.assert_has_calls(
+                [
+                    call(
+                        "station.getPlaylist",
+                        additionalAudioUrl=desired,
+                        audioAdPodCapable=True,
+                        includeTrackLength=True,
+                        stationToken="token_mock",
+                        xplatformAdCapable=True,
+                    )
+                ]
+            )
 
     def test_with_enum(self):
-        with patch.object(APIClient, '__call__') as playlist_mock:
+        with patch.object(APIClient, "__call__") as playlist_mock:
             transport = Mock(side_effect=[errors.InvalidAuthToken(), None])
 
             client = APIClient(transport, None, None, None, None)
             client._authenticate = Mock()
 
-            urls = [AdditionalAudioUrl.HTTP_128_MP3,
-                    AdditionalAudioUrl.HTTP_24_AACPLUS_ADTS]
+            urls = [
+                AdditionalAudioUrl.HTTP_128_MP3,
+                AdditionalAudioUrl.HTTP_24_AACPLUS_ADTS,
+            ]
 
-            desired = 'HTTP_128_MP3,HTTP_24_AACPLUS_ADTS'
+            desired = "HTTP_128_MP3,HTTP_24_AACPLUS_ADTS"
 
-            client.get_playlist('token_mock', additional_urls=urls)
+            client.get_playlist("token_mock", additional_urls=urls)
 
-            playlist_mock.assert_has_calls([call("station.getPlaylist",
-                                                 additionalAudioUrl=desired,
-                                                 audioAdPodCapable=True,
-                                                 includeTrackLength=True,
-                                                 stationToken='token_mock',
-                                                 xplatformAdCapable=True)])
+            playlist_mock.assert_has_calls(
+                [
+                    call(
+                        "station.getPlaylist",
+                        additionalAudioUrl=desired,
+                        audioAdPodCapable=True,
+                        includeTrackLength=True,
+                        stationToken="token_mock",
+                        xplatformAdCapable=True,
+                    )
+                ]
+            )
 
 
 # On the surface this test class seems dumb because it's mostly just exercising
@@ -263,7 +289,6 @@ class TestAdditionalUrls(TestCase):
 # introduced to API client methods that will only be spotted at runtime (import
 # errors, etc...)
 class TestAPIClientExhaustive(TestCase):
-
     def setUp(self):
         self.transport = Mock()
         self.api = APIClient(self.transport, "puser", "ppass", "device")
@@ -271,23 +296,29 @@ class TestAPIClientExhaustive(TestCase):
     def test_register_ad(self):
         self.api.register_ad("sid", "tokens")
         self.transport.assert_called_with(
-            "ad.registerAd", stationId="sid", adTrackingTokens="tokens")
+            "ad.registerAd", stationId="sid", adTrackingTokens="tokens"
+        )
 
     def test_share_music(self):
         self.api.share_music("token", "foo@example.com")
         self.transport.assert_called_with(
-            "music.shareMusic", musicToken="token", email="foo@example.com")
+            "music.shareMusic", musicToken="token", email="foo@example.com"
+        )
 
     def test_transform_shared_station(self):
         self.api.transform_shared_station("token")
         self.transport.assert_called_with(
-            "station.transformSharedStation", stationToken="token")
+            "station.transformSharedStation", stationToken="token"
+        )
 
     def test_share_station(self):
         self.api.share_station("sid", "token", "foo@example.com")
         self.transport.assert_called_with(
-            "station.shareStation", stationId="sid", stationToken="token",
-            emails=("foo@example.com",))
+            "station.shareStation",
+            stationId="sid",
+            stationToken="token",
+            emails=("foo@example.com",),
+        )
 
     def test_sleep_song(self):
         self.api.sleep_song("token")
@@ -296,22 +327,26 @@ class TestAPIClientExhaustive(TestCase):
     def test_set_quick_mix(self):
         self.api.set_quick_mix("id")
         self.transport.assert_called_with(
-            "user.setQuickMix", quickMixStationIds=("id",))
+            "user.setQuickMix", quickMixStationIds=("id",)
+        )
 
     def test_explain_track(self):
         self.api.explain_track("token")
         self.transport.assert_called_with(
-            "track.explainTrack", trackToken="token")
+            "track.explainTrack", trackToken="token"
+        )
 
     def test_rename_station(self):
         self.api.rename_station("token", "name")
         self.transport.assert_called_with(
-            "station.renameStation", stationToken="token", stationName="name")
+            "station.renameStation", stationToken="token", stationName="name"
+        )
 
     def test_delete_station(self):
         self.api.delete_station("token")
         self.transport.assert_called_with(
-            "station.deleteStation", stationToken="token")
+            "station.deleteStation", stationToken="token"
+        )
 
     def test_delete_music(self):
         self.api.delete_music("seed")
@@ -320,37 +355,44 @@ class TestAPIClientExhaustive(TestCase):
     def test_delete_feedback(self):
         self.api.delete_feedback("id")
         self.transport.assert_called_with(
-            "station.deleteFeedback", feedbackId="id")
+            "station.deleteFeedback", feedbackId="id"
+        )
 
     def test_add_music(self):
         self.api.add_music("mt", "st")
         self.transport.assert_called_with(
-            "station.addMusic", musicToken="mt", stationToken="st")
+            "station.addMusic", musicToken="mt", stationToken="st"
+        )
 
     def test_add_feedback(self):
         self.api.add_feedback("token", False)
         self.transport.assert_called_with(
-            "station.addFeedback", trackToken="token", isPositive=False)
+            "station.addFeedback", trackToken="token", isPositive=False
+        )
 
     def test_add_artist_bookmark(self):
         self.api.add_artist_bookmark("tt")
         self.transport.assert_called_with(
-            "bookmark.addArtistBookmark", trackToken="tt")
+            "bookmark.addArtistBookmark", trackToken="tt"
+        )
 
     def test_add_song_bookmark(self):
         self.api.add_song_bookmark("tt")
         self.transport.assert_called_with(
-            "bookmark.addSongBookmark", trackToken="tt")
+            "bookmark.addSongBookmark", trackToken="tt"
+        )
 
     def test_delete_song_bookmark(self):
         self.api.delete_song_bookmark("bt")
         self.transport.assert_called_with(
-            "bookmark.deleteSongBookmark", bookmarkToken="bt")
+            "bookmark.deleteSongBookmark", bookmarkToken="bt"
+        )
 
     def test_delete_artist_bookmark(self):
         self.api.delete_artist_bookmark("bt")
         self.transport.assert_called_with(
-            "bookmark.deleteArtistBookmark", bookmarkToken="bt")
+            "bookmark.deleteArtistBookmark", bookmarkToken="bt"
+        )
 
     def test_get_station_list_checksum(self):
         self.transport.return_value = {"checksum": "foo"}
@@ -364,7 +406,8 @@ class TestAPIClientExhaustive(TestCase):
         self.transport.return_value = {"stations": []}
         self.assertIsInstance(self.api.get_station_list(), StationList)
         self.transport.assert_called_with(
-            "user.getStationList", includeStationArtUrl=True)
+            "user.getStationList", includeStationArtUrl=True
+        )
 
     def test_get_bookmarks(self):
         self.transport.return_value = {}
@@ -375,14 +418,22 @@ class TestAPIClientExhaustive(TestCase):
         self.transport.return_value = {}
         self.assertIsInstance(self.api.get_station("st"), Station)
         self.transport.assert_called_with(
-            "station.getStation", stationToken="st",
-            includeExtendedAttributes=True)
+            "station.getStation",
+            stationToken="st",
+            includeExtendedAttributes=True,
+        )
 
     def test_search(self):
         self.transport.return_value = {}
-        self.assertIsInstance(self.api.search(
-            "text", include_near_matches=True, include_genre_stations=True),
-            SearchResult)
+        self.assertIsInstance(
+            self.api.search(
+                "text", include_near_matches=True, include_genre_stations=True
+            ),
+            SearchResult,
+        )
         self.transport.assert_called_with(
-            "music.search", searchText="text", includeNearMatches=True,
-            includeGenreStations=True)
+            "music.search",
+            searchText="text",
+            includeNearMatches=True,
+            includeGenreStations=True,
+        )

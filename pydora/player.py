@@ -132,8 +132,12 @@ class PlayerApp:
         if song.is_ad:
             print("{} ".format(Colors.cyan("Advertisement")))
         else:
-            print("{} by {}".format(Colors.cyan(song.song_name),
-                                    Colors.yellow(song.artist_name)))
+            print(
+                "{} by {}".format(
+                    Colors.cyan(song.song_name),
+                    Colors.yellow(song.artist_name),
+                )
+            )
 
     def skip_song(self, song):
         if song.is_ad:
@@ -183,13 +187,15 @@ class PlayerApp:
                 self.screen.print_error("Failed to bookmark artis")
         except NotImplementedError:
             self.screen.print_error(
-                "Cannot bookmark artist for this type of track")
+                "Cannot bookmark artist for this type of track"
+            )
 
     def sleep_song(self, song):
         try:
             if song.sleep():
                 self.screen.print_success(
-                    "Song will not be played for 30 days")
+                    "Song will not be played for 30 days"
+                )
                 self.player.stop()
             else:
                 self.screen.print_error("Failed to sleep song")
@@ -214,10 +220,14 @@ class PlayerApp:
 
     def help(self, song):
         print("")
-        print("\n".join([
-            "\t{:>2} - {}".format(k, v[0])
-            for k, v in sorted(self.CMD_MAP.items())
-        ]))
+        print(
+            "\n".join(
+                [
+                    "\t{:>2} - {}".format(k, v[0])
+                    for k, v in sorted(self.CMD_MAP.items())
+                ]
+            )
+        )
         print("")
 
     def input(self, input, song):
@@ -227,7 +237,8 @@ class PlayerApp:
             cmd = getattr(self, self.CMD_MAP[input][1])
         except (IndexError, KeyError):
             return self.screen.print_error(
-                "Invalid command {!r}!".format(input))
+                "Invalid command {!r}!".format(input)
+            )
 
         cmd(song)
 
@@ -240,21 +251,30 @@ class PlayerApp:
     def pre_flight_checks(self):
         # See #52, this key no longer passes some server-side check
         if self.client.partner_user == "iphone":
-            self.screen.print_error((
-                "The `iphone` partner key set is no longer compatible with "
-                "pydora. Please re-run pydora-configure to re-generate "
-                "your config file before continuing."))
+            self.screen.print_error(
+                (
+                    "The `iphone` partner key set is no longer compatible "
+                    "with pydora. Please re-run pydora-configure to "
+                    "re-generate your config file before continuing."
+                )
+            )
             sys.exit(1)
 
     def _parse_args(self):
         parser = argparse.ArgumentParser(
-            description="command line Pandora player")
+            description="command line Pandora player"
+        )
         parser.add_argument(
-            "--vlc-net", dest="vlc_net",
-            help="connect to VLC over the network (host:port)")
+            "--vlc-net",
+            dest="vlc_net",
+            help="connect to VLC over the network (host:port)",
+        )
         parser.add_argument(
-            "-v", dest="verbose", action="store_true",
-            help="enable verbose logging")
+            "-v",
+            dest="verbose",
+            action="store_true",
+            help="enable verbose logging",
+        )
         return parser.parse_args()
 
     def run(self):

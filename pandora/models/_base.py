@@ -71,7 +71,6 @@ class DateField(SyntheticField):
 
 
 class ModelMetaClass(type):
-
     def __new__(cls, name, parents, dct):
         dct["_fields"] = fields = {}
         new_dct = dct.copy()
@@ -159,7 +158,8 @@ class PandoraModel(metaclass=ModelMetaClass):
         """
         items = [
             "=".join((key, repr(getattr(self, key))))
-            for key in sorted(self._fields.keys())]
+            for key in sorted(self._fields.keys())
+        ]
 
         if items:
             output = ", ".join(items)
@@ -167,8 +167,9 @@ class PandoraModel(metaclass=ModelMetaClass):
             output = None
 
         if and_also:
-            return "{}({}, {})".format(self.__class__.__name__,
-                                       output, and_also)
+            return "{}({}, {})".format(
+                self.__class__.__name__, output, and_also
+            )
         else:
             return "{}({})".format(self.__class__.__name__, output)
 
@@ -301,7 +302,8 @@ class PandoraDictListModel(PandoraModel, dict):
 
             for part in item[self.__list_key__]:
                 self[key].append(
-                    cls.__list_model__.from_json(api_client, part))
+                    cls.__list_model__.from_json(api_client, part)
+                )
 
         return self
 

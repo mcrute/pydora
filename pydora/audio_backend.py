@@ -15,18 +15,21 @@ log = logging.getLogger("pydora.audio_backend")
 class PlayerException(Exception):
     """Base class for all player exceptions
     """
+
     pass
 
 
 class UnsupportedEncoding(PlayerException):
     """Song encoding is not supported by player backend
     """
+
     pass
 
 
 class PlayerUnusable(PlayerException):
     """Player can not be used on this system
     """
+
     pass
 
 
@@ -172,7 +175,8 @@ class BasePlayer:
                 self._loop_hook()
 
                 readers, _, _ = select.select(
-                    self._get_select_readers(), [], [], 1)
+                    self._get_select_readers(), [], [], 1
+                )
 
                 for handle in readers:
                     if handle.fileno() == self._control_fd:
@@ -296,7 +300,6 @@ class VLCPlayer(BasePlayer):
 
 
 class RemoteVLC(VLCPlayer):
-
     def __init__(self, host, port, callbacks, control_channel):
         self._connect_to = (host, int(port))
         self._control_sock = None

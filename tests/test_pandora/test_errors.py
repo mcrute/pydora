@@ -4,7 +4,6 @@ from pandora.errors import InternalServerError, PandoraException
 
 
 class TestPandoraExceptionConstructionFromErrorCode(TestCase):
-
     def test_it_returns_specific_error_class_if_possible(self):
         error = PandoraException.from_code(0, "Test Message")
         self.assertIsInstance(error, InternalServerError)

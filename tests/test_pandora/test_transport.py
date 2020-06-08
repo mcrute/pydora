@@ -16,12 +16,12 @@ class SysCallError(Exception):
 
 
 class TestTransport(TestCase):
-
     def test_test_url_should_return_true_if_request_okay(self):
         transport = t.APITransport(Mock())
         transport._http = Mock()
         transport._http.head.return_value = Mock(
-            status_code=requests.codes.not_found)
+            status_code=requests.codes.not_found
+        )
 
         self.assertFalse(transport.test_url("foo"))
 
@@ -34,7 +34,8 @@ class TestTransport(TestCase):
 
             time.sleep = Mock()
             client.transport._make_http_request = Mock(
-                    side_effect=SysCallError("error_mock"))
+                side_effect=SysCallError("error_mock")
+            )
             client.transport._start_request = Mock()
 
             client("method")
@@ -48,7 +49,8 @@ class TestTransport(TestCase):
 
             time.sleep = Mock()
             client.transport._make_http_request = Mock(
-                    side_effect=PandoraException("error_mock"))
+                side_effect=PandoraException("error_mock")
+            )
             client.transport._start_request = Mock()
 
             client("method")
@@ -62,7 +64,8 @@ class TestTransport(TestCase):
 
             time.sleep = Mock()
             client.transport._make_http_request = Mock(
-                    side_effect=InvalidAuthToken("error_mock"))
+                side_effect=InvalidAuthToken("error_mock")
+            )
             client.transport._start_request = Mock()
 
             client._authenticate = Mock()
@@ -82,11 +85,11 @@ class TestTransport(TestCase):
         transport._http.post.return_value = http_result
 
         self.assertEqual(
-            "bar", transport(t.APITransport.NO_ENCRYPT[0], foo="bar"))
+            "bar", transport(t.APITransport.NO_ENCRYPT[0], foo="bar")
+        )
 
 
 class TestTransportSetters(TestCase):
-
     def setUp(self):
         self.cryptor = Mock()
         self.transport = t.APITransport(self.cryptor)
@@ -94,27 +97,29 @@ class TestTransportSetters(TestCase):
     def test_set_partner(self):
         self.cryptor.decrypt_sync_time.return_value = 456
 
-        self.transport.set_partner({
-            "syncTime": "123",
-            "partnerAuthToken": "partner_auth_token",
-            "partnerId": "partner_id",
-        })
+        self.transport.set_partner(
+            {
+                "syncTime": "123",
+                "partnerAuthToken": "partner_auth_token",
+                "partnerId": "partner_id",
+            }
+        )
 
         self.cryptor.decrypt_sync_time.assert_called_with("123")
         self.assertEqual("partner_auth_token", self.transport.auth_token)
         self.assertEqual("partner_id", self.transport.partner_id)
         self.assertEqual(
-            "partner_auth_token", self.transport.partner_auth_token)
+            "partner_auth_token", self.transport.partner_auth_token
+        )
 
         self.transport.start_time = 10
         with patch.object(time, "time", return_value=30):
             self.assertEqual(476, self.transport.sync_time)
 
     def test_set_user(self):
-        self.transport.set_user({
-            "userId": "user",
-            "userAuthToken": "auth",
-        })
+        self.transport.set_user(
+            {"userId": "user", "userAuthToken": "auth",}
+        )
 
         self.assertEqual("user", self.transport.user_id)
         self.assertEqual("auth", self.transport.user_auth_token)
@@ -126,7 +131,6 @@ class TestTransportSetters(TestCase):
 
 
 class TestDelayExponential(TestCase):
-
     def test_fixed_delay(self):
         self.assertEqual(8, t.delay_exponential(2, 2, 3))
 
@@ -143,7 +147,6 @@ class TestDelayExponential(TestCase):
 
 
 class TestRetries(TestCase):
-
     def test_no_retries_returns_none(self):
         @t.retries(0)
         def foo():
@@ -178,7 +181,6 @@ class TestParseResponse(TestCase):
 
 
 class TestTransportRequestPrep(TestCase):
-
     def setUp(self):
         self.cryptor = Mock()
         self.transport = t.APITransport(self.cryptor)
@@ -207,7 +209,8 @@ class TestTransportRequestPrep(TestCase):
 
         self.transport._http = http
         res = self.transport._make_http_request(
-            "/url", b"data", {"a": None, "b": "c"})
+            "/url", b"data", {"a": None, "b": "c"}
+        )
 
         http.post.assert_called_with("/url", data=b"data", params={"b": "c"})
         retval.raise_for_status.assert_called_with()
@@ -237,7 +240,8 @@ class TestTransportRequestPrep(TestCase):
 
         with patch.object(time, "time", return_value=20):
             val = self.transport._build_data(
-                t.APITransport.NO_ENCRYPT[0], {"a": "b", "c": None})
+                t.APITransport.NO_ENCRYPT[0], {"a": "b", "c": None}
+            )
 
         val = json.loads(val)
         self.assertEqual("b", val["a"])
@@ -247,7 +251,6 @@ class TestTransportRequestPrep(TestCase):
 
 # All Cryptor implementations must pass these test cases unmodified
 class CommonCryptorTestCases:
-
     def test_decrypt_invalid_padding(self):
         with self.assertRaises(ValueError):
             data = b"12345678\x00"
@@ -267,7 +270,6 @@ class CommonCryptorTestCases:
 
 
 class TestPurePythonBlowfishCryptor(TestCase, CommonCryptorTestCases):
-
     def setUp(self):
         # Ugh... blowfish can't even be *imported* in python2
         if not t.blowfish:
@@ -288,7 +290,6 @@ class TestEncryptor(TestCase):
     ENCODED_TIME = "31353037343131313539"
 
     class NoopCrypto:
-
         def __init__(self, key):
             pass
 
@@ -303,14 +304,17 @@ class TestEncryptor(TestCase):
 
     def test_decrypt(self):
         self.assertEqual(
-            {"foo": "bar"}, self.cryptor.decrypt(self.ENCODED_JSON))
+            {"foo": "bar"}, self.cryptor.decrypt(self.ENCODED_JSON)
+        )
 
     def test_encrypt(self):
         self.assertEqual(
             self.ENCODED_JSON.encode("ascii"),
-            self.cryptor.encrypt(self.UNENCODED_JSON))
+            self.cryptor.encrypt(self.UNENCODED_JSON),
+        )
 
     def test_decrypt_sync_time(self):
         self.assertEqual(
             self.EXPECTED_TIME,
-            self.cryptor.decrypt_sync_time(self.ENCODED_TIME))
+            self.cryptor.decrypt_sync_time(self.ENCODED_TIME),
+        )
