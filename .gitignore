@@ -2,9 +2,8 @@
 .coverage/
 .eggs/
 .py3/
-.sandbox_name
+.tox/
 build/
-coverage.xml
 dist/
 htmlcov/
 pydora.egg-info/

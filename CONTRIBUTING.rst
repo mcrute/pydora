@@ -16,5 +16,5 @@ your changes. To have the best experience contributing, please:
 All code is reviewed before acceptance and changes may be requested to better
 follow the conventions of the existing API.
 
-The build system runs ``python setup.py release`` on all supported Python
+The build system runs ``tox -e tests,release`` on all supported Python
 versions. You can, and should, run this on your pull request before submitting.

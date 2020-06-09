@@ -13,6 +13,7 @@ jobs:
         os:
         - ubuntu-latest
         - macos-latest
+
         python-version:
         - 3.5
         - 3.6
@@ -26,5 +27,6 @@ jobs:
         with:
           python-version: ${{ matrix.python-version }}
 
-      - run: pip install -U pip setuptools wheel mock nose pytest
-      - run: python setup.py release
+      - run: |
+          pip install tox
+          tox -e tests,release
