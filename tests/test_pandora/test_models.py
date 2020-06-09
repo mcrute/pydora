@@ -159,7 +159,7 @@ class TestPandoraModel(TestCase):
         self.assertEqual(expected, repr(result))
 
 
-class TestSubModel(m.PandoraModel):
+class ExampleSubModel(m.PandoraModel):
 
     idx = m.Field("idx")
     fieldS1 = m.Field("fieldS1")
@@ -178,7 +178,7 @@ class TestPandoraListModel(TestCase):
     class TestModel(m.PandoraListModel):
 
         __list_key__ = "field2"
-        __list_model__ = TestSubModel
+        __list_model__ = ExampleSubModel
         __index_key__ = "idx"
 
         field1 = m.Field("field1")
@@ -194,8 +194,8 @@ class TestPandoraListModel(TestCase):
 
     def test_repr(self):
         expected = (
-            "TestModel(field1=42, [TestSubModel(fieldS1='Foo', "
-            "idx='foo'), TestSubModel(fieldS1='Bar', idx='bar')])"
+            "TestModel(field1=42, [ExampleSubModel(fieldS1='Foo', "
+            "idx='foo'), ExampleSubModel(fieldS1='Bar', idx='bar')])"
         )
         self.assertEqual(expected, repr(self.result))
 
@@ -239,7 +239,7 @@ class TestPandoraDictListModel(TestCase):
 
         __dict_list_key__ = "fieldD1"
         __list_key__ = "listKey"
-        __list_model__ = TestSubModel
+        __list_model__ = ExampleSubModel
         __dict_key__ = "dictKey"
 
         field1 = m.Field("field1")
@@ -259,8 +259,8 @@ class TestPandoraDictListModel(TestCase):
     def test_repr(self):
         expected = (
             "TestModel(field1=42, {'Foobear': "
-            "[TestSubModel(fieldS1='Foo', idx='foo'), "
-            "TestSubModel(fieldS1='Bar', idx='bar')]})"
+            "[ExampleSubModel(fieldS1='Foo', idx='foo'), "
+            "ExampleSubModel(fieldS1='Bar', idx='bar')]})"
         )
         self.assertEqual(expected, repr(self.result))
 
