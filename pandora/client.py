@@ -227,9 +227,9 @@ class APIClient(BaseAPIClient):
         if search_token:
             kwargs = {"musicToken": search_token}
         elif artist_token:
-            kwargs = {"trackToken": artist_token, "musicType": "artist"}
+            kwargs = {"musicToken": artist_token, "musicType": "artist"}
         elif track_token:
-            kwargs = {"trackToken": track_token, "musicType": "song"}
+            kwargs = {"musicToken": track_token, "musicType": "song"}
         else:
             raise KeyError("Must pass a type of token")
 
