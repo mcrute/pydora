@@ -51,7 +51,7 @@ class ArtistSearchResultItem(SearchResultItem):
     likely_match = Field("likelyMatch", default=False)
 
     def create_station(self):
-        self._api_client.create_station(artist_token=self.token)
+        return self._api_client.create_station(artist_token=self.token)
 
     @classmethod
     def from_json(cls, api_client, data):
@@ -66,7 +66,7 @@ class SongSearchResultItem(SearchResultItem):
     song_name = Field("songName")
 
     def create_station(self):
-        self._api_client.create_station(track_token=self.token)
+        return self._api_client.create_station(track_token=self.token)
 
     @classmethod
     def from_json(cls, api_client, data):
@@ -80,7 +80,7 @@ class GenreStationSearchResultItem(SearchResultItem):
     station_name = Field("stationName")
 
     def create_station(self):
-        self._api_client.create_station(search_token=self.token)
+        return self._api_client.create_station(search_token=self.token)
 
     @classmethod
     def from_json(cls, api_client, data):

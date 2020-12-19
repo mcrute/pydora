@@ -577,7 +577,7 @@ class TestArtistSearchResultItem(TestCase):
         )
         result._api_client.create_station = Mock()
 
-        result.create_station()
+        self.assertIsNotNone(result.create_station())
         result._api_client.create_station.assert_called_with(
             artist_token=result.token
         )
@@ -614,7 +614,7 @@ class TestSongSearchResultItem(TestCase):
         )
         result._api_client.create_station = Mock()
 
-        result.create_station()
+        self.assertIsNotNone(result.create_station())
         result._api_client.create_station.assert_called_with(
             track_token=result.token
         )
@@ -650,7 +650,7 @@ class TestGenreStationSearchResultItem(TestCase):
         )
         result._api_client.create_station = Mock()
 
-        result.create_station()
+        self.assertIsNotNone(result.create_station())
         result._api_client.create_station.assert_called_with(
             search_token=result.token
         )

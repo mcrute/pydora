@@ -177,7 +177,14 @@ class TestCreatingStation(TestCase):
         client = APIClient(Mock(return_value={}), None, None, None, None)
         client.create_station(artist_token="foo")
         client.transport.assert_called_with(
-            "station.createStation", trackToken="foo", musicType="artist"
+            "station.createStation", musicToken="foo", musicType="artist"
+        )
+
+    def test_using_song_token(self):
+        client = APIClient(Mock(return_value={}), None, None, None, None)
+        client.create_station(song_token="foo")
+        client.transport.assert_called_with(
+            "station.createStation", musicToken="foo", musicType="song"
         )
 
     def test_using_track_token(self):
