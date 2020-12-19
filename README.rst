@@ -207,6 +207,7 @@ fixing bugs. List is organized by date of first contribution.
 * Thomas Weißschuh (`@t-8c <https://github.com/t-8ch>`_)
 * Skybound1 (`@Skybound1 <https://github.com/Skybound1>`_)
 * Hugo (`@hugovk <https://github.com/hugovk>`_)
+* mspencer92 (`@mspencer92 <https://github.com/mspencer92>`_)
 
 .. |1.x| replace:: ``1.x``
 .. _1.x: https://github.com/mcrute/pydora/tree/1.x
