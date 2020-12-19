@@ -64,7 +64,12 @@ class TestAdditionalUrlField(TestCase):
         self.assertEqual(ret, {"foo": "test"})
 
     def test_multiple_urls(self):
-        dummy_data = {"_paramAdditionalUrls": ["abc", "def",]}
+        dummy_data = {
+            "_paramAdditionalUrls": [
+                "abc",
+                "def",
+            ]
+        }
 
         field = plm.AdditionalUrlField("additionalAudioUrl")
 
@@ -708,7 +713,9 @@ class TestGenreStationList(TestCase):
 
     TEST_DATA = {
         "checksum": "bar",
-        "categories": [{"categoryName": "foo", "stations": []},],
+        "categories": [
+            {"categoryName": "foo", "stations": []},
+        ],
     }
 
     def test_has_changed(self):

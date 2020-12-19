@@ -98,8 +98,7 @@ class PandoraModel(metaclass=ModelMetaClass):
 
     @classmethod
     def from_json_list(cls, api_client, data):
-        """Convert a list of JSON values to a list of models
-        """
+        """Convert a list of JSON values to a list of models"""
         return [cls.from_json(api_client, item) for item in data]
 
     def __init__(self, api_client):
@@ -147,15 +146,13 @@ class PandoraModel(metaclass=ModelMetaClass):
 
     @classmethod
     def from_json(cls, api_client, data):
-        """Convert one JSON value to a model object
-        """
+        """Convert one JSON value to a model object"""
         self = cls(api_client)
         PandoraModel.populate_fields(api_client, self, data)
         return self
 
     def _base_repr(self, and_also=None):
-        """Common repr logic for subclasses to hook
-        """
+        """Common repr logic for subclasses to hook"""
         items = [
             "=".join((key, repr(getattr(self, key))))
             for key in sorted(self._fields.keys())

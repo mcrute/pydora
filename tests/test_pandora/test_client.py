@@ -203,7 +203,9 @@ class TestCreatingStation(TestCase):
 class TestCreatingGenreStation(TestCase):
     def test_has_initial_checksum(self):
         fake_data = {
-            "categories": [{"categoryName": "foo", "stations": []},],
+            "categories": [
+                {"categoryName": "foo", "stations": []},
+            ],
             # Not actually part of the genre station response but is needed to
             # fake out the mock for get_genre_stations_checksum
             "checksum": "foo",

@@ -26,23 +26,19 @@ class PlayerCallbacks:
     """
 
     def play(self, song):
-        """Called once when a song starts playing
-        """
+        """Called once when a song starts playing"""
         pass
 
     def pre_poll(self):
-        """Called before polling for process status
-        """
+        """Called before polling for process status"""
         pass
 
     def post_poll(self):
-        """Called after polling for process status
-        """
+        """Called after polling for process status"""
         pass
 
     def input(self, value, song):
-        """Called after user input during song playback
-        """
+        """Called after user input during song playback"""
         pass
 
 
@@ -113,8 +109,7 @@ class PlayerApp:
             sys.exit(1)
 
     def station_selection_menu(self, error=None):
-        """Format a station menu and make the user select a station
-        """
+        """Format a station menu and make the user select a station"""
         self.screen.clear()
 
         if error:
@@ -127,8 +122,7 @@ class PlayerApp:
         return self.stations[self.screen.get_integer("Station: ")]
 
     def play(self, song):
-        """Play callback
-        """
+        """Play callback"""
         if song.is_ad:
             print("{} ".format(Colors.cyan("Advertisement")))
         else:
@@ -231,8 +225,7 @@ class PlayerApp:
         print("")
 
     def input(self, input, song):
-        """Input callback, handles key presses
-        """
+        """Input callback, handles key presses"""
         try:
             cmd = getattr(self, self.CMD_MAP[input][1])
         except (IndexError, KeyError):

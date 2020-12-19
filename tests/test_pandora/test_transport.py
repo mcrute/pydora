@@ -118,7 +118,10 @@ class TestTransportSetters(TestCase):
 
     def test_set_user(self):
         self.transport.set_user(
-            {"userId": "user", "userAuthToken": "auth",}
+            {
+                "userId": "user",
+                "userAuthToken": "auth",
+            }
         )
 
         self.assertEqual("user", self.transport.user_id)

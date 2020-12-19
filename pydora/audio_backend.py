@@ -13,22 +13,19 @@ log = logging.getLogger("pydora.audio_backend")
 
 
 class PlayerException(Exception):
-    """Base class for all player exceptions
-    """
+    """Base class for all player exceptions"""
 
     pass
 
 
 class UnsupportedEncoding(PlayerException):
-    """Song encoding is not supported by player backend
-    """
+    """Song encoding is not supported by player backend"""
 
     pass
 
 
 class PlayerUnusable(PlayerException):
-    """Player can not be used on this system
-    """
+    """Player can not be used on this system"""
 
     pass
 
@@ -67,13 +64,11 @@ class BasePlayer:
         raise NotImplementedError
 
     def _load_track(self, song):
-        """Load a track into the audio backend by song model
-        """
+        """Load a track into the audio backend by song model"""
         raise NotImplementedError
 
     def _player_stopped(self, value):
-        """Determine if player has stopped
-        """
+        """Determine if player has stopped"""
         raise NotImplementedError
 
     def raise_volume(self):
@@ -93,13 +88,11 @@ class BasePlayer:
         raise NotImplementedError
 
     def _post_start(self):
-        """Optionally, do something after the audio backend is started
-        """
+        """Optionally, do something after the audio backend is started"""
         return
 
     def _loop_hook(self):
-        """Optionally, do something each main loop iteration
-        """
+        """Optionally, do something each main loop iteration"""
         return
 
     def _read_from_process(self, handle):
@@ -111,19 +104,16 @@ class BasePlayer:
         return handle.readline().strip()
 
     def _send_cmd(self, cmd):
-        """Write command to remote process
-        """
+        """Write command to remote process"""
         self._process.stdin.write("{}\n".format(cmd).encode("utf-8"))
         self._process.stdin.flush()
 
     def stop(self):
-        """Stop the currently playing song
-        """
+        """Stop the currently playing song"""
         self._send_cmd("stop")
 
     def pause(self):
-        """Pause the player
-        """
+        """Pause the player"""
         self._send_cmd("pause")
 
     def __del__(self):
@@ -138,8 +128,7 @@ class BasePlayer:
         self._ensure_started()
 
     def _ensure_started(self):
-        """Ensure player backing process is started
-        """
+        """Ensure player backing process is started"""
         if self._process and self._process.poll() is None:
             return
 
@@ -189,8 +178,7 @@ class BasePlayer:
                 self._callbacks.post_poll()
 
     def end_station(self):
-        """Stop playing the station
-        """
+        """Stop playing the station"""
         raise StopIteration
 
     def play_station(self, station):
@@ -208,8 +196,7 @@ class BasePlayer:
 
 
 class MPG123Player(BasePlayer):
-    """Player Backend Using mpg123
-    """
+    """Player Backend Using mpg123"""
 
     def __init__(self, callbacks, control_channel):
         super().__init__(callbacks, control_channel)

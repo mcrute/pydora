@@ -226,8 +226,7 @@ class PydoraConfigFileBuilder(FileBasedClientBuilder):
 
 
 class PianobarSettingsDict(TranslatingDict):
-    """Pianobar Translating Dictionary
-    """
+    """Pianobar Translating Dictionary"""
 
     KEY_TRANSLATIONS = {
         "DECRYPT_PASSWORD": "DECRYPTION_KEY",

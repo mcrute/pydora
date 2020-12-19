@@ -11,8 +11,7 @@ from .utils import Screen, Colors
 
 
 class Umask:
-    """Set/Restore Umask Context Manager
-    """
+    """Set/Restore Umask Context Manager"""
 
     def __init__(self, umask):
         self.umask = umask

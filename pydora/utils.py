@@ -194,8 +194,7 @@ def iterate_forever(func, *args, **kwargs):
 
 
 class SilentPopen(subprocess.Popen):
-    """A Popen varient that dumps it's output and error
-    """
+    """A Popen varient that dumps it's output and error"""
 
     def __init__(self, *args, **kwargs):
         self._dev_null = open(os.devnull, "w")
