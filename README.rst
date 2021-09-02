@@ -22,7 +22,17 @@ Keys or passwords for Pandora are **not** provided in this repo, you'll have to
 for yourself. Make something awesome with this library, don't abuse Pandora,
 that's not cool.
 
-Compatability
+Project Complete
+================
+This project **is actively maintained** but the author considers it to be both
+stable and complete. There will be very few new changes initiated by the author
+outside of bug fixes and security updates.
+
+If you run into a problem, file an issue and we'll respond. Pull requests for
+new features and fixes will be reviewed and accepted if they meet our criteria
+for stability, see below for contributing instructions.
+
+Compatibility
 =============
 This is the ``2.x`` series which supports only Python 3.5+. For older versions
 of Python please use the |1.x|_ series. The |1.x|_ series is no longer
