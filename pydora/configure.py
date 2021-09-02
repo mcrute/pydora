@@ -32,12 +32,19 @@ class PandoraKeysConfigParser:
     """
 
     KEYS_URL = (
-        "http://6xq.net/git/lars/pandora-apidoc.git/plain/json/partners.rst"
+        "https://6xq.net/git/lars/pandora-apidoc.git/plain/json/partners.rst"
     )
 
     FIELD_RE = re.compile(
         ":(?P<key>[^:]+): (?:`{2})?(?P<value>[^`\n]+)(?:`{2})?$"
     )
+
+    DEFAULT_TUNER = "tuner.pandora.com"
+
+    TUNERS = {
+        "desktop_air_widget": "internal-tuner.pandora.com",
+        "vista_widget": "internal-tuner.pandora.com",
+    }
 
     def _fixup_key(self, key):
         key = key.lower()
@@ -51,7 +58,8 @@ class PandoraKeysConfigParser:
         else:
             return key
 
-    def _format_api_host(self, host):
+    def _get_api_url(self, host):
+        host = self.TUNERS.get(host, self.DEFAULT_TUNER)
         return "{}/services/json/".format(host)
 
     def _clean_device_name(self, name):
@@ -69,28 +77,23 @@ class PandoraKeysConfigParser:
         else:
             return None
 
-    def _is_host_terminator(self, line):
-        return line.startswith("--")
-
     def _is_device_terminator(self, line):
-        return line.startswith("^^")
+        # Old android credential is delineated by an "Old:" line
+        return line.startswith("^^") or line == "Old:"
 
     def load(self):
         buffer = []
         current_partner = {}
-        api_host = None
         partners = {}
 
         for line in self._fetch_config():
             key_match = self._match_key(line)
             if key_match:
                 current_partner[key_match["key"]] = key_match["value"]
-            elif self._is_host_terminator(line):
-                api_host = buffer.pop()
             elif self._is_device_terminator(line):
                 key = self._clean_device_name(buffer.pop())
                 current_partner = partners[key] = {
-                    "api_host": self._format_api_host(api_host)
+                    "api_host": self._get_api_url(key)
                 }
 
             buffer.append(line.strip().lower())
