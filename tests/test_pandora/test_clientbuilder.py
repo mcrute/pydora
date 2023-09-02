@@ -9,7 +9,6 @@ from pandora.transport import DEFAULT_API_HOST
 
 class TestTranslatingDict(TestCase):
     class TestDict(cb.TranslatingDict):
-
         KEY_TRANSLATIONS = {"FOO": "BAR"}
         VALUE_TRANSLATIONS = {"BAZ": lambda v: v + 1}
         callback_value = None
@@ -123,7 +122,6 @@ class TestSettingsDictBuilder(TestCase):
 
 class TestFileBasedBuilder(TestCase):
     class StubBuilder(cb.FileBasedClientBuilder):
-
         DEFAULT_CONFIG_FILE = "foo"
 
         def parse_config(self):

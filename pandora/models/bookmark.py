@@ -2,7 +2,6 @@ from ._base import PandoraModel, Field, DateField
 
 
 class Bookmark(PandoraModel):
-
     music_token = Field("musicToken")
     artist_name = Field("artistName")
     art_url = Field("artUrl")
@@ -27,6 +26,5 @@ class Bookmark(PandoraModel):
 
 
 class BookmarkList(PandoraModel):
-
     songs = Field("songs", model=Bookmark)
     artists = Field("artists", model=Bookmark)

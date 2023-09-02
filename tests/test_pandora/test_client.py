@@ -14,7 +14,6 @@ from tests.test_pandora.test_models import TestAdItem
 
 class TestAPIClientLogin(TestCase):
     class StubTransport:
-
         API_VERSION = None
 
         partner = None

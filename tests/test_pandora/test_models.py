@@ -24,7 +24,6 @@ class TestField(TestCase):
 
 class TestModelMetaClass(TestCase):
     class TestModel(metaclass=m.ModelMetaClass):
-
         foo = "bar"
         a_field = m.Field("testing")
         __field__ = m.Field("testing")
@@ -39,7 +38,6 @@ class TestModelMetaClass(TestCase):
 
 class TestDateField(TestCase):
     class SampleModel(m.PandoraModel):
-
         date_field = m.DateField("foo")
 
     def test_json_to_date(self):
@@ -84,7 +82,6 @@ class TestAdditionalUrlField(TestCase):
 
 
 class TestPandoraModel(TestCase):
-
     JSON_DATA = {
         "field2": ["test2"],
         "field3": 41,
@@ -94,7 +91,6 @@ class TestPandoraModel(TestCase):
 
     class TestModel(m.PandoraModel):
         class SubModel(m.PandoraModel):
-
             field1 = m.Field("field1")
 
         THE_LIST = []
@@ -165,13 +161,11 @@ class TestPandoraModel(TestCase):
 
 
 class ExampleSubModel(m.PandoraModel):
-
     idx = m.Field("idx")
     fieldS1 = m.Field("fieldS1")
 
 
 class TestPandoraListModel(TestCase):
-
     JSON_DATA = {
         "field1": 42,
         "field2": [
@@ -181,7 +175,6 @@ class TestPandoraListModel(TestCase):
     }
 
     class TestModel(m.PandoraListModel):
-
         __list_key__ = "field2"
         __list_model__ = ExampleSubModel
         __index_key__ = "idx"
@@ -226,7 +219,6 @@ class TestPandoraListModel(TestCase):
 
 
 class TestPandoraDictListModel(TestCase):
-
     JSON_DATA = {
         "field1": 42,
         "fieldD1": [
@@ -241,7 +233,6 @@ class TestPandoraDictListModel(TestCase):
     }
 
     class TestModel(m.PandoraDictListModel):
-
         __dict_list_key__ = "fieldD1"
         __list_key__ = "listKey"
         __list_model__ = ExampleSubModel
@@ -271,7 +262,6 @@ class TestPandoraDictListModel(TestCase):
 
 
 class TestPlaylistItemModel(TestCase):
-
     AUDIO_URL_NO_MAP = {"audioUrl": "foo"}
     WEIRD_FORMAT = {"audioUrlMap": {"highQuality": {}}}
 
@@ -349,7 +339,6 @@ class TestPlaylistModel(TestCase):
 
 
 class TestAdItem(TestCase):
-
     JSON_DATA = {
         "audioUrlMap": {
             "mediumQuality": {
@@ -406,7 +395,6 @@ class TestAdItem(TestCase):
 
     def test_prepare_playback(self):
         with patch.object(plm.PlaylistModel, "prepare_playback") as super_mock:
-
             self.result.register_ad = Mock()
             self.result.prepare_playback()
             assert self.result.register_ad.called
@@ -414,7 +402,6 @@ class TestAdItem(TestCase):
 
     def test_prepare_playback_raises_paramater_missing(self):
         with patch.object(plm.PlaylistModel, "prepare_playback") as super_mock:
-
             self.result.register_ad = Mock(
                 side_effect=ParameterMissing(
                     "No ad tracking tokens provided for registration."
@@ -426,7 +413,6 @@ class TestAdItem(TestCase):
 
     def test_prepare_playback_handles_paramater_missing_if_no_tokens(self):
         with patch.object(plm.PlaylistModel, "prepare_playback") as super_mock:
-
             self.result.tracking_tokens = []
             self.result.register_ad = Mock(
                 side_effect=ParameterMissing(
@@ -446,7 +432,6 @@ class TestAdItem(TestCase):
 
 
 class TestSearchResultItem(TestCase):
-
     SONG_JSON_DATA = {
         "artistName": "artist_name_mock",
         "musicToken": "S0000000",
@@ -536,7 +521,6 @@ class TestSearchResultItem(TestCase):
 
 
 class TestArtistSearchResultItem(TestCase):
-
     ARTIST_JSON_DATA = {
         "artistName": "artist_name_mock",
         "musicToken": "R0000000",
@@ -589,7 +573,6 @@ class TestArtistSearchResultItem(TestCase):
 
 
 class TestSongSearchResultItem(TestCase):
-
     SONG_JSON_DATA = {
         "artistName": "artist_name_mock",
         "musicToken": "S0000000",
@@ -626,7 +609,6 @@ class TestSongSearchResultItem(TestCase):
 
 
 class TestGenreStationSearchResultItem(TestCase):
-
     GENRE_JSON_DATA = {
         "stationName": "station_name_mock",
         "musicToken": "G0000000",
@@ -662,7 +644,6 @@ class TestGenreStationSearchResultItem(TestCase):
 
 
 class TestSearchResult(TestCase):
-
     JSON_DATA = {
         "nearMatchesAvailable": True,
         "explanation": "",
@@ -710,7 +691,6 @@ class TestSearchResult(TestCase):
 
 
 class TestGenreStationList(TestCase):
-
     TEST_DATA = {
         "checksum": "bar",
         "categories": [
@@ -727,7 +707,6 @@ class TestGenreStationList(TestCase):
 
 
 class TestGenreStation(TestCase):
-
     TEST_DATA = {"categoryName": "foo", "stations": []}
 
     def test_get_playlist_throws_exception(self):
@@ -741,7 +720,6 @@ class TestGenreStation(TestCase):
 
 
 class TestStationList(TestCase):
-
     TEST_DATA = {
         "checksum": "bar",
         "stations": [],
@@ -756,7 +734,6 @@ class TestStationList(TestCase):
 
 
 class TestBookmark(TestCase):
-
     SONG_BOOKMARK = {"songName": "foo", "bookmarkToken": "token"}
     ARTIST_BOOKMARK = {"artistName": "foo", "bookmarkToken": "token"}
 
