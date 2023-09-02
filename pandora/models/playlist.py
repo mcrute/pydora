@@ -17,7 +17,6 @@ class AdditionalAudioUrl(Enum):
 
 
 class PandoraType(Enum):
-
     TRACK = "TR"
     ARTIST = "AR"
     GENRE = "GR"
@@ -136,7 +135,6 @@ class PlaylistModel(PandoraModel):
 
 
 class PlaylistItem(PlaylistModel):
-
     artist_name = Field("artistName")
     album_name = Field("albumName")
     song_name = Field("songName")
@@ -192,6 +190,5 @@ class PlaylistItem(PlaylistModel):
 
 
 class Playlist(PandoraListModel):
-
     __list_key__ = "items"
     __list_model__ = PlaylistItem

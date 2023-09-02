@@ -4,13 +4,11 @@ from .playlist import PandoraType
 
 
 class Icon(PandoraModel):
-
     dominant_color = Field("dominantColor")
     art_url = Field("artUrl")
 
 
 class StationSeed(PandoraModel):
-
     seed_id = Field("seedId")
     music_token = Field("musicToken")
     pandora_id = Field("pandoraId")
@@ -24,14 +22,12 @@ class StationSeed(PandoraModel):
 
 
 class StationSeeds(PandoraModel):
-
     genres = Field("genres", model=StationSeed)
     songs = Field("songs", model=StationSeed)
     artists = Field("artists", model=StationSeed)
 
 
 class SongFeedback(PandoraModel):
-
     feedback_id = Field("feedbackId")
     song_identity = Field("songIdentity")
     is_positive = Field("isPositive")
@@ -45,7 +41,6 @@ class SongFeedback(PandoraModel):
 
 
 class StationFeedback(PandoraModel):
-
     total_thumbs_up = Field("totalThumbsUp")
     total_thumbs_down = Field("totalThumbsDown")
     thumbs_up = Field("thumbsUp", model=SongFeedback)
@@ -53,7 +48,6 @@ class StationFeedback(PandoraModel):
 
 
 class Station(PandoraModel):
-
     can_add_music = Field("allowAddMusic")
     can_delete = Field("allowDelete")
     can_rename = Field("allowRename")
@@ -84,7 +78,6 @@ class Station(PandoraModel):
 
 
 class StationList(PandoraListModel):
-
     checksum = Field("checksum")
 
     __index_key__ = "id"
@@ -97,7 +90,6 @@ class StationList(PandoraListModel):
 
 
 class GenreStation(PandoraModel):
-
     id = Field("stationId")
     name = Field("stationName")
     token = Field("stationToken")
@@ -111,7 +103,6 @@ class GenreStation(PandoraModel):
 
 
 class GenreStationList(PandoraDictListModel):
-
     checksum = Field("checksum")
 
     __dict_list_key__ = "categories"

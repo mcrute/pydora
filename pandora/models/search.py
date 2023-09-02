@@ -2,7 +2,6 @@ from ._base import Field, PandoraModel
 
 
 class SearchResultItem(PandoraModel):
-
     score = Field("score")
     token = Field("musicToken")
 
@@ -44,7 +43,6 @@ class SearchResultItem(PandoraModel):
 
 
 class ArtistSearchResultItem(SearchResultItem):
-
     score = Field("score")
     token = Field("musicToken")
     artist = Field("artistName")
@@ -59,7 +57,6 @@ class ArtistSearchResultItem(SearchResultItem):
 
 
 class SongSearchResultItem(SearchResultItem):
-
     score = Field("score")
     token = Field("musicToken")
     artist = Field("artistName")
@@ -74,7 +71,6 @@ class SongSearchResultItem(SearchResultItem):
 
 
 class GenreStationSearchResultItem(SearchResultItem):
-
     score = Field("score")
     token = Field("musicToken")
     station_name = Field("stationName")
@@ -88,7 +84,6 @@ class GenreStationSearchResultItem(SearchResultItem):
 
 
 class SearchResult(PandoraModel):
-
     nearest_matches_available = Field("nearMatchesAvailable")
     explanation = Field("explanation")
     songs = Field("songs", model=SongSearchResultItem)

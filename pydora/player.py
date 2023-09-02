@@ -43,7 +43,6 @@ class PlayerCallbacks:
 
 
 class PlayerApp:
-
     CMD_MAP = {
         "n": ("play next song", "skip_song"),
         "p": ("pause/resume song", "pause_song"),

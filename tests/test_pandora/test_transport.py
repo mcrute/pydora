@@ -159,7 +159,6 @@ class TestRetries(TestCase):
 
 
 class TestParseResponse(TestCase):
-
     VALID_MSG_NO_BODY_JSON = b'{"stat":"ok"}'
     VALID_MSG_JSON = b'{"stat":"ok", "result":{"foo":"bar"}}'
     ERROR_MSG_JSON = b'{"stat":"err", "code":1001, "message":"Details"}'
@@ -286,7 +285,6 @@ class TestPurePythonBlowfishCryptor(TestCase, CommonCryptorTestCases):
 
 
 class TestEncryptor(TestCase):
-
     ENCODED_JSON = "7b22666f6f223a22626172227d"
     UNENCODED_JSON = b'{"foo":"bar"}'
     EXPECTED_TIME = 4111

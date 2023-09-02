@@ -4,7 +4,6 @@ from .playlist import PlaylistModel, AudioField
 
 
 class AdItem(PlaylistModel):
-
     title = Field("title")
     company_name = Field("companyName")
     tracking_tokens = Field("adTrackingTokens")

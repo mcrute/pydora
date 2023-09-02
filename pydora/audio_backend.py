@@ -231,7 +231,6 @@ class MPG123Player(BasePlayer):
 
 
 class VLCPlayer(BasePlayer):
-
     POLL_INTERVAL = 3
     CHUNK_SIZE = 1024
     VOL_STEPS = 5

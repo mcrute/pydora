@@ -43,7 +43,6 @@ def retries(max_tries, exceptions=(Exception,)):
 
     def decorator(func):
         def function(*args, **kwargs):
-
             retries_left = max_tries
             while retries_left > 0:
                 try:
