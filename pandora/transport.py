@@ -188,8 +188,9 @@ class APITransport:
             pass
 
         params = self.remove_empty_values(params)
+        headers = { "User-agent": "pianobar-2022.04.01" }
 
-        result = self._http.post(url, data=data, params=params)
+        result = self._http.post(url, data=data, params=params, headers=headers)
         result.raise_for_status()
         return result.content
 
