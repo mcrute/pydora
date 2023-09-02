@@ -214,7 +214,12 @@ class TestTransportRequestPrep(TestCase):
             "/url", b"data", {"a": None, "b": "c"}
         )
 
-        http.post.assert_called_with("/url", data=b"data", params={"b": "c"})
+        http.post.assert_called_with(
+            "/url",
+            data=b"data",
+            params={"b": "c"},
+            headers={"User-agent": "pianobar-2022.04.01"},
+        )
         retval.raise_for_status.assert_called_with()
 
         self.assertEqual("foo", res)
