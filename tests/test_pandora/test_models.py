@@ -604,7 +604,7 @@ class TestSongSearchResultItem(TestCase):
 
         self.assertIsNotNone(result.create_station())
         result._api_client.create_station.assert_called_with(
-            track_token=result.token
+            song_token=result.token
         )
 
 
