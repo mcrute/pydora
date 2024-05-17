@@ -63,7 +63,7 @@ class SongSearchResultItem(SearchResultItem):
     song_name = Field("songName")
 
     def create_station(self):
-        return self._api_client.create_station(track_token=self.token)
+        return self._api_client.create_station(song_token=self.token)
 
     @classmethod
     def from_json(cls, api_client, data):
