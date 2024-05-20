@@ -13,6 +13,7 @@ mappings from the raw JSON structures to Python objects.
 For simplicity use a client builder from pandora.clientbuilder to create an
 instance of a client.
 """
+
 from . import errors
 
 
