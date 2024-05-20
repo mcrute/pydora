@@ -218,6 +218,8 @@ fixing bugs. List is organized by date of first contribution.
 * Skybound1 (`@Skybound1 <https://github.com/Skybound1>`_)
 * Hugo (`@hugovk <https://github.com/hugovk>`_)
 * mspencer92 (`@mspencer92 <https://github.com/mspencer92>`_)
+* enzu.ru (`@enzuru <https://github.com/enzuru>`_)
+* Théophile (`@theophileds <https://github.com/theophileds>`_)
 
 .. |1.x| replace:: ``1.x``
 .. _1.x: https://github.com/mcrute/pydora/tree/1.x
