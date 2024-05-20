@@ -34,7 +34,7 @@ for stability, see below for contributing instructions.
 
 Compatibility
 =============
-This is the ``2.x`` series which supports only Python 3.5+. For older versions
+This is the ``2.x`` series which supports only Python 3.8+. For older versions
 of Python please use the |1.x|_ series. The |1.x|_ series is no longer
 maintained but pull requests to fix bugs are still welcomed.
 
