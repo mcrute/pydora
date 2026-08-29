@@ -19,6 +19,18 @@ follow the conventions of the existing API.
 The build system runs ``tox -e tests,release`` on all supported Python
 versions. You can, and should, run this on your pull request before submitting.
 
+Generative AI / LLM Policy
+==========================
+Please minimize the use of generative AI in patches submitted to this project. The
+authors have found changes made by generative AI models to be unnecessarily complex
+and require significant additional burden to review. While we will not outright
+reject changes authored by a generative AI model they will be treated skeptically
+and are more likely to be rejected than changes made by humans.
+
+Patches made by generative AI models will be held to the same standard of quality
+as those changes submitted by humans. Review the guidelines above and ensure that
+your model follows them.
+
 Building a Release
 ==================
 Official releases are built and uploaded to PyPi using the GitHub |release workflow|_.
