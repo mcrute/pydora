@@ -24,81 +24,42 @@ class Umask:
         os.umask(self.old_umask)
 
 
-class PandoraKeysConfigParser:
-    """Parser for Pandora Keys Source Page
+# Public Android defaults from Pianobar's src/settings.c.
+PIANOBAR_SETTINGS_URL = (
+    "https://raw.githubusercontent.com/PromyLOPh/pianobar/master/src/settings.c"
+)
+ANDROID_PARTNER_DEFAULTS = {
+    "api_host": "tuner.pandora.com/services/json/",
+    "username": "android",
+    "password": "AC7IBG09A3DTSYM4R41UJWL07VLN8JI7",
+    "device": "android-generic",
+    "decryption_key": "R=U!LH$O2B#",
+    "encryption_key": "6#26FRL$ZWD",
+}
+PIANOBAR_FIELDS = {
+    "partnerUser": "username",
+    "partnerPassword": "password",
+    "device": "device",
+    "inkey": "decryption_key",
+    "outkey": "encryption_key",
+}
 
-    This is an extremely naive restructured text parser designed only to parse
-    the pandora API docs keys source file.
-    """
 
-    KEYS_URL = (
-        "https://6xq.net/git/lars/pandora-apidoc.git/plain/json/partners.rst"
-    )
-
-    FIELD_RE = re.compile(
-        ":(?P<key>[^:]+): (?:`{2})?(?P<value>[^`\n]+)(?:`{2})?$"
-    )
-
-    DEFAULT_TUNER = "tuner.pandora.com"
-
-    TUNERS = {
-        "desktop_air_widget": "internal-tuner.pandora.com",
-        "vista_widget": "internal-tuner.pandora.com",
-    }
-
-    def _fixup_key(self, key):
-        key = key.lower()
-
-        if key.startswith("dec") and "password" in key:
-            return "decryption_key"
-        elif key.startswith("encrypt"):
-            return "encryption_key"
-        elif key == "deviceid":
-            return "device"
-        else:
-            return key
-
-    def _get_api_url(self, host):
-        host = self.TUNERS.get(host, self.DEFAULT_TUNER)
-        return "{}/services/json/".format(host)
-
-    def _clean_device_name(self, name):
-        return re.sub("[^a-z]+", "_", name, flags=re.I)
-
-    def _fetch_config(self):
-        return requests.get(self.KEYS_URL).text.split("\n")
-
-    def _match_key(self, line):
-        key_match = self.FIELD_RE.match(line)
-        if key_match:
-            match = key_match.groupdict()
-            match["key"] = self._fixup_key(match["key"])
-            return match
-        else:
-            return None
-
-    def _is_device_terminator(self, line):
-        # Old android credential is delineated by an "Old:" line
-        return line.startswith("^^") or line == "Old:"
-
-    def load(self):
-        buffer = []
-        current_partner = {}
-        partners = {}
-
-        for line in self._fetch_config():
-            key_match = self._match_key(line)
-            if key_match:
-                current_partner[key_match["key"]] = key_match["value"]
-            elif self._is_device_terminator(line):
-                key = self._clean_device_name(buffer.pop())
-                current_partner = partners[key] = {
-                    "api_host": self._get_api_url(key)
-                }
-
-            buffer.append(line.strip().lower())
-
-        return partners
+def load_partner_config():
+    """Read the Android partner profile from Pianobar's master branch."""
+    response = requests.get(PIANOBAR_SETTINGS_URL, timeout=10)
+    response.raise_for_status()
+    config = {"api_host": ANDROID_PARTNER_DEFAULTS["api_host"]}
+    for field, option in PIANOBAR_FIELDS.items():
+        match = re.search(
+            r'^\s*settings->' + field + r' = strdup \("([^"\\]+)"\);',
+            response.text,
+            re.MULTILINE,
+        )
+        if not match:
+            raise ValueError("Missing Pianobar default for " + field)
+        config[option] = match.group(1)
+    return config
 
 
 class Configurator:
@@ -121,7 +82,7 @@ class Configurator:
             self.cfg.add_section("api")
 
     def fail(self, message):
-        print(self.screen.print_error(message))
+        self.screen.print_error(message)
         sys.exit(1)
 
     def finished(self, message):
@@ -133,9 +94,10 @@ class Configurator:
 
     def get_partner_config(self):
         try:
-            return PandoraKeysConfigParser().load()["android"]
-        except Exception:
-            self.fail("Error loading config file. Unable to continue.")
+            return load_partner_config()
+        except (requests.RequestException, ValueError):
+            self.print_message("Using bundled Android partner settings.")
+            return ANDROID_PARTNER_DEFAULTS.copy()
 
     def get_value(self, section, key, prompt):
         self.cfg.set(section, key, self.screen.get_string(prompt))
@@ -149,6 +111,10 @@ class Configurator:
     def add_partner_config(self, config):
         for key, value in config.items():
             self.cfg.set("api", key, value)
+        for alias, key in (("partner_user", "username"),
+                           ("partner_password", "password")):
+            if self.cfg.has_option("api", alias):
+                self.cfg.set("api", alias, config[key])
 
     def read_config(self):
         with open(self.builder.path) as file:
