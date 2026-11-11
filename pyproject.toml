@@ -94,11 +94,3 @@ deps = ["build"]
 commands = [
     ["python", "-m", "build"],
 ]
-
-[tool.tox.env.upload]
-skip_install = true
-deps = ["twine"]
-pass_env = ["TWINE_PASSWORD"]
-commands = [
-    ["twine", "upload", "-u", "__token__", "--non-interactive", "--skip-existing", "dist/*"],
-]
