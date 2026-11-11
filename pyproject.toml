@@ -12,13 +12,12 @@ authors = [
 ]
 license = "MIT"
 license-files = ["LICENSE.txt"]
-requires-python = ">=3.8"
+requires-python = ">=3.11"
 dependencies = [
     "requests >=2, <3",
     "blowfish >=0.6.1, <1.0",
 ]
 classifiers = [
-    "Development Status :: 5 - Production/Stable",
     "Development Status :: 6 - Mature",
     "Environment :: Console",
     "Intended Audience :: Developers",
@@ -26,14 +25,6 @@ classifiers = [
     "Natural Language :: English",
     "Operating System :: OS Independent",
     "Programming Language :: Python :: 3",
-    "Programming Language :: Python :: 3.8",
-    "Programming Language :: Python :: 3.9",
-    "Programming Language :: Python :: 3.10",
-    "Programming Language :: Python :: 3.11",
-    "Programming Language :: Python :: 3.12",
-    "Programming Language :: Python :: 3.13",
-    "Programming Language :: Python :: 3.14",
-    "Programming Language :: Python :: 3.15",
     "Programming Language :: Python :: 3 :: Only",
     "Topic :: Internet :: WWW/HTTP",
     "Topic :: Multimedia :: Sound/Audio",
@@ -44,6 +35,8 @@ classifiers = [
 
 [project.urls]
 Homepage = "https://github.com/mcrute/pydora"
+Source = "https://github.com/mcrute/pydora"
+Issues = "https://github.com/mcrute/pydora/issues"
 
 [project.scripts]
 pydora = "pydora.player:main"
@@ -53,7 +46,11 @@ pydora-configure = "pydora.configure:main"
 version = { attr = "pandora.__version__" }
 
 [tool.setuptools.packages.find]
-exclude = ["tests", "tests.*"]
+include = ["pandora*", "pydora*"]
+
+[dependency-groups]
+test = ["pytest", "coverage >=7"]
+lint = ["ruff ==0.17.4"]
 
 [tool.ruff]
 line-length = 79
@@ -61,35 +58,41 @@ line-length = 79
 [tool.ruff.lint]
 select = ["E", "W", "F"]
 
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+
+[tool.coverage.run]
+source = ["pandora", "pydora"]
+
+[tool.coverage.report]
+show_missing = true
+
 [tool.tox]
-requires = ["tox>=4.21"]
+requires = ["tox>=4.22"]
+env_list = ["tests"]
 
 [tool.tox.env.format]
-deps = ["ruff ==0.17.4"]
+skip_install = true
+dependency_groups = ["lint"]
 commands = [
-    ["ruff", "format", "pandora/", "pydora/", "tests/"],
+    ["ruff", "format"],
 ]
 
 [tool.tox.env.tests]
-deps = [
-    "pytest",
-    "ruff ==0.17.4",
-    "coverage >=7",
-]
+dependency_groups = ["test", "lint"]
 commands = [
-    ["ruff", "format", "--check", "pandora/", "pydora/", "tests/"],
-    ["ruff", "check", "--statistics", "pandora/", "pydora/", "tests/"],
-    ["coverage", "run", "--source=pandora/,pydora/", "-m", "pytest"],
-    ["coverage", "report", "--fail-under", "100", "-m", "--include=pandora/*"],
-    ["coverage", "report", "-m", "--include=pydora/*"],
-    ["coverage", "html", "--include=pandora/*,pydora/*"],
+    ["ruff", "format", "--check"],
+    ["ruff", "check", "--statistics"],
+    ["coverage", "run", "-m", "pytest"],
+    ["coverage", "report", "--fail-under", "100", "--include=pandora/*"],
+    ["coverage", "report", "--include=pydora/*"],
+    ["coverage", "html"],
 ]
 
 [tool.tox.env.release]
 deps = ["build"]
 commands = [
-    ["python", "-m", "build", "--sdist"],
-    ["python", "-m", "build", "--wheel"],
+    ["python", "-m", "build"],
 ]
 
 [tool.tox.env.upload]
