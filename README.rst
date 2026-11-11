@@ -12,7 +12,7 @@ This code is licensed under the MIT license. The code is maintained on `GitHub
 <https://github.com/mcrute/pydora>`_.
 
 This is a reasonably complete implementation of the Pandora API in pure Python
-that supports Python 3.5+. It contains a complete implementation of the core
+that supports Python 3.8+. It contains a complete implementation of the core
 radio features but does not implement account management or Pandora Plus
 functionality; pull requests adding that functionality are welcomed from anyone
 needing those features.
@@ -44,6 +44,10 @@ versions. For example, to depend on version ``2.x`` use this line in your
 setup.py ``install_requires``::
 
     pydora>=2,<3
+
+Note that, while this project is expected to function correctly on
+Python 3.8+, bug fixes and support are only provided for the `currently
+supported <https://devguide.python.org/versions/>`_ versions of Python.
 
 Installing
 ==========
