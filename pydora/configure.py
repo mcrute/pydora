@@ -31,9 +31,7 @@ class PandoraKeysConfigParser:
     the pandora API docs keys source file.
     """
 
-    KEYS_URL = (
-        "https://6xq.net/git/lars/pandora-apidoc.git/plain/json/partners.rst"
-    )
+    KEYS_URL = "https://6xq.net/pandora-apidoc/_sources/json/partners.rst.txt"
 
     FIELD_RE = re.compile(
         ":(?P<key>[^:]+): (?:`{2})?(?P<value>[^`\n]+)(?:`{2})?$"
