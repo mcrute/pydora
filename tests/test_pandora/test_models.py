@@ -1,16 +1,15 @@
-from unittest import TestCase
 from datetime import datetime
+from unittest import TestCase
 from unittest.mock import Mock, patch
 
-from pandora.client import APIClient
-from pandora.errors import ParameterMissing
-
-import pandora.models.ad as am
 import pandora.models._base as m
-import pandora.models.search as sm
-import pandora.models.station as stm
+import pandora.models.ad as am
 import pandora.models.bookmark as bm
 import pandora.models.playlist as plm
+import pandora.models.search as sm
+import pandora.models.station as stm
+from pandora.client import APIClient
+from pandora.errors import ParameterMissing
 
 
 class TestField(TestCase):

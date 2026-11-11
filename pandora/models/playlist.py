@@ -1,7 +1,7 @@
 from enum import Enum
 
 from ..client import BaseAPIClient
-from ._base import Field, SyntheticField, PandoraModel, PandoraListModel
+from ._base import Field, PandoraListModel, PandoraModel, SyntheticField
 
 
 class AdditionalAudioUrl(Enum):

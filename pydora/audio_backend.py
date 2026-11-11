@@ -1,13 +1,12 @@
-import os
-import time
 import fcntl
+import logging
+import os
 import select
 import socket
-import logging
+import time
 from shutil import which
 
-from .utils import iterate_forever, SilentPopen
-
+from .utils import SilentPopen, iterate_forever
 
 log = logging.getLogger("pydora.audio_backend")
 
@@ -105,7 +104,7 @@ class BasePlayer:
 
     def _send_cmd(self, cmd):
         """Write command to remote process"""
-        self._process.stdin.write("{}\n".format(cmd).encode("utf-8"))
+        self._process.stdin.write(f"{cmd}\n".encode())
         self._process.stdin.flush()
 
     def stop(self):
@@ -214,7 +213,7 @@ class MPG123Player(BasePlayer):
         if song.encoding != "mp3":
             raise UnsupportedEncoding("mpg123 only supports mp3 files")
 
-        self._send_cmd("load {}".format(song.audio_url))
+        self._send_cmd(f"load {song.audio_url}")
 
     def _post_start(self):
         # Only output play status in the player stdout
@@ -252,10 +251,10 @@ class VLCPlayer(BasePlayer):
         return loc
 
     def raise_volume(self):
-        self._send_cmd("volup {}".format(self.VOL_STEPS))
+        self._send_cmd(f"volup {self.VOL_STEPS}")
 
     def lower_volume(self):
-        self._send_cmd("voldown {}".format(self.VOL_STEPS))
+        self._send_cmd(f"voldown {self.VOL_STEPS}")
 
     def _post_start(self):
         """Set stdout to non-blocking
@@ -274,7 +273,7 @@ class VLCPlayer(BasePlayer):
         return handle.read(self.CHUNK_SIZE).strip()
 
     def _load_track(self, song):
-        self._send_cmd("add {}".format(song.audio_url))
+        self._send_cmd(f"add {song.audio_url}")
 
     def _player_stopped(self, value):
         return "state stopped" in value.decode("utf-8")
@@ -295,7 +294,7 @@ class RemoteVLC(VLCPlayer):
         return [self._control_channel, self._control_sock]
 
     def _send_cmd(self, cmd):
-        self._control_sock.sendall("{}\n".format(cmd).encode("utf-8"))
+        self._control_sock.sendall(f"{cmd}\n".encode())
 
     def _read_from_process(self, handle):
         return handle.recv(self.CHUNK_SIZE).strip()
@@ -309,7 +308,7 @@ class RemoteVLC(VLCPlayer):
     def _find_path(self):
         try:
             self._ensure_started()
-        except socket.error:
+        except OSError:
             raise PlayerUnusable("Unable to connect to VLC")
 
     def _post_start(self):

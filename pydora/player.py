@@ -7,16 +7,21 @@ requires mpg123 or VLC to function. No songs are downloaded, they are streamed
 directly from Pandora's servers.
 """
 
+import argparse
+import logging
 import os
 import sys
-import logging
-import argparse
+
 from pandora import clientbuilder
 
+from .audio_backend import (
+    MPG123Player,
+    PlayerUnusable,
+    RemoteVLC,
+    UnsupportedEncoding,
+    VLCPlayer,
+)
 from .utils import Colors, Screen
-from .audio_backend import RemoteVLC
-from .audio_backend import MPG123Player, VLCPlayer
-from .audio_backend import UnsupportedEncoding, PlayerUnusable
 
 
 class PlayerCallbacks:
@@ -113,11 +118,11 @@ class PlayerApp:
         self.screen.clear()
 
         if error:
-            self.screen.print_error("{}\n".format(error))
+            self.screen.print_error(f"{error}\n")
 
         for i, station in enumerate(self.stations):
-            i = "{:>3}".format(i)
-            print("{}: {}".format(Colors.yellow(i), station.name))
+            i = f"{i:>3}"
+            print(f"{Colors.yellow(i)}: {station.name}")
 
         return self.stations[self.screen.get_integer("Station: ")]
 
@@ -127,10 +132,8 @@ class PlayerApp:
             print("{} ".format(Colors.cyan("Advertisement")))
         else:
             print(
-                "{} by {}".format(
-                    Colors.cyan(song.song_name),
-                    Colors.yellow(song.artist_name),
-                )
+                f"{Colors.cyan(song.song_name)} by "
+                "{Colors.yellow(song.artist_name)}"
             )
 
     def skip_song(self, song):
@@ -216,10 +219,7 @@ class PlayerApp:
         print("")
         print(
             "\n".join(
-                [
-                    "\t{:>2} - {}".format(k, v[0])
-                    for k, v in sorted(self.CMD_MAP.items())
-                ]
+                [f"\t{k:>2} - {v[0]}" for k, v in sorted(self.CMD_MAP.items())]
             )
         )
         print("")
@@ -229,9 +229,7 @@ class PlayerApp:
         try:
             cmd = getattr(self, self.CMD_MAP[input][1])
         except (IndexError, KeyError):
-            return self.screen.print_error(
-                "Invalid command {!r}!".format(input)
-            )
+            return self.screen.print_error(f"Invalid command {input!r}!")
 
         cmd(song)
 
@@ -245,11 +243,9 @@ class PlayerApp:
         # See #52, this key no longer passes some server-side check
         if self.client.partner_user == "iphone":
             self.screen.print_error(
-                (
-                    "The `iphone` partner key set is no longer compatible "
-                    "with pydora. Please re-run pydora-configure to "
-                    "re-generate your config file before continuing."
-                )
+                "The `iphone` partner key set is no longer compatible "
+                "with pydora. Please re-run pydora-configure to "
+                "re-generate your config file before continuing."
             )
             sys.exit(1)
 

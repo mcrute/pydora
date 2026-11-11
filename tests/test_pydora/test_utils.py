@@ -4,8 +4,8 @@ from unittest.mock import Mock, patch
 from pandora.client import APIClient
 from pandora.errors import InvalidAuthToken, ParameterMissing
 from pandora.models.ad import AdItem
-from pandora.models.station import Station
 from pandora.models.playlist import PlaylistItem
+from pandora.models.station import Station
 from pydora.utils import iterate_forever
 
 

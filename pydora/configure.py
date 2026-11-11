@@ -1,13 +1,14 @@
 import os
 import re
 import sys
-import requests
 from configparser import ConfigParser
+
+import requests
 
 from pandora.client import APIClient
 from pandora.clientbuilder import PydoraConfigFileBuilder
 
-from .utils import Screen, Colors
+from .utils import Colors, Screen
 
 
 class Umask:
@@ -58,7 +59,7 @@ class PandoraKeysConfigParser:
 
     def _get_api_url(self, host):
         host = self.TUNERS.get(host, self.DEFAULT_TUNER)
-        return "{}/services/json/".format(host)
+        return f"{host}/services/json/"
 
     def _clean_device_name(self, name):
         return re.sub("[^a-z]+", "_", name, flags=re.I)

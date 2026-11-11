@@ -1,6 +1,6 @@
 from ..errors import ParameterMissing
 from ._base import Field
-from .playlist import PlaylistModel, AudioField
+from .playlist import AudioField, PlaylistModel
 
 
 class AdItem(PlaylistModel):

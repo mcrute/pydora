@@ -1,7 +1,7 @@
-import os
-import sys
 import getpass
+import os
 import subprocess
+import sys
 
 
 class TerminalPlatformUnsupported(Exception):
@@ -20,8 +20,8 @@ class Colors:
         def inner(text, bold=False):
             code = raw_code
             if bold:
-                code = "1;{}".format(code)
-            return "\033[{}m{}\033[0m".format(code, text)
+                code = f"1;{code}"
+            return f"\033[{code}m{text}\033[0m"
 
         return inner
 

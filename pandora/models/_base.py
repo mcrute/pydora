@@ -1,5 +1,5 @@
-from datetime import datetime
 from collections import namedtuple
+from datetime import datetime
 
 
 class Field(namedtuple("Field", ["field", "default", "formatter", "model"])):
@@ -164,11 +164,9 @@ class PandoraModel(metaclass=ModelMetaClass):
             output = None
 
         if and_also:
-            return "{}({}, {})".format(
-                self.__class__.__name__, output, and_also
-            )
+            return f"{self.__class__.__name__}({output}, {and_also})"
         else:
-            return "{}({})".format(self.__class__.__name__, output)
+            return f"{self.__class__.__name__}({output})"
 
     def __repr__(self):
         return self._base_repr()

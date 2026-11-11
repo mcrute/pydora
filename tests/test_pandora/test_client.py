@@ -2,13 +2,12 @@ from unittest import TestCase
 from unittest.mock import Mock, call, patch
 
 from pandora import errors
+from pandora.client import APIClient, BaseAPIClient
 from pandora.models.ad import AdItem
-from pandora.models.station import Station
-from pandora.models.station import StationList
-from pandora.models.search import SearchResult
 from pandora.models.bookmark import BookmarkList
 from pandora.models.playlist import AdditionalAudioUrl
-from pandora.client import APIClient, BaseAPIClient
+from pandora.models.search import SearchResult
+from pandora.models.station import Station, StationList
 from tests.test_pandora.test_models import TestAdItem
 
 

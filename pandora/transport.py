@@ -10,16 +10,16 @@ exception.
 API consumers should use one of the API clients in the pandora.client package.
 """
 
+import base64
+import json
 import random
 import time
-import json
-import base64
+
 import blowfish
 import requests
 from requests.adapters import HTTPAdapter
 
 from .errors import PandoraException
-
 
 DEFAULT_API_HOST = "tuner.pandora.com/services/json/"
 
@@ -82,7 +82,7 @@ def delay_exponential(base, growth_factor, attempts):
         base = random.random()
     elif base <= 0:
         raise ValueError(
-            "The 'base' param must be greater than 0, got: {}".format(base)
+            f"The 'base' param must be greater than 0, got: {base}"
         )
     time_to_sleep = base * (growth_factor ** (attempts - 1))
     return time_to_sleep

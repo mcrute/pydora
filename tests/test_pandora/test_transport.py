@@ -1,14 +1,14 @@
-import time
 import json
 import random
-import requests
+import time
 from unittest import TestCase
 from unittest.mock import Mock, call, patch
 
-from pandora.errors import InvalidAuthToken, PandoraException
-from tests.test_pandora.test_clientbuilder import TestSettingsDictBuilder
+import requests
 
 import pandora.transport as t
+from pandora.errors import InvalidAuthToken, PandoraException
+from tests.test_pandora.test_clientbuilder import TestSettingsDictBuilder
 
 
 class SysCallError(Exception):

@@ -6,10 +6,10 @@ configuration formats into a fully built APIClient.
 """
 
 import os.path
-
 from configparser import ConfigParser
+
 from .client import APIClient
-from .transport import Encryptor, APITransport, DEFAULT_API_HOST
+from .transport import DEFAULT_API_HOST, APITransport, Encryptor
 
 
 class TranslatingDict(dict):
@@ -185,7 +185,7 @@ class FileBasedClientBuilder(APIClientBuilder):
 
     def build(self):
         if not self.file_exists:
-            raise IOError("File not found: {}".format(self.path))
+            raise OSError(f"File not found: {self.path}")
 
         config = self.parse_config()
         client = self.build_from_settings_dict(config)
@@ -237,8 +237,8 @@ class PianobarSettingsDict(TranslatingDict):
     }
 
     VALUE_TRANSLATIONS = {
-        "API_HOST": lambda v: "{}/services/json/".format(v),
-        "AUDIO_QUALITY": lambda v: "{}Quality".format(v),
+        "API_HOST": lambda v: f"{v}/services/json/",
+        "AUDIO_QUALITY": lambda v: f"{v}Quality",
     }
 
 
@@ -253,7 +253,7 @@ class PianobarConfigFileBuilder(FileBasedClientBuilder):
     def parse_config(self):
         settings = PianobarSettingsDict()
 
-        with open(self.path, "r") as file:
+        with open(self.path) as file:
             for line in file.readlines():
                 line = line.strip()
 

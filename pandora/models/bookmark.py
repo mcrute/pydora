@@ -1,4 +1,4 @@
-from ._base import PandoraModel, Field, DateField
+from ._base import DateField, Field, PandoraModel
 
 
 class Bookmark(PandoraModel):
