@@ -119,7 +119,7 @@ class Configurator:
             self.cfg.add_section("api")
 
     def fail(self, message):
-        print(self.screen.print_error(message))
+        self.screen.print_error(message)
         sys.exit(1)
 
     def finished(self, message):
