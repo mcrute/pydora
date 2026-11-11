@@ -41,7 +41,7 @@ maintained but pull requests to fix bugs are still welcomed.
 This package uses semantic versioning. The API is guaranteed to be stable
 within a major version release. Please constrain your dependencies to major
 versions. For example, to depend on version ``2.x`` use this line in your
-setup.py ``install_requires``::
+dependency list::
 
     pydora>=2,<3
 

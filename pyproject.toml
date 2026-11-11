@@ -1,0 +1,101 @@
+[build-system]
+requires = ["setuptools>=77"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "pydora"
+dynamic = ["version"]
+description = "Python wrapper for Pandora API"
+readme = "README.rst"
+authors = [
+    { name = "Mike Crute", email = "mike@crute.us" },
+]
+license = "MIT"
+license-files = ["LICENSE.txt"]
+requires-python = ">=3.8"
+dependencies = [
+    "requests >=2, <3",
+    "blowfish >=0.6.1, <1.0",
+]
+classifiers = [
+    "Development Status :: 5 - Production/Stable",
+    "Development Status :: 6 - Mature",
+    "Environment :: Console",
+    "Intended Audience :: Developers",
+    "Intended Audience :: End Users/Desktop",
+    "Natural Language :: English",
+    "Operating System :: OS Independent",
+    "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3.8",
+    "Programming Language :: Python :: 3.9",
+    "Programming Language :: Python :: 3.10",
+    "Programming Language :: Python :: 3.11",
+    "Programming Language :: Python :: 3.12",
+    "Programming Language :: Python :: 3.13",
+    "Programming Language :: Python :: 3.14",
+    "Programming Language :: Python :: 3.15",
+    "Programming Language :: Python :: 3 :: Only",
+    "Topic :: Internet :: WWW/HTTP",
+    "Topic :: Multimedia :: Sound/Audio",
+    "Topic :: Multimedia :: Sound/Audio :: Players",
+    "Topic :: Software Development :: Libraries",
+    "Topic :: Software Development :: Libraries :: Python Modules",
+]
+
+[project.urls]
+Homepage = "https://github.com/mcrute/pydora"
+
+[project.scripts]
+pydora = "pydora.player:main"
+pydora-configure = "pydora.configure:main"
+
+[tool.setuptools.dynamic]
+version = { attr = "pandora.__version__" }
+
+[tool.setuptools.packages.find]
+exclude = ["tests", "tests.*"]
+
+[tool.ruff]
+line-length = 79
+
+[tool.ruff.lint]
+select = ["E", "W", "F"]
+
+[tool.tox]
+requires = ["tox>=4.21"]
+
+[tool.tox.env.format]
+deps = ["ruff ==0.17.4"]
+commands = [
+    ["ruff", "format", "pandora/", "pydora/", "tests/"],
+]
+
+[tool.tox.env.tests]
+deps = [
+    "pytest",
+    "ruff ==0.17.4",
+    "coverage >=7",
+]
+commands = [
+    ["ruff", "format", "--check", "pandora/", "pydora/", "tests/"],
+    ["ruff", "check", "--statistics", "pandora/", "pydora/", "tests/"],
+    ["coverage", "run", "--source=pandora/,pydora/", "-m", "pytest"],
+    ["coverage", "report", "--fail-under", "100", "-m", "--include=pandora/*"],
+    ["coverage", "report", "-m", "--include=pydora/*"],
+    ["coverage", "html", "--include=pandora/*,pydora/*"],
+]
+
+[tool.tox.env.release]
+deps = ["build"]
+commands = [
+    ["python", "-m", "build", "--sdist"],
+    ["python", "-m", "build", "--wheel"],
+]
+
+[tool.tox.env.upload]
+skip_install = true
+deps = ["twine"]
+pass_env = ["TWINE_PASSWORD"]
+commands = [
+    ["twine", "upload", "-u", "__token__", "--non-interactive", "--skip-existing", "dist/*"],
+]

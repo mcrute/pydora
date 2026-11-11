@@ -6,6 +6,7 @@ This is a very simple Pandora player that streams music from Pandora. It
 requires mpg123 or VLC to function. No songs are downloaded, they are streamed
 directly from Pandora's servers.
 """
+
 import os
 import sys
 import logging
