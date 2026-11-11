@@ -12,6 +12,7 @@ your changes. To have the best experience contributing, please:
 * Follow the coding style of the current code-base
 * Ensure that your code is PEP8 compliant
 * Validate that your changes work with Python 3.5+
+* Don't add Pandora secrets to the code
 
 All code is reviewed before acceptance and changes may be requested to better
 follow the conventions of the existing API.
@@ -30,6 +31,23 @@ and are more likely to be rejected than changes made by humans.
 Patches made by generative AI models will be held to the same standard of quality
 as those changes submitted by humans. Review the guidelines above and ensure that
 your model follows them.
+
+Secrets Policy
+==============
+This project does not ship any of the Pandora API secrets. We do that
+out of respect for Pandora; making it slightly harder for bad actors
+to abuse the service. Secondarily, we wish to focus on delivering a
+high quality compatible API and do not want to participate in the
+conversation around the ethics and legality of distributing another
+businesses' secrets.
+
+We have provided an automatic configuration class that consumes a
+publicly available source of the secrets, we have also linked to that in
+the README. When you need secrets to run the API or CLI, find through
+one of those channels.
+
+DO NOT propose a change that adds Pandora secrets to the project, it
+will be rejected.
 
 Building a Release
 ==================
